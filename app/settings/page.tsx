@@ -5,7 +5,7 @@ import {
   CheckCircle, Plus, Zap, Mail, Calendar, Globe, Trash2,
   AlertTriangle, Sparkles, Eye, EyeOff,
 } from "lucide-react";
-import Background from "../components/background";
+import Background from "../components/Background";
 import Sidebar from "../components/sidebar";
 
 // ─── Data ────────────────────────────────────────────────────────────────────

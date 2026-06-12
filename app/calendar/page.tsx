@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, Plus, Calendar, Users, Clock,
   MapPin, Video, MoreHorizontal, CheckCircle, X,
 } from "lucide-react";
-import Background from "../components/background";
+import Background from "@/app/components/Background";
 import Sidebar from "../components/sidebar";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
