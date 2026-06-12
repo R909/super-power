@@ -28,26 +28,31 @@ import Footer from "@/app/components/Footer";
 gsap.registerPlugin(ScrollTrigger);
 
 const ICONS = [
-  { Icon: SiGmail,          color: "#EA4335", label: "Gmail" },
-  { Icon: SiGooglecalendar, color: "#4285F4", label: "Calendar" },
-  { Icon: SiSlack,          color: "#611f69", label: "Slack" },
-  { Icon: SiNotion,         color: "#1a1a1a", label: "Notion" },
-  { Icon: SiZoom,           color: "#2D8CFF", label: "Zoom" },
-  { Icon: SiGithub,         color: "#24292e", label: "GitHub" },
-  { Icon: SiDropbox,        color: "#0061FF", label: "Dropbox" },
-  { Icon: SiTrello,         color: "#0052CC", label: "Trello" },
-  { Icon: SiGooglemeet,     color: "#00897B", label: "Meet" },
-  { Icon: SiGoogledrive,    color: "#34A853", label: "Drive" },
+  { Icon: SiGmail,          bg: "#EA4335", label: "Gmail"    },
+  { Icon: SiGooglecalendar, bg: "#4285F4", label: "Calendar" },
+  { Icon: SiSlack,          bg: "#611f69", label: "Slack"    },
+  { Icon: SiNotion,         bg: "#F4511E", label: "Notion"   },
+  { Icon: SiZoom,           bg: "#2D8CFF", label: "Zoom"     },
+  { Icon: SiGithub,         bg: "#24292e", label: "GitHub"   },
+  { Icon: SiDropbox,        bg: "#0061FF", label: "Dropbox"  },
+  { Icon: SiTrello,         bg: "#F7B731", label: "Trello"   },
+  { Icon: SiGooglemeet,     bg: "#00897B", label: "Meet"     },
+  { Icon: SiGoogledrive,    bg: "#34A853", label: "Drive"    },
 ];
 
-// Deterministic confetti spread using prime multiplication for visual variety
-const CONFETTI_COLORS = ["#f472b6", "#a78bfa", "#34d399", "#fbbf24", "#60a5fa", "#fb923c"];
-const CONFETTI = Array.from({ length: 60 }, (_, i) => ({
-  color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-  size: 4 + (i % 5) * 2,
-  angle: (i / 60) * 360 + ((i * 13) % 22) - 11,
-  dist: 70 + ((i * 43) % 190),
-}));
+// Final resting positions of each tile (offset from viewport center)
+const SCATTERED = [
+  { x: -295, y: -198, r: -18, s: 1.05 },
+  { x: -132, y: -258, r:   8, s: 0.88 },
+  { x:   44, y: -268, r: -12, s: 1.00 },
+  { x:  194, y: -218, r:  15, s: 0.90 },
+  { x:  308, y: -128, r:  -8, s: 0.85 },
+  { x: -328, y:  -42, r:  12, s: 1.00 },
+  { x: -312, y:  118, r: -15, s: 0.90 },
+  { x:  332, y:   34, r: -10, s: 1.00 },
+  { x:  308, y:  178, r:   9, s: 0.85 },
+  { x:  -82, y:  204, r:  10, s: 0.88 },
+];
 
 export default function Page() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -58,134 +63,33 @@ export default function Page() {
 
     const ctx = gsap.context(() => {
       const icons = gsap.utils.toArray<HTMLElement>(".anim-icon");
-      const NUM = icons.length;
-      const VW = window.innerWidth;
-      const VH = window.innerHeight;
-      const R = Math.min(VW * 0.30, VH * 0.28, 230);
 
-      // ── INITIAL SCATTER (golden-angle phyllotaxis pattern for natural scatter) ──
-      const PHI_RAD = 2.39996; // golden angle in radians
-      const scatterR = Math.min(VW * 0.40, VH * 0.38, 300);
+      // Start at laptop screen center, invisible
+      gsap.set(icons, { x: 0, y: -48, scale: 0, opacity: 0, rotation: 0 });
 
-      gsap.set(icons, {
-        x: (i) => Math.cos(i * PHI_RAD) * scatterR * (0.45 + ((i * 7) % 10) * 0.055),
-        y: (i) => Math.sin(i * PHI_RAD) * scatterR * (0.45 + ((i * 7) % 10) * 0.055) * 0.72,
-        rotation: (i) => ((i * 23) % 50) - 25,
-        opacity: 1,
-        scale: 1,
-      });
-
-      gsap.set(".sp-box",        { opacity: 0, scale: 0.2 });
-      gsap.set(".confetti-dot",  { opacity: 0, scale: 0, x: 0, y: 0 });
-      gsap.set(".box-tagline",   { opacity: 0, y: 14 });
-
-      // Pre-compute orbit positions (evenly spaced, starting from top)
-      const orbitPos = icons.map((_, i) => {
-        const angle = (i / NUM) * Math.PI * 2 - Math.PI / 2;
-        return { x: Math.cos(angle) * R, y: Math.sin(angle) * R };
-      });
-
-      // ── SCROLL-DRIVEN TIMELINE ────────────────────────────────────────────────
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          end: "+=4800",
+          end: "+=2200",
           scrub: 1.5,
           pin: true,
         },
       });
 
-      // PHASE 1 — Icons gather to orbit  (t: 0 → 1.5)
+      // Burst from screen out to scattered positions
       icons.forEach((icon, i) => {
-        tl.to(icon, {
-          x: orbitPos[i].x,
-          y: orbitPos[i].y,
-          rotation: 0,
-          duration: 1.2,
-          ease: "power3.inOut",
-        }, i * 0.07);
+        const p = SCATTERED[i];
+        tl.to(
+          icon,
+          { x: p.x, y: p.y, rotation: p.r, scale: p.s, opacity: 1,
+            duration: 1.2, ease: "power3.out" },
+          i * 0.08,
+        );
       });
 
-      // PHASE 2 — Orbit (one full revolution)  (t: 1.8 → 4.4)
-      const xSet = icons.map((el) => gsap.quickSetter(el, "x", "px"));
-      const ySet = icons.map((el) => gsap.quickSetter(el, "y", "px"));
-      const orbitProxy = { t: 0 };
-
-      tl.to(orbitProxy, {
-        t: 1,
-        duration: 2.6,
-        ease: "none",
-        onUpdate() {
-          const delta = orbitProxy.t * Math.PI * 2;
-          for (let i = 0; i < NUM; i++) {
-            const a = (i / NUM) * Math.PI * 2 - Math.PI / 2 + delta;
-            xSet[i](Math.cos(a) * R);
-            ySet[i](Math.sin(a) * R);
-          }
-        },
-      }, 1.8);
-
-      // PHASE 3 — Box appears + icons collapse  (t: 4.5 → 5.8)
-      tl.to(".sp-box", {
-        opacity: 1,
-        scale: 1,
-        duration: 0.55,
-        ease: "back.out(2.5)",
-      }, 4.5);
-
-      // Snap icons to known orbit positions before collapse
-      // (after exactly one revolution they're back at orbitPos)
-      icons.forEach((icon, i) => {
-        tl.set(icon, { x: orbitPos[i].x, y: orbitPos[i].y }, 4.45);
-      });
-
-      tl.to(icons, {
-        x: 0,
-        y: 0,
-        scale: 0,
-        opacity: 0,
-        duration: 0.75,
-        stagger: { each: 0.05, from: "random" },
-        ease: "back.in(2.5)",
-      }, 4.6);
-
-      // PHASE 4 — Celebration  (t: 5.6 → 7.2)
-      tl.to(".sp-box", {
-        boxShadow:
-          "0 0 0 6px rgba(244,114,182,0.25), 0 0 80px rgba(244,114,182,0.75), 0 0 180px rgba(167,139,250,0.55)",
-        duration: 0.45,
-      }, 5.6);
-
-      tl.to(
-        ".confetti-dot",
-        {
-          opacity: 1,
-          scale: 1,
-          x: (i: number) =>
-            Math.cos((CONFETTI[i].angle * Math.PI) / 180) * CONFETTI[i].dist,
-          y: (i: number) =>
-            Math.sin((CONFETTI[i].angle * Math.PI) / 180) * CONFETTI[i].dist,
-          duration: 0.55,
-          stagger: { each: 0.006, from: "center" },
-          ease: "power3.out",
-        },
-        5.7
-      );
-
-      tl.to(".confetti-dot", {
-        opacity: 0,
-        scale: 0,
-        duration: 0.4,
-        stagger: { each: 0.005, from: "end" },
-      }, 6.4);
-
-      tl.to(".box-tagline", {
-        opacity: 1,
-        y: 0,
-        duration: 0.45,
-        ease: "power2.out",
-      }, 6.0);
+      // Hold the scattered state
+      tl.to({}, { duration: 1.0 });
     }, section);
 
     return () => ctx.revert();
@@ -193,9 +97,7 @@ export default function Page() {
 
   return (
     <>
-      {/* ════════════════════════════════════════════════
-          INTRO ANIMATION SECTION
-      ════════════════════════════════════════════════ */}
+      {/* ════ INTRO: laptop + flying icons ════ */}
       <div
         ref={sectionRef}
         style={{
@@ -203,172 +105,221 @@ export default function Page() {
           width: "100%",
           height: "100vh",
           overflow: "hidden",
-          background: "linear-gradient(145deg, #0b0118 0%, #19082e 38%, #091628 100%)",
+          background:
+            "radial-gradient(ellipse at 50% 40%, #93b3cc 0%, #5e829f 45%, #3b5e7e 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        {/* Ambient glow blobs */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(ellipse 75% 55% at 18% 22%, rgba(167,139,250,0.16) 0%, transparent 65%)",
-        }} />
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(ellipse 65% 50% at 82% 78%, rgba(244,114,182,0.13) 0%, transparent 65%)",
-        }} />
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(ellipse 45% 40% at 50% 55%, rgba(52,211,153,0.07) 0%, transparent 70%)",
-        }} />
-
-        {/* Top ambient label */}
-        <div style={{
-          position: "absolute", top: 30, left: "50%", transform: "translateX(-50%)",
-          display: "flex", alignItems: "center", gap: 8,
-          padding: "7px 22px",
-          background: "rgba(255,255,255,0.055)",
-          backdropFilter: "blur(14px) saturate(160%)",
-          border: "1px solid rgba(255,255,255,0.09)",
-          borderRadius: 999,
-          color: "rgba(255,255,255,0.45)",
-          fontSize: 11, fontWeight: 700,
-          letterSpacing: "0.09em", textTransform: "uppercase", whiteSpace: "nowrap",
-        }}>
-          <span style={{ color: "#f472b6", fontSize: 14 }}>⚡</span>
-          Connect all your apps · Let AI handle the rest
-        </div>
-
-        {/* ── Central Super-Power box ── */}
+        {/* ── CSS Laptop ── */}
         <div
-          className="sp-box"
           style={{
-            position: "absolute",
-            width: 192,
-            height: 192,
-            borderRadius: 32,
-            background:
-              "linear-gradient(145deg, rgba(244,114,182,0.18) 0%, rgba(167,139,250,0.22) 55%, rgba(52,211,153,0.10) 100%)",
-            backdropFilter: "blur(32px) saturate(180%)",
-            border: "1.5px solid rgba(255,255,255,0.16)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 10,
-            boxShadow:
-              "0 0 0 1px rgba(255,255,255,0.06), 0 0 60px rgba(167,139,250,0.35), 0 0 120px rgba(244,114,182,0.12), inset 0 1px 0 rgba(255,255,255,0.18)",
-            zIndex: 20,
+            position: "relative",
+            width: 540,
+            height: 355,
+            flexShrink: 0,
+            zIndex: 5,
+            transform: "perspective(1400px) rotateX(4deg)",
           }}
         >
-          <div style={{ fontSize: 46 }}>⚡</div>
+          {/* Screen lid */}
           <div
-            style={{
-              fontFamily: "var(--font-nunito, sans-serif)",
-              fontSize: 21,
-              fontWeight: 900,
-              color: "#fff",
-              letterSpacing: "-0.4px",
-            }}
-          >
-            Super-Power
-          </div>
-          <div
-            className="box-tagline"
-            style={{
-              fontSize: 10,
-              color: "rgba(255,255,255,0.52)",
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              textAlign: "center",
-            }}
-          >
-            All your apps. One AI.
-          </div>
-        </div>
-
-        {/* ── Confetti particles ── */}
-        {CONFETTI.map((p, i) => (
-          <div
-            key={i}
-            className="confetti-dot"
             style={{
               position: "absolute",
-              width: p.size,
-              height: p.size,
-              borderRadius: "50%",
-              background: p.color,
-              zIndex: 15,
-              boxShadow: `0 0 ${p.size * 2}px ${p.color}99`,
+              top: 0, left: "3%",
+              width: "94%", height: "70%",
+              background: "#1c1c1e",
+              borderRadius: "14px 14px 0 0",
+              padding: 10,
+              boxShadow: "0 0 0 1.5px #2d2d2d, 0 24px 80px rgba(0,0,0,0.55)",
+            }}
+          >
+            {/* Screen glass */}
+            <div
+              style={{
+                width: "100%", height: "100%",
+                background: "linear-gradient(140deg, #f8f8f8 0%, #ececec 100%)",
+                borderRadius: 6,
+                overflow: "hidden",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 12,
+                padding: 20,
+                alignContent: "flex-start",
+              }}
+            >
+              {ICONS.slice(0, 6).map(({ Icon, bg, label }, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 42, height: 42,
+                    borderRadius: 10,
+                    background: bg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: `0 4px 14px ${bg}55`,
+                  }}
+                >
+                  <Icon size={21} color="#fff" title={label} />
+                </div>
+              ))}
+            </div>
+            {/* Glare */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0, left: 0, right: 0, bottom: 0,
+                background:
+                  "linear-gradient(140deg, rgba(255,255,255,0.08) 0%, transparent 55%)",
+                borderRadius: "inherit",
+                pointerEvents: "none",
+              }}
+            />
+          </div>
+
+          {/* Hinge */}
+          <div
+            style={{
+              position: "absolute",
+              top: "69.5%", left: "2%",
+              width: "96%", height: 8,
+              background: "linear-gradient(180deg, #9a9a9a 0%, #7a7a7a 100%)",
+              borderRadius: "0 0 4px 4px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
             }}
           />
-        ))}
 
-        {/* ── App icons ── */}
-        {ICONS.map(({ Icon, color, label }, i) => (
+          {/* Keyboard base */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0, left: 0,
+              width: "100%", height: "33%",
+              background: "linear-gradient(180deg, #d2d2d2 0%, #bebebe 100%)",
+              borderRadius: "0 0 16px 16px",
+              border: "1px solid #aaa",
+              boxShadow:
+                "0 10px 35px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.55)",
+            }}
+          >
+            {/* Key rows */}
+            <div
+              style={{
+                padding: "10px 24px 0",
+                display: "flex", flexDirection: "column", gap: 4,
+              }}
+            >
+              {([13, 13, 11] as number[]).map((count, ri) => (
+                <div
+                  key={ri}
+                  style={{
+                    display: "flex", gap: 3,
+                    width: ri === 2 ? "82%" : "100%",
+                    margin: "0 auto",
+                  }}
+                >
+                  {Array.from({ length: count }).map((_, ki) => (
+                    <div
+                      key={ki}
+                      style={{
+                        flex: 1, height: 7,
+                        background: "#c2c2c2",
+                        borderRadius: 2,
+                        border: "0.5px solid #b0b0b0",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)",
+                      }}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+            {/* Touchpad */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: "12%", left: "50%",
+                transform: "translateX(-50%)",
+                width: "26%", height: "38%",
+                background: "#c0c0c0",
+                borderRadius: 6,
+                border: "0.5px solid #aaa",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)",
+              }}
+            />
+          </div>
+
+          {/* Ground shadow */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: -28, left: "6%",
+              width: "88%", height: 28,
+              background: "rgba(0,0,0,0.22)",
+              filter: "blur(18px)",
+              borderRadius: "50%",
+            }}
+          />
+        </div>
+
+        {/* ── Flying icon tiles ── */}
+        {ICONS.map(({ Icon, bg, label }, i) => (
           <div
             key={i}
             className="anim-icon"
             style={{
               position: "absolute",
-              width: 66,
-              height: 66,
-              borderRadius: 20,
-              background: "#ffffff",
+              width: 70, height: 70,
+              borderRadius: 18,
+              background: bg,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow:
-                "0 10px 44px rgba(0,0,0,0.32), 0 2px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1)",
-              border: "1.5px solid rgba(255,255,255,0.82)",
+              boxShadow: `0 16px 48px ${bg}77, 0 4px 16px rgba(0,0,0,0.35)`,
               zIndex: 10,
-              willChange: "transform",
+              willChange: "transform, opacity",
             }}
           >
-            <Icon size={32} color={color} title={label} />
+            <Icon size={32} color="#fff" title={label} />
           </div>
         ))}
 
-        {/* ── Scroll cue ── */}
+        {/* Scroll cue */}
         <div
-          className="scroll-cue"
           style={{
             position: "absolute",
-            bottom: 36,
-            left: "50%",
+            bottom: 32, left: "50%",
             transform: "translateX(-50%)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 9,
-            color: "rgba(255,255,255,0.32)",
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
+            display: "flex", flexDirection: "column",
+            alignItems: "center", gap: 8,
+            color: "rgba(255,255,255,0.45)",
+            fontSize: 10, fontWeight: 700,
+            letterSpacing: "0.12em", textTransform: "uppercase",
           }}
         >
-          <span>Scroll to see the magic</span>
+          <span>Scroll to explore</span>
           <div
             style={{
-              width: 20,
-              height: 34,
-              border: "1.5px solid rgba(255,255,255,0.18)",
+              width: 20, height: 32,
+              border: "1.5px solid rgba(255,255,255,0.25)",
               borderRadius: 10,
-              display: "flex",
-              justifyContent: "center",
+              display: "flex", justifyContent: "center",
               paddingTop: 5,
             }}
           >
-            <div className="scroll-mouse-dot" />
+            <div
+              style={{
+                width: 3, height: 6,
+                background: "rgba(255,255,255,0.4)",
+                borderRadius: 999,
+              }}
+            />
           </div>
         </div>
       </div>
 
-      {/* ════════════════════════════════════════════════
-          MAIN LANDING PAGE CONTENT
-      ════════════════════════════════════════════════ */}
+      {/* ════ REST OF LANDING PAGE ════ */}
       <Background />
       <Navbar />
       <main>
