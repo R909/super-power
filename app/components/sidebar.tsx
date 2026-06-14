@@ -32,7 +32,6 @@ export default function Sidebar() {
 
   return (
     <aside className="w-52 flex-shrink-0 flex flex-col bg-white/20 backdrop-blur-2xl border-r border-white/30 shadow-sm">
-      {/* Logo */}
       <div className="px-5 py-5 flex items-center justify-between">
         <span className="flex items-center gap-2 font-extrabold text-lg text-pink-400">
           <Mail size={18} /> SuperPower
@@ -40,7 +39,6 @@ export default function Sidebar() {
         <Bell size={15} className="text-slate-500" />
       </div>
 
-      {/* Compose */}
       <div className="px-4 mb-4">
         <button className="w-full flex items-center gap-2 bg-pink-400 hover:bg-pink-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-colors">
           <Plus size={15} />
@@ -50,7 +48,6 @@ export default function Sidebar() {
       </div>
 
       <nav className="px-3 flex flex-col gap-0.5 flex-1 overflow-y-auto">
-        {/* Main nav */}
         {MAIN_NAV.map(({ icon: Icon, label, href, count }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
@@ -68,7 +65,6 @@ export default function Sidebar() {
           );
         })}
 
-        {/* Mail folders */}
         <div className="mt-3 mb-1 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mail</div>
         {MAIL_FOLDERS.map(({ icon: Icon, label, count }) => (
           <button key={label}
@@ -80,7 +76,6 @@ export default function Sidebar() {
           </button>
         ))}
 
-        {/* Views */}
         <div className="mt-3 mb-1 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Views</div>
         {VIEWS.map((v, i) => (
           <button key={v}
@@ -90,7 +85,6 @@ export default function Sidebar() {
           </button>
         ))}
 
-        {/* Integrations */}
         <div className="mt-3 mb-1 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Integrations</div>
         {["Gmail", "Google Calendar"].map((svc) => (
           <button key={svc}
@@ -101,7 +95,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Profile */}
       <div className="p-3 border-t border-white/30">
         <div className="flex items-center gap-3 bg-white/35 rounded-2xl px-3 py-2.5 border border-white/50">
           <div className="w-7 h-7 bg-pink-300 rounded-full flex items-center justify-center font-bold text-white text-[10px] flex-shrink-0">

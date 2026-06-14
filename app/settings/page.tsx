@@ -8,8 +8,6 @@ import {
 import Background from "../components/Background";
 import Sidebar from "../components/sidebar";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
-
 const SETTINGS_NAV = [
   { icon: User,     id: "profile",      label: "Profile"          },
   { icon: Link2,    id: "integrations", label: "Integrations"     },
@@ -62,8 +60,6 @@ const SHORTCUTS = [
 
 type Section = "profile" | "integrations" | "ai" | "notifications" | "shortcuts" | "security";
 
-// ─── Section Components ───────────────────────────────────────────────────────
-
 function ProfileSection() {
   return (
     <div className="space-y-6">
@@ -71,7 +67,6 @@ function ProfileSection() {
         <h2 className="text-lg font-bold text-slate-900 mb-1">Profile</h2>
         <p className="text-sm text-slate-500">Manage your account information.</p>
       </div>
-      {/* Avatar */}
       <div className="flex items-center gap-5">
         <div className="relative">
           <div className="w-20 h-20 bg-gradient-to-br from-pink-400 to-violet-400 rounded-2xl flex items-center justify-center text-white text-2xl font-extrabold shadow-md">AM</div>
@@ -85,7 +80,6 @@ function ProfileSection() {
           <button className="text-xs bg-pink-50 text-pink-500 border border-pink-100 px-3 py-1.5 rounded-lg font-semibold hover:bg-pink-100 transition-colors">Change photo</button>
         </div>
       </div>
-      {/* Form fields */}
       <div className="grid grid-cols-2 gap-4">
         {[["First name", "Arjun"], ["Last name", "Mehta"], ["Email", "arjun@example.co"], ["Role", "Product Manager"]].map(([l, v]) => (
           <div key={l}>
@@ -172,7 +166,6 @@ function AISection() {
         <p className="text-sm text-slate-500">Configure how your AI assistant behaves.</p>
       </div>
 
-      {/* Model */}
       <div className="bg-white/40 rounded-2xl border border-white/60 p-4">
         <div className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Model</div>
         <div className="grid grid-cols-2 gap-2">
@@ -194,7 +187,6 @@ function AISection() {
         </div>
       </div>
 
-      {/* Permissions */}
       <div className="bg-white/40 rounded-2xl border border-white/60 p-4">
         <div className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Permissions</div>
         <div className="space-y-3">
@@ -218,7 +210,6 @@ function AISection() {
         </div>
       </div>
 
-      {/* Response style */}
       <div className="bg-white/40 rounded-2xl border border-white/60 p-4">
         <div className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Response Style</div>
         <div className="flex gap-2">
@@ -231,7 +222,6 @@ function AISection() {
         </div>
       </div>
 
-      {/* Memory */}
       <div className="bg-white/40 rounded-2xl border border-white/60 p-4 flex items-center justify-between">
         <div>
           <div className="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -329,7 +319,6 @@ function SecuritySection() {
         <p className="text-sm text-slate-500">Manage your account security and privacy.</p>
       </div>
       <div className="space-y-4">
-        {/* Password */}
         <div className="bg-white/40 rounded-2xl border border-white/60 p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -339,7 +328,6 @@ function SecuritySection() {
             <button className="text-sm font-semibold text-pink-500 bg-pink-50/70 border border-pink-100 px-4 py-2 rounded-xl hover:bg-pink-100/70 transition-colors">Change</button>
           </div>
         </div>
-        {/* 2FA */}
         <div className="bg-white/40 rounded-2xl border border-white/60 p-4 flex items-center justify-between">
           <div>
             <div className="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -350,7 +338,6 @@ function SecuritySection() {
           </div>
           <button className="text-sm font-semibold text-slate-600 bg-white/40 border border-white/60 px-4 py-2 rounded-xl hover:bg-white/60 transition-colors">Manage</button>
         </div>
-        {/* Sessions */}
         <div className="bg-white/40 rounded-2xl border border-white/60 p-4">
           <div className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Active Sessions</div>
           {[
@@ -369,7 +356,6 @@ function SecuritySection() {
             </div>
           ))}
         </div>
-        {/* Danger zone */}
         <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4">
           <div className="flex items-start gap-3 mb-3">
             <AlertTriangle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
@@ -389,8 +375,6 @@ function SecuritySection() {
   );
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
-
 export default function SettingsPage() {
   const [active, setActive] = useState<Section>("profile");
 
@@ -409,7 +393,6 @@ export default function SettingsPage() {
       <div className="h-screen w-screen overflow-hidden flex">
         <Sidebar />
 
-        {/* ── Settings Nav ────────────────────────────────────────────── */}
         <aside className="w-56 flex-shrink-0 flex flex-col bg-white/15 backdrop-blur-2xl border-r border-white/25 py-6 px-3">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 mb-3">Settings</div>
           <nav className="space-y-0.5">
@@ -424,7 +407,6 @@ export default function SettingsPage() {
             ))}
           </nav>
 
-          {/* Version info */}
           <div className="mt-auto px-3">
             <div className="text-[10px] text-slate-400 leading-relaxed">
               SuperPower v0.1.0<br />
@@ -433,7 +415,6 @@ export default function SettingsPage() {
           </div>
         </aside>
 
-        {/* ── Settings Content ────────────────────────────────────────── */}
         <main className="flex-1 bg-white/10 backdrop-blur-2xl overflow-y-auto">
           <div className="max-w-2xl mx-auto px-8 py-8">
             {sectionMap[active]}

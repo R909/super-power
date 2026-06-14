@@ -5,8 +5,6 @@ import {
   Send, Plus, CheckCircle, Video,
 } from "lucide-react";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
-
 const HISTORY = [
   { id: 1, icon: Mail,     label: "Draft follow-ups"  },
   { id: 2, icon: Calendar, label: "Schedule sync"      },
@@ -63,8 +61,6 @@ const INITIAL_MESSAGES: Msg[] = [
   },
 ];
 
-// ─── Page ────────────────────────────────────────────────────────────────────
-
 export default function ChatPage() {
   const [messages, setMessages] = useState<Msg[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
@@ -91,16 +87,13 @@ export default function ChatPage() {
   return (
     <div className="h-screen w-screen flex overflow-hidden bg-white">
 
-      {/* ── Left Sidebar ────────────────────────────────────────────────── */}
       <aside className="w-36 flex-shrink-0 flex flex-col"
         style={{ background: "linear-gradient(180deg, #c8f5e0 0%, #b2edd4 100%)" }}>
 
-        {/* Logo */}
         <div className="px-4 pt-5 pb-4">
           <span className="font-extrabold text-base text-emerald-900 tracking-tight">Corsair</span>
         </div>
 
-        {/* Nav */}
         <nav className="px-2 flex flex-col gap-0.5">
           {[
             { id: "inbox",    icon: Inbox,          label: "Inbox"    },
@@ -119,7 +112,6 @@ export default function ChatPage() {
           ))}
         </nav>
 
-        {/* History */}
         <div className="mt-6 px-4">
           <div className="text-[11px] font-bold text-emerald-700/70 uppercase tracking-wider mb-2">History</div>
           <div className="flex flex-col gap-1">
@@ -133,7 +125,6 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* New chat */}
         <div className="mt-auto px-3 pb-4">
           <button className="w-full flex items-center justify-center gap-1.5 bg-white/50 hover:bg-white/70 border border-emerald-300/50 text-emerald-800 text-xs font-semibold py-2 rounded-xl transition-colors">
             <Plus size={13} /> New chat
@@ -141,10 +132,8 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      {/* ── Main Chat Area ──────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col bg-white overflow-hidden">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0 bg-white">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -162,7 +151,6 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Messages */}
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
           {messages.map((msg) => (
             <MessageBubble key={msg.id} msg={msg} />
@@ -170,7 +158,6 @@ export default function ChatPage() {
           <div ref={bottomRef} />
         </div>
 
-        {/* Input */}
         <div className="px-6 pb-5 pt-3 border-t border-slate-100 bg-white flex-shrink-0">
           <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3">
             <Bot size={15} className="text-slate-400 flex-shrink-0" />
@@ -192,8 +179,6 @@ export default function ChatPage() {
     </div>
   );
 }
-
-// ─── Message Bubble ──────────────────────────────────────────────────────────
 
 function MessageBubble({ msg }: { msg: Msg }) {
   const [sent, setSent] = useState(false);
@@ -219,14 +204,12 @@ function MessageBubble({ msg }: { msg: Msg }) {
         <Bot size={15} className="text-emerald-700" />
       </div>
       <div className="max-w-sm space-y-2">
-        {/* If this message has just a text (no invite card) */}
         {!msg.invite && (
           <div className="bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed shadow-sm">
             {msg.text}
           </div>
         )}
 
-        {/* Invite card */}
         {msg.invite && (
           <div className="rounded-2xl rounded-tl-sm border border-violet-200 overflow-hidden shadow-sm"
             style={{ background: "linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%)" }}>

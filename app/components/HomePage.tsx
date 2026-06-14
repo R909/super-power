@@ -100,6 +100,8 @@ export default function Home() {
   const [, setMounted] = useState(false);
 
   useEffect(() => {
+    history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
     setMounted(true);
   }, []);
 
@@ -134,7 +136,7 @@ export default function Home() {
       rocket.style.boxShadow = `0 0 12px ${burstColor}, 0 0 2px #fff`;
       container.appendChild(rocket);
 
-      gsap.fromTo(rocket, 
+      gsap.fromTo(rocket,
         { x: startX, y: h, scaleY: 1.6 },
         {
           x: targetX,
@@ -145,7 +147,7 @@ export default function Home() {
           ease: "power2.out",
           onComplete: () => {
             rocket.remove();
-            
+
             const particleCount = 28;
             for (let i = 0; i < particleCount; i++) {
               const particle = document.createElement("div");
@@ -163,7 +165,7 @@ export default function Home() {
                 { x: targetX, y: targetY, scale: 1, opacity: 1 },
                 {
                   x: targetX + driftX,
-                  y: targetY + driftY + 30, 
+                  y: targetY + driftY + 30,
                   scale: 0,
                   opacity: 0,
                   duration: gsap.utils.random(0.9, 1.4),
@@ -360,7 +362,7 @@ export default function Home() {
               duration: 0.3, ease: "power2.out",
             });
             gsap.to(tagline, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", delay: 0.15 });
-            
+
             createFireworkBlast();
             if (!powerPlayed) { powerPlayed = true; playPowerUp(); }
           }
@@ -403,26 +405,19 @@ export default function Home() {
 
   return (
     <>
-      {/* Main Container Viewport */}
       <div
         ref={sectionRef}
         className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-[#030712]"
       >
-        {/* Fine Geometrical Grid Structure */}
         <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.012)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.012)_1px,_transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_70%_at_50%_50%,_black_40%,_transparent_90%)]" />
 
-        {/* Ambient Center Aura */}
         <div className="absolute w-[500px] h-[500px] rounded-full bg-orange-500/5 blur-[120px] pointer-events-none z-0" />
 
-        {/* Cinematic Atmospheric Copper Horizon (Bottom-aligned light bleed from reference image) */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[160%] aspect-[2.5/1] rounded-[100%] bg-[radial-gradient(ellipse_at_bottom,_rgba(251,146,60,0.18)_0%,_rgba(251,146,60,0.04)_45%,_transparent_70%)] pointer-events-none z-10 filter blur-sm border-t border-orange-500/10" />
 
-        {/* Pure GSAP Particle Spawner Layer */}
         <div ref={fireworkContainerRef} className="absolute inset-0 z-15 pointer-events-none w-full h-full" />
 
-        {/* Central Power Box Container */}
-        <div className="power-box absolute z-20 w-[112px] h-[112px] rounded-[28px] bg-gradient-to-br from-[#ffbe1a] via-[#ff7300] to-[#e61700] flex flex-col items-center justify-center gap-1 border border-white/20 shadow-[0_15px_45px_rgba(249,115,22,0.3)]"
-        >
+        <div className="power-box absolute z-20 w-[112px] h-[112px] rounded-[28px] bg-gradient-to-br from-[#ffbe1a] via-[#ff7300] to-[#e61700] flex flex-col items-center justify-center gap-1 border border-white/20 shadow-[0_15px_45px_rgba(249,115,22,0.3)]">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white" stroke="rgba(255,255,255,.25)" strokeWidth=".5"/>
           </svg>
@@ -431,7 +426,6 @@ export default function Home() {
           </span>
         </div>
 
-        {/* Typography */}
         <div className="tagline absolute bottom-[22%] left-1/2 -translate-x-1/2 text-center z-25 whitespace-nowrap">
           <p className="text-2xl font-black tracking-tight text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)] m-0">
             Everything. One place. Super-powerful.
@@ -441,7 +435,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Interactive Floating Brand Tiles */}
         {ICONS.map(({ Icon, bg, glow, label }, i) => (
           <div
             key={i}
@@ -456,7 +449,6 @@ export default function Home() {
           </div>
         ))}
 
-        {/* Scroll Indicator Cue */}
         <div className="scroll-cue absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-30 opacity-60">
           <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-slate-400 font-mono">
             Scroll to see the magic
@@ -466,7 +458,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mobile Interface Trigger Tap Accent */}
         <div className="tap-btn absolute bottom-8 left-1/2 -translate-x-1/2 hidden flex-col items-center gap-[10px] z-30">
           <button
             className="tap-trigger bg-white/5 hover:bg-white/10 active:scale-95 border border-white/20 text-white text-[11px] font-bold tracking-widest uppercase px-6 py-2.5 rounded-full transition-transform cursor-pointer animate-[tapPulse_2s_ease-in-out_infinite]"

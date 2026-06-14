@@ -17,21 +17,18 @@ export default function Testimonials() {
 
     const cards = grid.querySelectorAll(".testi-card");
 
-    // --- PHASE 1: ELEVATED GSAP SCROLL ENTRANCE ---
     const ctx = gsap.context(() => {
-      // Fade and slide header up smoothly
       gsap.fromTo(".fade-up-testi-header",
         { opacity: 0, y: 30 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.8, 
-          ease: "power2.out", 
-          scrollTrigger: { trigger: section, start: "top 85%" } 
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: { trigger: section, start: "top 85%" }
         }
       );
 
-      // Staggered layout entry for the card decks
       gsap.fromTo(cards,
         { opacity: 0, y: 40, scale: 0.97 },
         {
@@ -46,15 +43,12 @@ export default function Testimonials() {
       );
     }, section);
 
-    // --- PHASE 2: SPOTLIGHT CURSOR CALCULATIONS ---
     if (!("ontouchstart" in window)) {
       const onMouseMove = (e: MouseEvent) => {
         cards.forEach((card) => {
           const rect = card.getBoundingClientRect();
           const x = e.clientX - rect.left;
           const y = e.clientY - rect.top;
-          
-          // Injecting local CSS mouse variables for performance
           (card as HTMLElement).style.setProperty("--mouse-x", `${x}px`);
           (card as HTMLElement).style.setProperty("--mouse-y", `${y}px`);
         });
@@ -68,16 +62,13 @@ export default function Testimonials() {
 
   return (
     <section ref={sectionRef} className="relative w-full bg-[#030712] py-24 md:py-32 px-6 md:px-12 overflow-hidden" id="testimonials">
-      
-      {/* Background Micro-Gridlines */}
+
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.003)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.003)_1px,_transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,_black_60%,_transparent_100%)] z-0" />
-      
-      {/* Ambient Deep Golden Accent Lighting Core */}
+
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-amber-500/[0.015] blur-[160px] pointer-events-none z-0" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-        
-        {/* Header Block Section */}
+
         <div className="fade-up-testi-header opacity-0 flex flex-col items-center text-center mb-20 gap-3">
           <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-amber-400/90 flex items-center gap-1.5 drop-shadow-[0_0_8px_rgba(245,158,11,0.25)]">
             <span>✦</span> What people say
@@ -87,18 +78,16 @@ export default function Testimonials() {
           </h2>
         </div>
 
-        {/* Testimonials Layout Grid */}
         <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 group">
           {TESTIMONIALS.map(({ quote, name, role, initials }) => (
-            <div 
-              key={name} 
+            <div
+              key={name}
               className="testi-card opacity-0 relative p-8 rounded-2xl bg-[#090d16]/40 border border-white/[0.04] backdrop-blur-xl flex flex-col justify-between overflow-hidden transition-all duration-300 hover:bg-[#090d16]/70 hover:border-amber-500/20 shadow-[0_15px_35px_rgba(0,0,0,0.4)]"
               style={{
                 backgroundImage: `radial-gradient(500px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(245,158,11,0.08), transparent 45%)`
               }}
             >
-              {/* Outer Custom Border Radial Reflection Tracing System */}
-              <div 
+              <div
                 className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                 style={{
                   background: `radial-gradient(300px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(245,158,11,0.15), transparent 60%)`,
@@ -111,7 +100,6 @@ export default function Testimonials() {
               />
 
               <div>
-                {/* 🌟 Luxury Matte Vectors Star Rating Cluster */}
                 <div className="flex items-center gap-1 mb-5">
                   {[...Array(5)].map((_, i) => (
                     <svg key={i} className="w-4 h-4 text-amber-400 fill-amber-400/90 drop-shadow-[0_0_4px_rgba(245,158,11,0.4)]" fill="currentColor" viewBox="0 0 20 20">
@@ -120,19 +108,16 @@ export default function Testimonials() {
                   ))}
                 </div>
 
-                {/* Main Quote Copy */}
                 <p className="text-[15px] text-slate-300 leading-relaxed font-medium tracking-wide mb-8 italic">
                   {quote}
                 </p>
               </div>
 
-              {/* Author Info Cluster Footer */}
               <div className="flex items-center gap-3.5 border-t border-white/[0.03] pt-5 mt-auto">
-                {/* Custom Metallic Monogram Avatar Capsule */}
                 <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#312713] to-[#1e170a] border border-amber-500/20 text-xs font-black text-amber-300 shadow-inner tracking-wider">
                   {initials}
                 </div>
-                
+
                 <div className="flex flex-col">
                   <div className="text-sm font-bold text-white tracking-tight">
                     {name}

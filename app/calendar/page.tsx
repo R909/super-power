@@ -1,13 +1,11 @@
 "use client";
 import { useState } from "react";
 import {
-  ChevronLeft, ChevronRight, Plus, Calendar, Users, Clock,
-  MapPin, Video, MoreHorizontal, CheckCircle, X,
+  ChevronLeft, ChevronRight, Plus, Users, Clock,
+  MapPin, Video, CheckCircle, X,
 } from "lucide-react";
 import Background from "@/app/components/Background";
 import Sidebar from "../components/sidebar";
-
-// ─── Data ────────────────────────────────────────────────────────────────────
 
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const WEEK_DATES = [13, 14, 15, 16, 17, 18, 19];
@@ -59,8 +57,6 @@ const CAL_MINI = [
   [26,27,28,29,30,31,null],
 ];
 
-// ─── Page ────────────────────────────────────────────────────────────────────
-
 export default function CalendarPage() {
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(EVENTS[6]);
   const [view, setView] = useState<"Day" | "Week" | "Month" | "Agenda">("Week");
@@ -71,15 +67,12 @@ export default function CalendarPage() {
       <div className="h-screen w-screen overflow-hidden flex">
         <Sidebar />
 
-        {/* ── Left Panel: mini calendar + upcoming ────────────────────── */}
         <aside className="w-60 flex-shrink-0 flex flex-col bg-white/15 backdrop-blur-2xl border-r border-white/25 overflow-y-auto">
           <div className="p-4">
-            {/* Create event */}
             <button className="w-full flex items-center gap-2 bg-pink-400 hover:bg-pink-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-colors mb-4">
               <Plus size={15} /> New Event
             </button>
 
-            {/* Mini month calendar */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-bold text-slate-800">May 2024</span>
@@ -104,7 +97,6 @@ export default function CalendarPage() {
               ))}
             </div>
 
-            {/* Upcoming events */}
             <div>
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Upcoming</div>
               <div className="space-y-2">
@@ -122,9 +114,7 @@ export default function CalendarPage() {
           </div>
         </aside>
 
-        {/* ── Calendar Grid ───────────────────────────────────────────── */}
         <main className="flex-1 flex flex-col bg-white/10 backdrop-blur-2xl border-r border-white/25 overflow-hidden">
-          {/* Header */}
           <div className="px-6 py-4 border-b border-white/30 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="flex gap-1">
@@ -150,9 +140,7 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          {/* Week grid */}
           <div className="flex-1 overflow-auto">
-            {/* Day headers */}
             <div className="grid sticky top-0 bg-white/30 backdrop-blur-sm border-b border-white/30 z-10"
               style={{ gridTemplateColumns: `52px repeat(7, 1fr)` }}>
               <div className="border-r border-white/30" />
@@ -168,9 +156,7 @@ export default function CalendarPage() {
               ))}
             </div>
 
-            {/* Time grid */}
             <div className="grid relative" style={{ gridTemplateColumns: `52px repeat(7, 1fr)` }}>
-              {/* Time labels */}
               <div className="border-r border-white/20">
                 {HOURS.map((h) => (
                   <div key={h} className="text-[10px] text-slate-400 text-right pr-2 font-medium border-b border-white/10"
@@ -180,23 +166,19 @@ export default function CalendarPage() {
                 ))}
               </div>
 
-              {/* Day columns */}
               {WEEK_DAYS.map((_, di) => (
                 <div key={di} className={`relative border-r border-white/20 last:border-r-0
                   ${di === TODAY_IDX ? "bg-pink-50/20" : ""}`}
                   style={{ height: HOURS.length * HOUR_H }}>
-                  {/* Hour lines */}
                   {HOURS.map((_, hi) => (
                     <div key={hi} className="absolute w-full border-b border-white/20"
                       style={{ top: hi * HOUR_H }} />
                   ))}
-                  {/* Half-hour lines */}
                   {HOURS.map((_, hi) => (
                     <div key={`h${hi}`} className="absolute w-full border-b border-white/10 border-dashed"
                       style={{ top: hi * HOUR_H + HOUR_H / 2 }} />
                   ))}
 
-                  {/* Events */}
                   {EVENTS.filter((e) => e.day === di).map((ev) => (
                     <button key={ev.id} onClick={() => setSelectedEvent(ev)}
                       className={`absolute left-1 right-1 rounded-lg px-2 py-1 text-left overflow-hidden ${ev.cls}
@@ -213,7 +195,6 @@ export default function CalendarPage() {
                     </button>
                   ))}
 
-                  {/* Current time indicator (today only) */}
                   {di === TODAY_IDX && (
                     <div className="absolute w-full flex items-center pointer-events-none z-10"
                       style={{ top: (10.5 - DAY_START) * HOUR_H }}>
@@ -227,11 +208,9 @@ export default function CalendarPage() {
           </div>
         </main>
 
-        {/* ── Event Detail Panel ──────────────────────────────────────── */}
         <aside className="w-72 flex-shrink-0 flex flex-col bg-white/10 backdrop-blur-2xl overflow-y-auto">
           {selectedEvent ? (
             <div className="m-3">
-              {/* Event card */}
               <div className={`rounded-2xl p-4 mb-3 shadow-sm ${selectedEvent.cls} bg-opacity-60`}>
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="font-bold text-base leading-tight pr-2">{selectedEvent.title}</h3>
@@ -263,7 +242,6 @@ export default function CalendarPage() {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="bg-white/35 backdrop-blur-md rounded-2xl border border-white/45 p-4 mb-3">
                 <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Actions</div>
                 <div className="space-y-2">
@@ -277,7 +255,6 @@ export default function CalendarPage() {
                 </div>
               </div>
 
-              {/* Attendees */}
               {selectedEvent.attendees && (
                 <div className="bg-white/35 backdrop-blur-md rounded-2xl border border-white/45 p-4">
                   <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Attendees</div>
@@ -300,7 +277,6 @@ export default function CalendarPage() {
               )}
             </div>
           ) : (
-            /* Quick create form */
             <div className="m-3">
               <div className="bg-white/35 backdrop-blur-md rounded-2xl border border-white/45 p-4">
                 <div className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">

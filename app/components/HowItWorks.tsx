@@ -18,13 +18,11 @@ export default function HowItWorks() {
     const cards = section.querySelectorAll(".process-card");
 
     const ctx = gsap.context(() => {
-      // Fade and slide text content up smoothly
       gsap.fromTo(".fade-up-step-header",
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", scrollTrigger: { trigger: section, start: "top 85%" } }
       );
 
-      // Staggered reveal for the process panels
       gsap.fromTo(cards,
         { opacity: 0, y: 40, scale: 0.98 },
         {
@@ -38,7 +36,6 @@ export default function HowItWorks() {
         }
       );
 
-      // --- SCROLL-BOUND CONNECTING LINE ---
       const pathLength = path.getTotalLength();
       gsap.set(path, { strokeDasharray: pathLength, strokeDashoffset: pathLength });
 
@@ -59,16 +56,13 @@ export default function HowItWorks() {
 
   return (
     <section ref={sectionRef} className="relative w-full bg-[#030712] py-24 md:py-32 px-6 md:px-12 overflow-hidden" id="how-it-works">
-      
-      {/* Background Geometrics */}
+
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.003)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.003)_1px,_transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,_black_60%,_transparent_100%)] z-0" />
-      
-      {/* Soft Premium Amber Ambient Backdrop Glow */}
+
       <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full bg-amber-500/[0.015] blur-[150px] pointer-events-none z-0" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-        
-        {/* Header Layout */}
+
         <div className="fade-up-step-header opacity-0 flex flex-col items-center text-center mb-24 gap-3">
           <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-amber-400/90 flex items-center gap-1.5 drop-shadow-[0_0_8px_rgba(245,158,11,0.25)]">
             <span>✦</span> How it works
@@ -78,14 +72,11 @@ export default function HowItWorks() {
           </h2>
         </div>
 
-        {/* Dynamic Connected Process Grid */}
         <div className="process-grid relative grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
-          
-          {/* Animated Connecting Vector Path */}
+
           <div className="absolute top-[18%] left-[10%] right-[10%] h-1 pointer-events-none hidden lg:block z-0">
             <svg className="w-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M 0,2 H 800" stroke="rgba(255,255,255,0.02)" strokeWidth="1.5" strokeDasharray="4 4" />
-              {/* Premium Luxury Gold/Amber Gradient Wire */}
               <path ref={pathRef} d="M 0,2 H 800" stroke="url(#goldLaserGradient)" strokeWidth="2" />
               <defs>
                 <linearGradient id="goldLaserGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -97,7 +88,6 @@ export default function HowItWorks() {
             </svg>
           </div>
 
-          {/* STEP 1 */}
           <div className="process-card opacity-0 relative flex flex-col p-7 md:p-8 rounded-2xl bg-[#090d16]/50 border border-white/[0.04] backdrop-blur-xl z-10 group hover:border-amber-500/20 transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs font-black text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
@@ -105,13 +95,12 @@ export default function HowItWorks() {
               </div>
               <span className="text-[10px] font-mono tracking-wider text-slate-600 uppercase group-hover:text-amber-400/60 transition-colors">INIT_CONN</span>
             </div>
-            
+
             <h3 className="text-lg font-bold text-white mb-2 tracking-tight">Connect your accounts</h3>
             <p className="text-sm text-slate-400 font-medium leading-relaxed mb-6">
               Link Gmail and Google Calendar with one click. Super-Power reads your history to understand your style and contacts.
             </p>
 
-            {/* Terminal Window 1 */}
             <div className="w-full p-4 rounded-xl bg-[#03060b] border border-white/[0.03] font-mono text-xs text-slate-400 leading-6 shadow-inner">
               <div className="flex items-center gap-2 text-amber-400/90">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
@@ -128,7 +117,6 @@ export default function HowItWorks() {
             </div>
           </div>
 
-          {/* STEP 2 */}
           <div className="process-card opacity-0 relative flex flex-col p-7 md:p-8 rounded-2xl bg-[#090d16]/50 border border-white/[0.04] backdrop-blur-xl z-10 group hover:border-amber-500/20 transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs font-black text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
@@ -142,7 +130,6 @@ export default function HowItWorks() {
               Type a natural-language command — or let Super-Power surface tasks proactively from what&apos;s already in your inbox.
             </p>
 
-            {/* Console Window 2 */}
             <div className="w-full p-4 rounded-xl bg-[#03060b] border border-white/[0.03] font-mono text-xs leading-6 shadow-inner">
               <div className="text-amber-400 flex items-center gap-1.5">
                 <span className="text-slate-600">⌘</span> "Follow up with investors"
@@ -157,7 +144,6 @@ export default function HowItWorks() {
             </div>
           </div>
 
-          {/* STEP 3 */}
           <div className="process-card opacity-0 relative flex flex-col p-7 md:p-8 rounded-2xl bg-[#090d16]/50 border border-white/[0.04] backdrop-blur-xl z-10 group hover:border-amber-500/20 transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs font-black text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
@@ -171,14 +157,13 @@ export default function HowItWorks() {
               Every action shows what it did and why. Approve in one key, edit freely, or enable auto-send for trusted actions.
             </p>
 
-            {/* Console Window 3 */}
             <div className="w-full p-4 rounded-xl bg-[#03060b] border border-white/[0.03] font-mono text-xs leading-5 shadow-inner">
               <div className="text-amber-400 font-bold mb-1 flex items-center justify-between">
                 <span>DRAFT_READY ✦</span>
                 <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">v1.0</span>
               </div>
               <div className="text-slate-400 text-[11px] truncate mb-3">Re: Q3 Investor Update</div>
-              
+
               <div className="flex gap-2 pt-1">
                 <button className="flex-1 py-1.5 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold border border-amber-500/20 text-center transition-all cursor-pointer">
                   [Send]
