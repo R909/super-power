@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito, Plus_Jakarta_Sans } from "next/font/google";
 import ScrollReveal from "@/app/components/ScrollReveal";
 import "./globals.css";
+import { QueryProvider } from "./components/providers/query-provider";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -27,11 +28,13 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
+    <QueryProvider>
     <html lang="en" className={`${nunito.variable} ${jakarta.variable}`}>
       <body>
         {children}
         <ScrollReveal />
       </body>
     </html>
+    </QueryProvider>
   );
 }
