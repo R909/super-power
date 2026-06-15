@@ -60,7 +60,7 @@ export default function CTA() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full bg-[#030712] py-32 md:py-44 px-6 md:px-12 overflow-hidden flex flex-col items-center justify-center text-center"
+      className="relative w-full bg-[#030712] py-24 md:py-36 px-6 md:px-12 overflow-hidden flex flex-col items-center justify-center text-center"
       id="cta"
     >
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(45deg,_rgba(217,119,6,0.004)_1px,_transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,_black_40%,_transparent_100%)] z-0" />

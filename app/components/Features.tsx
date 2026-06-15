@@ -91,7 +91,7 @@ export default function Features() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-[#030712] py-24 md:py-32 px-6 md:px-12 overflow-hidden [perspective:1500px]"
+      className="relative w-full bg-[#030712] py-20 md:py-28 px-6 md:px-12 overflow-hidden [perspective:1500px]"
       id="features"
     >
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.004)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.004)_1px,_transparent_1px)] bg-[size:80px_80px] z-0" />
@@ -99,7 +99,7 @@ export default function Features() {
 
       <div className="max-w-7xl mx-auto relative z-10">
 
-        <div className="fade-up-header opacity-0 flex flex-col items-center text-center mb-24 gap-3">
+        <div className="fade-up-header opacity-0 flex flex-col items-center text-center gap-3">
           <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-orange-500/80">
             ✦ Features
           </div>

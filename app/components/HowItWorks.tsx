@@ -55,11 +55,13 @@ export default function HowItWorks() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative w-full bg-[#030712] py-24 md:py-32 px-6 md:px-12 overflow-hidden" id="how-it-works">
+    <section ref={sectionRef} className="relative w-full bg-[#030712] pt-10 pb-20 md:pt-14 md:pb-28 px-6 md:px-12 overflow-hidden" id="how-it-works">
 
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.003)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.003)_1px,_transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,_black_60%,_transparent_100%)] z-0" />
 
-      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full bg-amber-500/[0.015] blur-[150px] pointer-events-none z-0" />
+      <div className="absolute top-0
+      
+      left-1/4 w-[500px] h-[500px] rounded-full bg-amber-500/[0.015] blur-[150px] pointer-events-none z-0" />
 
       <div className="max-w-7xl mx-auto relative z-10">
 

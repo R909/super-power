@@ -94,7 +94,7 @@ export default function Pricing() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-[#030712] py-24 md:py-32 px-6 md:px-12 overflow-hidden"
+      className="relative w-full bg-[#030712] pt-10 pb-20 md:pt-14 md:pb-28 px-6 md:px-12 overflow-hidden"
       id="pricing"
     >
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.003)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.003)_1px,_transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_50%,_black_40%,_transparent_100%)] z-0" />

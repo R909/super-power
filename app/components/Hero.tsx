@@ -1,6 +1,6 @@
 export default function Hero() {
   return (
-    <section className="relative w-full min-h-[90vh] max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center gap-14 px-6 md:px-12 pt-28 pb-20 bg-[#030712] overflow-hidden">
+    <section className="relative w-full min-h-[90vh] max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center gap-14 px-6 md:px-12 pt-20 md:pt-24 pb-20 md:pb-28 bg-[#030712] overflow-hidden">
 
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.012)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.012)_1px,_transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_70%_at_50%_50%,_black_40%,_transparent_90%)] z-0" />
 
