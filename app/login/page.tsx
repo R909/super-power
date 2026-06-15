@@ -71,7 +71,7 @@ export default function LoginPage() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/chat",
+        callbackURL: "/dashboard",
       });
     } catch {
       setLoading(false);
@@ -94,33 +94,27 @@ export default function LoginPage() {
         @keyframes icon-glow-cal { 0%,100%{box-shadow:0 4px 16px rgba(26,115,232,0.25)} 50%{box-shadow:0 6px 28px rgba(26,115,232,0.5)} }
       `}</style>
 
-      {/* Grid overlay */}
       <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(rgba(255,255,255,0.003)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.003)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black_40%,transparent_100%)]" />
 
-      {/* Amber orb — top right */}
       <div
         className="absolute -top-24 -right-24 w-[600px] h-[600px] rounded-full bg-amber-500/[0.07] blur-[140px] pointer-events-none z-0"
         style={{ animation: "float-a 14s ease-in-out infinite" }}
       />
 
-      {/* Teal orb — bottom left */}
       <div
         className="absolute -bottom-32 -left-20 w-[500px] h-[500px] rounded-full bg-teal-500/[0.05] blur-[130px] pointer-events-none z-0"
         style={{ animation: "float-b 11s ease-in-out infinite" }}
       />
 
-      {/* Horizontal scan line */}
       <div
         className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/[0.07] to-transparent pointer-events-none z-0"
         style={{ animation: "scan-line 12s linear infinite 3s" }}
       />
 
-      {/* ── LEFT PANEL (desktop only) ── */}
       <div
         className="hidden lg:flex flex-col justify-center w-1/2 px-16 xl:px-24 relative z-10"
         style={{ animation: "left-in 0.9s ease-out both" }}
       >
-        {/* Logo */}
         <div className="flex items-center gap-2.5 mb-14">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ffbe1a] to-[#e61700] flex items-center justify-center text-white font-bold shadow-[0_4px_18px_rgba(249,115,22,0.4)] text-lg">
             ⚡
@@ -145,9 +139,7 @@ export default function LoginPage() {
           scheduling, and follow-ups — so you focus on what actually matters.
         </p>
 
-        {/* Terminal */}
         <div className="w-full max-w-sm rounded-2xl bg-[#03060b] border border-white/[0.04] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
-          {/* Title bar */}
           <div className="flex items-center gap-1.5 px-4 py-3 border-b border-white/[0.04]">
             <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
@@ -157,7 +149,6 @@ export default function LoginPage() {
             </span>
           </div>
 
-          {/* Content — bottom-aligned so new lines appear to scroll up */}
           <div className="px-4 py-4 font-mono text-xs flex flex-col justify-end h-[92px] overflow-hidden">
             {prevLine && (
               <div className="mb-2 opacity-20 space-y-0.5 leading-5">
@@ -194,7 +185,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="flex items-center gap-10 mt-10">
           {[
             { value: "4.2h", label: "saved / week" },
@@ -211,10 +201,8 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ── RIGHT PANEL ── */}
       <div className="flex flex-col items-center justify-center w-full lg:w-1/2 px-6 py-16 relative z-10 lg:border-l lg:border-white/[0.04]">
 
-        {/* Mobile logo */}
         <div className="flex lg:hidden items-center gap-2.5 mb-12">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ffbe1a] to-[#e61700] flex items-center justify-center text-white font-bold shadow-[0_4px_18px_rgba(249,115,22,0.4)] text-lg">
             ⚡
@@ -222,14 +210,12 @@ export default function LoginPage() {
           <span className="text-white font-bold tracking-tight text-base">Super-Power</span>
         </div>
 
-        {/* Card */}
         <div
           className="w-full max-w-sm"
           style={{ animation: "card-in 0.75s cubic-bezier(0.16,1,0.3,1) 0.15s both" }}
         >
           <div className="relative p-8 rounded-3xl bg-[#090d16]/80 border border-white/[0.06] backdrop-blur-2xl shadow-[0_30px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.02)]">
 
-            {/* Amber glow bleeding in from top of card */}
             <div
               className="absolute inset-0 rounded-3xl pointer-events-none"
               style={{
@@ -239,9 +225,7 @@ export default function LoginPage() {
             />
 
             <div className="relative z-10">
-              {/* App icons */}
               <div className="flex items-center justify-center gap-3 mb-6">
-                {/* Gmail icon — floats up/down with red glow pulse */}
                 <div
                   className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center overflow-hidden"
                   style={{ animation: "icon-float 3s ease-in-out infinite, icon-glow-gmail 3s ease-in-out infinite" }}
@@ -254,7 +238,6 @@ export default function LoginPage() {
                   </svg>
                 </div>
 
-                {/* Smiley connector — rocks side to side */}
                 <span
                   className="text-2xl select-none leading-none"
                   style={{ display: "inline-block", animation: "icon-spin-smile 2.4s ease-in-out infinite" }}
@@ -262,7 +245,6 @@ export default function LoginPage() {
                   😊
                 </span>
 
-                {/* Google Calendar icon — bounces with blue glow pulse */}
                 <div
                   className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center overflow-hidden"
                   style={{ animation: "icon-bounce 2.8s ease-in-out infinite 0.4s, icon-glow-cal 2.8s ease-in-out infinite 0.4s" }}
@@ -289,7 +271,6 @@ export default function LoginPage() {
                 One click away from a calmer inbox.
               </p>
 
-              {/* Divider */}
               <div className="flex items-center gap-3 mb-6">
                 <div className="flex-1 h-px bg-white/[0.05]" />
                 <span className="text-[10px] text-slate-700 font-semibold tracking-widest uppercase">
@@ -298,7 +279,6 @@ export default function LoginPage() {
                 <div className="flex-1 h-px bg-white/[0.05]" />
               </div>
 
-              {/* Google button */}
               <button
                 onClick={handleGoogleLogin}
                 disabled={loading}

@@ -1,4 +1,12 @@
-export default function Hero() {
+  import navigation from 'next/navigation';
+
+export default function LandingPage() {
+
+  const getStarted = () => {
+
+    navigation.redirect('/dashboard');
+    
+  }
   return (
     <section className="relative w-full min-h-[90vh] max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center gap-14 px-6 md:px-12 pt-20 md:pt-24 pb-20 md:pb-28 bg-[#030712] overflow-hidden">
 
@@ -36,9 +44,9 @@ export default function Hero() {
         </p>
 
         <div className="flex items-center gap-4 flex-wrap mt-2">
-          <a href="#" className="bg-gradient-to-r from-[#ffbe1a] via-[#ff7300] to-[#e61700] hover:scale-[1.02] text-white font-bold text-sm tracking-wide px-7 py-3.5 rounded-full shadow-lg shadow-orange-500/10 transition-all active:scale-95">
+          <button onClick={() => getStarted()} className="bg-gradient-to-r from-[#ffbe1a] via-[#ff7300] to-[#e61700] hover:scale-[1.02] text-white font-bold text-sm tracking-wide px-7 py-3.5 rounded-full shadow-lg shadow-orange-500/10 transition-all active:scale-95">
             Start for free 🎉
-          </a>
+          </button>
           <a href="#" className="bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold text-sm tracking-wide px-6 py-3.5 rounded-full transition-all active:scale-95">
             ▶ Watch demo
           </a>

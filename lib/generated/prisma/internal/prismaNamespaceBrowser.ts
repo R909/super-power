@@ -51,11 +51,14 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Test: 'Test',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  CorsairIntegration: 'CorsairIntegration',
+  CorsairAccount: 'CorsairAccount',
+  CorsairEntity: 'CorsairEntity',
+  CorsairEvent: 'CorsairEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -72,14 +75,6 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
-
-
-export const TestScalarFieldEnum = {
-  id: 'id',
-  text: 'text'
-} as const
-
-export type TestScalarFieldEnum = (typeof TestScalarFieldEnum)[keyof typeof TestScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -140,12 +135,71 @@ export const VerificationScalarFieldEnum = {
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
 
 
+export const CorsairIntegrationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  name: 'name',
+  config: 'config',
+  dek: 'dek'
+} as const
+
+export type CorsairIntegrationScalarFieldEnum = (typeof CorsairIntegrationScalarFieldEnum)[keyof typeof CorsairIntegrationScalarFieldEnum]
+
+
+export const CorsairAccountScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  tenantId: 'tenantId',
+  integrationId: 'integrationId',
+  config: 'config',
+  dek: 'dek'
+} as const
+
+export type CorsairAccountScalarFieldEnum = (typeof CorsairAccountScalarFieldEnum)[keyof typeof CorsairAccountScalarFieldEnum]
+
+
+export const CorsairEntityScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  accountId: 'accountId',
+  entityId: 'entityId',
+  entityType: 'entityType',
+  version: 'version',
+  data: 'data'
+} as const
+
+export type CorsairEntityScalarFieldEnum = (typeof CorsairEntityScalarFieldEnum)[keyof typeof CorsairEntityScalarFieldEnum]
+
+
+export const CorsairEventScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  accountId: 'accountId',
+  eventType: 'eventType',
+  payload: 'payload',
+  status: 'status'
+} as const
+
+export type CorsairEventScalarFieldEnum = (typeof CorsairEventScalarFieldEnum)[keyof typeof CorsairEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -162,4 +216,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

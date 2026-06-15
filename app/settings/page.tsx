@@ -12,8 +12,6 @@ const SETTINGS_NAV = [
   { icon: Link2,     id: "integrations",  label: "Integrations"  },
   { icon: Bot,       id: "ai",            label: "AI Agent"      },
   { icon: Bell,      id: "notifications", label: "Notifications" },
-  { icon: Keyboard,  id: "shortcuts",     label: "Shortcuts"     },
-  { icon: Shield,    id: "security",      label: "Security"      },
 ];
 
 const INTEGRATIONS = [

@@ -1,7 +1,7 @@
 "use client";
 import Background   from "@/app/components/Background";
 import Navbar       from "@/app/components/Navbar";
-import Hero         from "@/app/components/Hero";
+import LandingPage         from "@/app/components/LandingPage";
 import Marquee      from "@/app/components/Marquee";
 import Features     from "@/app/components/Features";
 import HowItWorks   from "@/app/components/HowItWorks";
@@ -20,7 +20,7 @@ const Page=()=>{
       <Navbar />
       <main>
         <Home />
-        <Hero />
+        <LandingPage />
         <Marquee />
         <Features />
         <HowItWorks />

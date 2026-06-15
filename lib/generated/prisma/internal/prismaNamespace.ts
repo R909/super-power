@@ -384,11 +384,14 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  Test: 'Test',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  CorsairIntegration: 'CorsairIntegration',
+  CorsairAccount: 'CorsairAccount',
+  CorsairEntity: 'CorsairEntity',
+  CorsairEvent: 'CorsairEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,84 +407,10 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "test" | "user" | "session" | "account" | "verification"
+    modelProps: "user" | "session" | "account" | "verification" | "corsairIntegration" | "corsairAccount" | "corsairEntity" | "corsairEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
-    Test: {
-      payload: Prisma.$TestPayload<ExtArgs>
-      fields: Prisma.TestFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TestFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TestFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>
-        }
-        findFirst: {
-          args: Prisma.TestFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TestFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>
-        }
-        findMany: {
-          args: Prisma.TestFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>[]
-        }
-        create: {
-          args: Prisma.TestCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>
-        }
-        createMany: {
-          args: Prisma.TestCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.TestCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>[]
-        }
-        delete: {
-          args: Prisma.TestDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>
-        }
-        update: {
-          args: Prisma.TestUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>
-        }
-        deleteMany: {
-          args: Prisma.TestDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TestUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.TestUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>[]
-        }
-        upsert: {
-          args: Prisma.TestUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TestPayload>
-        }
-        aggregate: {
-          args: Prisma.TestAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTest>
-        }
-        groupBy: {
-          args: Prisma.TestGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TestGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TestCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TestCountAggregateOutputType> | number
-        }
-      }
-    }
     User: {
       payload: Prisma.$UserPayload<ExtArgs>
       fields: Prisma.UserFieldRefs
@@ -778,6 +707,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CorsairIntegration: {
+      payload: Prisma.$CorsairIntegrationPayload<ExtArgs>
+      fields: Prisma.CorsairIntegrationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CorsairIntegrationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CorsairIntegrationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>
+        }
+        findFirst: {
+          args: Prisma.CorsairIntegrationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CorsairIntegrationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>
+        }
+        findMany: {
+          args: Prisma.CorsairIntegrationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>[]
+        }
+        create: {
+          args: Prisma.CorsairIntegrationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>
+        }
+        createMany: {
+          args: Prisma.CorsairIntegrationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CorsairIntegrationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>[]
+        }
+        delete: {
+          args: Prisma.CorsairIntegrationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>
+        }
+        update: {
+          args: Prisma.CorsairIntegrationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>
+        }
+        deleteMany: {
+          args: Prisma.CorsairIntegrationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CorsairIntegrationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CorsairIntegrationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>[]
+        }
+        upsert: {
+          args: Prisma.CorsairIntegrationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairIntegrationPayload>
+        }
+        aggregate: {
+          args: Prisma.CorsairIntegrationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCorsairIntegration>
+        }
+        groupBy: {
+          args: Prisma.CorsairIntegrationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CorsairIntegrationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CorsairIntegrationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CorsairIntegrationCountAggregateOutputType> | number
+        }
+      }
+    }
+    CorsairAccount: {
+      payload: Prisma.$CorsairAccountPayload<ExtArgs>
+      fields: Prisma.CorsairAccountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CorsairAccountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CorsairAccountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>
+        }
+        findFirst: {
+          args: Prisma.CorsairAccountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CorsairAccountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>
+        }
+        findMany: {
+          args: Prisma.CorsairAccountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>[]
+        }
+        create: {
+          args: Prisma.CorsairAccountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>
+        }
+        createMany: {
+          args: Prisma.CorsairAccountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CorsairAccountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>[]
+        }
+        delete: {
+          args: Prisma.CorsairAccountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>
+        }
+        update: {
+          args: Prisma.CorsairAccountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>
+        }
+        deleteMany: {
+          args: Prisma.CorsairAccountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CorsairAccountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CorsairAccountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>[]
+        }
+        upsert: {
+          args: Prisma.CorsairAccountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairAccountPayload>
+        }
+        aggregate: {
+          args: Prisma.CorsairAccountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCorsairAccount>
+        }
+        groupBy: {
+          args: Prisma.CorsairAccountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CorsairAccountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CorsairAccountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CorsairAccountCountAggregateOutputType> | number
+        }
+      }
+    }
+    CorsairEntity: {
+      payload: Prisma.$CorsairEntityPayload<ExtArgs>
+      fields: Prisma.CorsairEntityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CorsairEntityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CorsairEntityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>
+        }
+        findFirst: {
+          args: Prisma.CorsairEntityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CorsairEntityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>
+        }
+        findMany: {
+          args: Prisma.CorsairEntityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>[]
+        }
+        create: {
+          args: Prisma.CorsairEntityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>
+        }
+        createMany: {
+          args: Prisma.CorsairEntityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CorsairEntityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>[]
+        }
+        delete: {
+          args: Prisma.CorsairEntityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>
+        }
+        update: {
+          args: Prisma.CorsairEntityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>
+        }
+        deleteMany: {
+          args: Prisma.CorsairEntityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CorsairEntityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CorsairEntityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>[]
+        }
+        upsert: {
+          args: Prisma.CorsairEntityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEntityPayload>
+        }
+        aggregate: {
+          args: Prisma.CorsairEntityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCorsairEntity>
+        }
+        groupBy: {
+          args: Prisma.CorsairEntityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CorsairEntityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CorsairEntityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CorsairEntityCountAggregateOutputType> | number
+        }
+      }
+    }
+    CorsairEvent: {
+      payload: Prisma.$CorsairEventPayload<ExtArgs>
+      fields: Prisma.CorsairEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CorsairEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CorsairEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CorsairEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CorsairEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>
+        }
+        findMany: {
+          args: Prisma.CorsairEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>[]
+        }
+        create: {
+          args: Prisma.CorsairEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>
+        }
+        createMany: {
+          args: Prisma.CorsairEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CorsairEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>[]
+        }
+        delete: {
+          args: Prisma.CorsairEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>
+        }
+        update: {
+          args: Prisma.CorsairEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CorsairEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CorsairEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CorsairEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.CorsairEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CorsairEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CorsairEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCorsairEvent>
+        }
+        groupBy: {
+          args: Prisma.CorsairEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CorsairEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CorsairEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CorsairEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -815,14 +1040,6 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
-
-
-export const TestScalarFieldEnum = {
-  id: 'id',
-  text: 'text'
-} as const
-
-export type TestScalarFieldEnum = (typeof TestScalarFieldEnum)[keyof typeof TestScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -883,12 +1100,71 @@ export const VerificationScalarFieldEnum = {
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
 
 
+export const CorsairIntegrationScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  name: 'name',
+  config: 'config',
+  dek: 'dek'
+} as const
+
+export type CorsairIntegrationScalarFieldEnum = (typeof CorsairIntegrationScalarFieldEnum)[keyof typeof CorsairIntegrationScalarFieldEnum]
+
+
+export const CorsairAccountScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  tenantId: 'tenantId',
+  integrationId: 'integrationId',
+  config: 'config',
+  dek: 'dek'
+} as const
+
+export type CorsairAccountScalarFieldEnum = (typeof CorsairAccountScalarFieldEnum)[keyof typeof CorsairAccountScalarFieldEnum]
+
+
+export const CorsairEntityScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  accountId: 'accountId',
+  entityId: 'entityId',
+  entityType: 'entityType',
+  version: 'version',
+  data: 'data'
+} as const
+
+export type CorsairEntityScalarFieldEnum = (typeof CorsairEntityScalarFieldEnum)[keyof typeof CorsairEntityScalarFieldEnum]
+
+
+export const CorsairEventScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  accountId: 'accountId',
+  eventType: 'eventType',
+  payload: 'payload',
+  status: 'status'
+} as const
+
+export type CorsairEventScalarFieldEnum = (typeof CorsairEventScalarFieldEnum)[keyof typeof CorsairEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -905,6 +1181,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -945,6 +1230,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1071,11 +1370,14 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
-  test?: Prisma.TestOmit
   user?: Prisma.UserOmit
   session?: Prisma.SessionOmit
   account?: Prisma.AccountOmit
   verification?: Prisma.VerificationOmit
+  corsairIntegration?: Prisma.CorsairIntegrationOmit
+  corsairAccount?: Prisma.CorsairAccountOmit
+  corsairEntity?: Prisma.CorsairEntityOmit
+  corsairEvent?: Prisma.CorsairEventOmit
 }
 
 /* Types for Logging */

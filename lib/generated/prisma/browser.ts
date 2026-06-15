@@ -18,11 +18,6 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
- * Model Test
- * 
- */
-export type Test = Prisma.TestModel
-/**
  * Model User
  * 
  */
@@ -42,3 +37,23 @@ export type Account = Prisma.AccountModel
  * 
  */
 export type Verification = Prisma.VerificationModel
+/**
+ * Model CorsairIntegration
+ * 
+ */
+export type CorsairIntegration = Prisma.CorsairIntegrationModel
+/**
+ * Model CorsairAccount
+ * 
+ */
+export type CorsairAccount = Prisma.CorsairAccountModel
+/**
+ * Model CorsairEntity
+ * 
+ */
+export type CorsairEntity = Prisma.CorsairEntityModel
+/**
+ * Model CorsairEvent
+ * 
+ */
+export type CorsairEvent = Prisma.CorsairEventModel

@@ -8,9 +8,12 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Test'
 export type * from './models/User'
 export type * from './models/Session'
 export type * from './models/Account'
 export type * from './models/Verification'
+export type * from './models/CorsairIntegration'
+export type * from './models/CorsairAccount'
+export type * from './models/CorsairEntity'
+export type * from './models/CorsairEvent'
 export type * from './commonInputTypes'

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import navigation from 'next/navigation';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -57,6 +58,12 @@ export default function CTA() {
     return () => ctx.revert();
   }, []);
 
+   const getStarted = () => {
+
+    navigation.redirect('/dashboard');
+    
+  }
+
   return (
     <section
       ref={containerRef}
@@ -91,7 +98,7 @@ export default function CTA() {
 
           <button
             ref={buttonRef}
-            onClick={() => window.location.href = '#'}
+            onClick={() => getStarted()}
             className="group relative px-8 py-4 rounded-full bg-gradient-to-b from-[#eab308] to-[#ca8a04] hover:from-[#facc15] hover:to-[#eab308] text-neutral-950 text-sm font-black tracking-tight shadow-[0_15px_40px_rgba(202,138,4,0.2),_inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 transform active:scale-95 will-change-transform cursor-pointer"
           >
             <span className="flex items-center gap-1.5 transform group-hover:translate-x-0.5 transition-transform duration-300">
