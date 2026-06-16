@@ -514,58 +514,7 @@ function ConnectingCard({ item }: { item: Integration }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────
-// Available Card
-// ─────────────────────────────────────────────────────────
-function AvailableCard({ name, desc }: { id: string; name: string; desc: string }) {
-  const [connecting, setConnecting] = useState(false);
-  const [done, setDone]             = useState(false);
-
-  function handleConnect() {
-    setConnecting(true);
-    setTimeout(() => {
-      setConnecting(false);
-      setDone(true);
-    }, 1400);
-  }
-
-  return (
-    <div
-      className={`flex items-center gap-4 ${CARD} rounded-2xl px-4 py-3.5 hover:border-white/[0.12] transition-all group`}
-    >
-      <div
-        className={`w-8 h-8 rounded-xl ${INNER} flex items-center justify-center flex-shrink-0`}
-      >
-        <Globe size={14} className="text-slate-700 group-hover:text-slate-400 transition-colors" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-xs font-bold text-slate-400 group-hover:text-white transition-colors">
-          {name}
-        </div>
-        <div className="text-[10px] text-slate-700 truncate mt-0.5">{desc}</div>
-      </div>
-      {done ? (
-        <span className="flex items-center gap-1 text-[10px] font-bold text-teal-400 flex-shrink-0">
-          <CheckCircle size={11} /> Added
-        </span>
-      ) : (
-        <button
-          onClick={handleConnect}
-          disabled={connecting}
-          className="flex items-center gap-1.5 text-[11px] font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-black px-3 py-1.5 rounded-xl transition-all shadow-[0_2px_8px_rgba(245,158,11,0.18)] flex-shrink-0"
-        >
-          {connecting ? (
-            <span className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-          ) : (
-            <>
-              <Plus size={11} /> Connect
-            </>
-          )}
-        </button>
-      )}
-    </div>
-  );
-}
+ 
 
 // ─────────────────────────────────────────────────────────
 // Inner page — uses useSearchParams so must be inside Suspense
