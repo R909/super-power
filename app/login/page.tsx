@@ -80,32 +80,15 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#030712] overflow-hidden flex items-stretch">
-      <style>{`
-        @keyframes float-a { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(18px,-28px) scale(1.04)} }
-        @keyframes float-b { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-14px,22px) scale(0.97)} }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-        @keyframes card-in { from{opacity:0;transform:translateY(22px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
-        @keyframes left-in { from{opacity:0;transform:translateX(-18px)} to{opacity:1;transform:translateX(0)} }
-        @keyframes scan-line { 0%{top:0;opacity:0} 8%{opacity:1} 92%{opacity:1} 100%{top:100%;opacity:0} }
-        @keyframes icon-float { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-7px) rotate(2deg)} }
-        @keyframes icon-bounce { 0%,100%{transform:translateY(0) scale(1)} 40%{transform:translateY(-8px) scale(1.07)} 60%{transform:translateY(-5px) scale(1.03)} }
-        @keyframes icon-spin-smile { 0%,100%{transform:rotate(-8deg) scale(1)} 50%{transform:rotate(8deg) scale(1.15)} }
-        @keyframes icon-glow-gmail { 0%,100%{box-shadow:0 4px 16px rgba(234,67,53,0.25)} 50%{box-shadow:0 6px 28px rgba(234,67,53,0.5)} }
-        @keyframes icon-glow-cal { 0%,100%{box-shadow:0 4px 16px rgba(26,115,232,0.25)} 50%{box-shadow:0 6px 28px rgba(26,115,232,0.5)} }
-      `}</style>
-
       <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(rgba(255,255,255,0.003)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.003)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black_40%,transparent_100%)]" />
-
       <div
         className="absolute -top-24 -right-24 w-[600px] h-[600px] rounded-full bg-amber-500/[0.07] blur-[140px] pointer-events-none z-0"
         style={{ animation: "float-a 14s ease-in-out infinite" }}
       />
-
       <div
         className="absolute -bottom-32 -left-20 w-[500px] h-[500px] rounded-full bg-teal-500/[0.05] blur-[130px] pointer-events-none z-0"
         style={{ animation: "float-b 11s ease-in-out infinite" }}
       />
-
       <div
         className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/[0.07] to-transparent pointer-events-none z-0"
         style={{ animation: "scan-line 12s linear infinite 3s" }}

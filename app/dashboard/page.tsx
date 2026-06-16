@@ -1,16 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Mail, Bell, Plus, Inbox, Calendar, MessageSquare, Settings,
   Star, Clock, Send, FileText, AlertCircle, Archive, Trash2,
-  Users, CheckCircle, Bot, Search, ChevronRight, Zap,
-  TrendingUp, MoreHorizontal, ArrowRight, Video, LayoutDashboard,
-  Sparkles, RefreshCw,
+  Users, CheckCircle, Bot, Search, Zap, MoreHorizontal, LayoutDashboard, Sparkles, RefreshCw, ChevronRight, ArrowUpRight,
+  LogOut,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
-// ── Sidebar ───────────────────────────────────────────────────────────────────
+
+// ─── Rose pink design tokens ──────────────────────────────────────────────────
+const BG        = "#fce7f3";
+const SURFACE   = "#fff5f8";
+const BORDER    = "rgba(225,29,72,0.10)";
+const ACCENT    = "#e11d48";
+const ACCENT_LT = "rgba(225,29,72,0.08)";
+const TEXT_PRI  = "#1a0008";
+const TEXT_SEC  = "#7f1d1d";
+const TEXT_MUT  = "#c084a0";
+const TEXT_DIM  = "#e9b8c8";
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
 const MAIN_NAV = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: Inbox,           label: "Inbox",     href: "/",          count: 71 },
@@ -23,38 +37,39 @@ const MAIL_FOLDERS = [
   { icon: Star,        label: "Important" },
   { icon: Clock,       label: "Snoozed" },
   { icon: Send,        label: "Sent" },
-  { icon: FileText,    label: "Drafts",  count: 3 },
+  { icon: FileText,    label: "Drafts",   count: 3 },
   { icon: AlertCircle, label: "Spam" },
   { icon: Archive,     label: "All Mail" },
   { icon: Trash2,      label: "Trash" },
   { icon: Users,       label: "Team" },
 ];
 
-const VIEWS = ["Client Communication", "Project Alpha", "Hiring", "Newsletters"];
-
 function Sidebar({ active }: { active: string }) {
+  const { data: session } = authClient.useSession();
+
+
   return (
-    <aside className="w-52 flex-shrink-0 flex flex-col border-r border-white/[0.05] bg-[#060810]">
+    <aside className="w-52 flex-shrink-0 flex flex-col" style={{ background: SURFACE, borderRight: `1px solid ${BORDER}` }}>
       {/* Logo */}
-      <div className="px-5 py-5 flex items-center justify-between">
-        <span className="flex items-center gap-2.5 font-extrabold text-base text-white tracking-tight">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#ffbe1a] to-[#e61700] flex items-center justify-center text-white text-sm shadow-[0_2px_10px_rgba(249,115,22,0.4)]">
+      <div className="px-5 py-5 flex items-center justify-between" style={{ borderBottom: `1px solid ${BORDER}` }}>
+        <span className="flex items-center gap-2 font-extrabold text-sm tracking-tight" style={{ color: TEXT_PRI }}>
+          <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs text-white"
+            style={{ background: "linear-gradient(135deg,#fb7185,#e11d48,#be123c)", boxShadow: "0 2px 10px rgba(225,29,72,0.30)" }}>
             ⚡
           </div>
           Super-Power
         </span>
         <button className="relative">
-          <Bell size={14} className="text-slate-600" />
-          <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-amber-400 rounded-full" />
+          <Bell size={13} style={{ color: TEXT_MUT }} />
+          <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full" style={{ background: ACCENT }} />
         </button>
       </div>
 
       {/* Compose */}
-      <div className="px-4 mb-4">
-        <button className="w-full flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black text-xs font-bold px-4 py-2.5 rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.3)] transition-all">
-          <Plus size={14} />
-          Compose
-          <span className="ml-auto bg-black/20 px-1.5 py-0.5 rounded-full text-[9px]">⌘K</span>
+      <div className="px-4 mb-3 mt-4">
+        <button className="w-full flex items-center gap-2 text-white text-xs font-bold px-3 py-2 rounded-xl transition-all"
+          style={{ background: "linear-gradient(135deg,#fb7185,#e11d48,#be123c)", boxShadow: "0 2px 10px rgba(225,29,72,0.25)" }}>
+          <Plus size={13} /> Compose
         </button>
       </div>
 
@@ -64,19 +79,19 @@ function Sidebar({ active }: { active: string }) {
           const isActive = href === active;
           return (
             <Link key={href} href={href}
-              className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-amber-500/10 text-amber-400 shadow-[inset_0_0_0_1px_rgba(245,158,11,0.15)]"
-                  : "text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]"
-              }`}>
-              <span className="flex items-center gap-3">
-                <Icon size={14} className={isActive ? "text-amber-400" : ""} />
+              className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all"
+              style={{
+                background: isActive ? ACCENT_LT : "transparent",
+                color: isActive ? ACCENT : TEXT_MUT,
+                borderRight: isActive ? `2px solid ${ACCENT}` : "2px solid transparent",
+              }}>
+              <span className="flex items-center gap-2.5">
+                <Icon size={13} />
                 {label}
               </span>
               {count !== undefined && (
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                  isActive ? "bg-amber-500/20 text-amber-400" : "bg-white/[0.06] text-slate-500"
-                }`}>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                  style={{ background: isActive ? "rgba(225,29,72,0.15)" : "rgba(225,29,72,0.06)", color: isActive ? ACCENT : TEXT_MUT }}>
                   {count}
                 </span>
               )}
@@ -84,370 +99,317 @@ function Sidebar({ active }: { active: string }) {
           );
         })}
 
-        <div className="mt-4 mb-1 px-3 text-[9px] font-bold text-slate-700 uppercase tracking-[0.2em]">Mail</div>
+        <div className="mt-4 mb-1 px-3 text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: TEXT_DIM }}>Mail</div>
         {MAIL_FOLDERS.map(({ icon: Icon, label, count }) => (
           <button key={label}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-400 hover:bg-white/[0.04] transition-all">
-            <span className="flex items-center gap-3"><Icon size={13} />{label}</span>
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all"
+            style={{ color: TEXT_MUT }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = TEXT_SEC; (e.currentTarget as HTMLElement).style.background = ACCENT_LT; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = TEXT_MUT; (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+            <span className="flex items-center gap-2.5"><Icon size={12} />{label}</span>
             {count !== undefined && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-white/[0.06] text-slate-500">{count}</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                style={{ background: "rgba(225,29,72,0.06)", color: TEXT_MUT }}>{count}</span>
             )}
           </button>
         ))}
 
-        <div className="mt-4 mb-1 px-3 text-[9px] font-bold text-slate-700 uppercase tracking-[0.2em]">Views</div>
-        {VIEWS.map((v, i) => (
-          <button key={v}
-            className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-600 hover:text-slate-400 hover:bg-white/[0.04] font-medium flex items-center gap-2 transition-all">
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${i % 2 === 0 ? "bg-amber-500/60" : "bg-teal-500/60"}`} />
-            {v}
-          </button>
-        ))}
-
-        <div className="mt-4 mb-1 px-3 text-[9px] font-bold text-slate-700 uppercase tracking-[0.2em]">Integrations</div>
+        <div className="mt-4 mb-1 px-3 text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: TEXT_DIM }}>Connected</div>
         {["Gmail", "Google Calendar"].map((svc) => (
-          <button key={svc}
-            className="w-full text-left px-3 py-2 rounded-xl text-xs text-slate-600 hover:text-slate-400 hover:bg-white/[0.04] font-medium flex items-center gap-2 transition-all">
-            <CheckCircle size={12} className="text-teal-500/60" />
-            {svc}
-          </button>
+          <div key={svc} className="flex items-center gap-2 px-3 py-1.5 text-xs" style={{ color: TEXT_MUT }}>
+            <CheckCircle size={11} style={{ color: "#16a34a" }} />{svc}
+          </div>
         ))}
       </nav>
 
       {/* User */}
-      <div className="p-3 border-t border-white/[0.05]">
-        <div className="flex items-center gap-3 bg-white/[0.04] rounded-2xl px-3 py-2.5 border border-white/[0.06]">
-          <div className="w-7 h-7 bg-gradient-to-tr from-amber-500 to-orange-500 rounded-full flex items-center justify-center font-bold text-black text-[10px] flex-shrink-0">
-            AM
+      <div className="absolute bottom-14 left-2 w-64 rounded-xl border border-gray-200 bg-white shadow-lg p-3 z-50">
+          <div className="mb-3">
+            <p className="text-sm font-semibold">{session?.user?.name}</p>
+            <p className="text-xs text-gray-500">{session?.user?.name}</p>
           </div>
-          <div className="min-w-0">
-            <div className="text-xs font-semibold text-slate-300 truncate">Arjun Mehta</div>
-            <div className="text-[10px] text-slate-600 truncate">arjun@example.co</div>
-          </div>
-          <Settings size={12} className="text-slate-700 ml-auto flex-shrink-0" />
+
+          
         </div>
-      </div>
     </aside>
   );
 }
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// ─── Data ─────────────────────────────────────────────────────────────────────
 const STATS = [
-  {
-    label: "Unread Emails",
-    value: "71",
-    delta: "+12 since yesterday",
-    icon: Mail,
-    glow: "rgba(245,158,11,0.15)",
-    accent: "text-amber-400",
-    bar: "from-amber-500 to-orange-500",
-    barW: "72%",
-  },
-  {
-    label: "Meetings Today",
-    value: "4",
-    delta: "Next in 38 min",
-    icon: Calendar,
-    glow: "rgba(99,102,241,0.12)",
-    accent: "text-violet-400",
-    bar: "from-violet-500 to-indigo-500",
-    barW: "40%",
-  },
-  {
-    label: "AI Tasks Done",
-    value: "12",
-    delta: "3 pending review",
-    icon: Bot,
-    glow: "rgba(20,184,166,0.12)",
-    accent: "text-teal-400",
-    bar: "from-teal-500 to-emerald-500",
-    barW: "85%",
-  },
-  {
-    label: "Time Saved",
-    value: "3.2h",
-    delta: "This week · ↑ 18%",
-    icon: TrendingUp,
-    glow: "rgba(245,158,11,0.1)",
-    accent: "text-amber-400",
-    bar: "from-amber-400 to-yellow-400",
-    barW: "60%",
-  },
+  { label: "Unread",     value: "71",   sub: "+12 today",       accent: ACCENT,    dot: ACCENT    },
+  { label: "Meetings",   value: "4",    sub: "Next in 38 min",  accent: "#7c3aed", dot: "#7c3aed" },
+  { label: "AI tasks",   value: "12",   sub: "3 need review",   accent: "#0d9488", dot: "#0d9488" },
+  { label: "Time saved", value: "3.2h", sub: "↑ 18% this week", accent: ACCENT,    dot: ACCENT    },
 ];
 
 const THREADS = [
-  {
-    id: 1,
-    from: "James K.",
-    initials: "JK",
-    avatarColor: "from-violet-500 to-indigo-500",
-    subject: "Re: Term Sheet — final comments",
-    preview: "Thanks for sending that over. I've left a few notes on clause 4…",
-    aiSummary: "Investor feedback on term sheet clause 4. Action needed — reply today.",
-    time: "9:14 AM",
-    unread: true,
-    tag: "Investor",
-    tagCls: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
-  },
-  {
-    id: 2,
-    from: "Priya V.",
-    initials: "PV",
-    avatarColor: "from-rose-500 to-pink-500",
-    subject: "Demo date — can we move to Thursday?",
-    preview: "Hi, just checking if Thursday at 2pm works better for your team…",
-    aiSummary: "Requesting reschedule to Thu 2pm. Reply to confirm or suggest an alternative.",
-    time: "8:47 AM",
-    unread: true,
-    tag: "Investor",
-    tagCls: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
-  },
-  {
-    id: 3,
-    from: "Design Team",
-    initials: "DT",
-    avatarColor: "from-teal-500 to-emerald-500",
-    subject: "Q3 brand refresh — assets ready",
-    preview: "The new logo variants and color tokens are in Figma. Let us know…",
-    aiSummary: "Brand assets delivered in Figma. No urgent action required.",
-    time: "Yesterday",
-    unread: false,
-    tag: "Internal",
-    tagCls: "bg-teal-500/10 text-teal-400 border border-teal-500/20",
-  },
-  {
-    id: 4,
-    from: "Sequoia Intro",
-    initials: "SQ",
-    avatarColor: "from-amber-500 to-orange-500",
-    subject: "Introduction: Ravi Shah → SuperPower",
-    preview: "Ravi, meet the team at SuperPower — they're building something special…",
-    aiSummary: "New investor introduction. Draft a warm reply to Ravi Shah to keep momentum.",
-    time: "Yesterday",
-    unread: true,
-    tag: "New intro",
-    tagCls: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-  },
-  {
-    id: 5,
-    from: "Stripe",
-    initials: "ST",
-    avatarColor: "from-slate-500 to-slate-600",
-    subject: "Your June invoice is ready",
-    preview: "Your invoice #INV-0042 for $1,240 is available in the dashboard…",
-    aiSummary: "Routine invoice. No reply needed.",
-    time: "Jun 12",
-    unread: false,
-    tag: "Billing",
-    tagCls: "bg-white/[0.05] text-slate-500 border border-white/[0.08]",
-  },
+  { id:1, from:"James K.",    initials:"JK", color:"from-violet-500 to-indigo-500",  subject:"Re: Term Sheet — final comments",          preview:"I've left a few notes on clause 4…",                     aiSummary:"Investor feedback on clause 4. Action needed — reply today.", time:"9:14 AM",  unread:true,  tag:"Investor", tagColor:"#7c3aed" },
+  { id:2, from:"Priya V.",    initials:"PV", color:"from-rose-500 to-pink-500",       subject:"Demo date — can we move to Thursday?",     preview:"Checking if Thursday 2pm works better…",                 aiSummary:"Requesting reschedule to Thu 2pm. Reply to confirm.",         time:"8:47 AM",  unread:true,  tag:"Investor", tagColor:"#7c3aed" },
+  { id:3, from:"Design Team", initials:"DT", color:"from-teal-500 to-emerald-500",   subject:"Q3 brand refresh — assets ready",           preview:"New logo variants and tokens are in Figma…",             aiSummary:"Brand assets in Figma. No action required.",                  time:"Yesterday",unread:false, tag:"Internal", tagColor:"#0d9488" },
+  { id:4, from:"Sequoia",     initials:"SQ", color:"from-amber-500 to-orange-500",   subject:"Introduction: Ravi Shah → SuperPower",     preview:"Ravi, meet the team at SuperPower…",                     aiSummary:"New investor intro. Draft a warm reply to Ravi.",             time:"Yesterday",unread:true,  tag:"Intro",    tagColor:"#d97706" },
+  { id:5, from:"Stripe",      initials:"ST", color:"from-slate-500 to-slate-600",    subject:"Your June invoice is ready",                preview:"Invoice #INV-0042 for $1,240 is ready…",                 aiSummary:"Routine billing. No reply needed.",                           time:"Jun 12",   unread:false, tag:"Billing",  tagColor:"#64748b" },
 ];
 
-const TODAY_EVENTS = [
-  { time: "9:00",  label: "Standup · Engineering",    dur: "15 min", color: "from-teal-500 to-emerald-500",   meet: true  },
-  { time: "10:30", label: "1:1 with Sarah (Design)",  dur: "30 min", color: "from-violet-500 to-indigo-500",  meet: true  },
-  { time: "12:00", label: "Lunch · Sequoia team",     dur: "1 hr",   color: "from-amber-500 to-orange-500",   meet: false },
-  { time: "15:00", label: "Investor call · James K.", dur: "30 min", color: "from-blue-500 to-cyan-500",      meet: true  },
-  { time: "17:00", label: "Product review",           dur: "1 hr",   color: "from-rose-500 to-pink-500",      meet: true  },
+const EVENTS = [
+  { time:"9:00",  label:"Standup · Engineering",   dur:"15m", color:"#0d9488" },
+  { time:"10:30", label:"1:1 with Sarah",           dur:"30m", color:"#7c3aed" },
+  { time:"12:00", label:"Lunch · Sequoia",          dur:"1h",  color:"#d97706" },
+  { time:"15:00", label:"Investor call · James K.", dur:"30m", color:"#2563eb" },
+  { time:"17:00", label:"Product review",           dur:"1h",  color:ACCENT    },
 ];
 
-const AI_SUGGESTIONS = [
-  { icon: Send,     label: "Reply to James K. re term sheet",  accent: "text-amber-400",  bg: "bg-amber-500/10"  },
-  { icon: Calendar, label: "Reschedule demo — Thu 2pm slot",   accent: "text-violet-400", bg: "bg-violet-500/10" },
-  { icon: Mail,     label: "Draft intro reply for Ravi Shah",  accent: "text-teal-400",   bg: "bg-teal-500/10"   },
-  { icon: Archive,  label: "Archive 14 newsletter threads",    accent: "text-slate-400",  bg: "bg-white/[0.05]"  },
+const AI_ACTIONS = [
+  { label:"Reply to James K. re term sheet", icon:Send,    accent:ACCENT    },
+  { label:"Reschedule demo — Thu 2pm",       icon:Calendar,accent:"#7c3aed" },
+  { label:"Draft intro reply for Ravi Shah", icon:Mail,    accent:"#0d9488" },
+  { label:"Archive 14 newsletter threads",   icon:Archive, accent:TEXT_MUT  },
 ];
 
-// ── Dashboard ─────────────────────────────────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const [activeThread, setActiveThread] = useState<number | null>(1);
-  const [aiSent, setAiSent] = useState<Record<number, boolean>>({});
+  const [aiSent, setAiSent]             = useState<Record<number, boolean>>({});
+
+   const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+
+  const [showProfile, setShowProfile] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.replace("/login");
+    }
+  }, [session, isPending, router]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowProfile(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+
+    router.replace("/login");
+  };
+
+  if (isPending) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  const initials =
+    session.user.name
+      ?.split(" ")
+      .map((x) => x[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U";
+
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-[#030712] relative">
-      <style>{`
-        @keyframes float-a { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(18px,-28px) scale(1.04)} }
-        @keyframes float-b { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-14px,22px) scale(0.97)} }
-        @keyframes scan-line { 0%{top:0;opacity:0} 8%{opacity:1} 92%{opacity:1} 100%{top:100%;opacity:0} }
-        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
-      `}</style>
-
-      {/* Grid overlay */}
-      <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(rgba(255,255,255,0.003)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.003)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black_40%,transparent_100%)]" />
-
-      {/* Amber orb top-right */}
-      <div className="absolute -top-32 -right-32 w-[700px] h-[700px] rounded-full bg-amber-500/[0.06] blur-[160px] pointer-events-none z-0"
-        style={{ animation: "float-a 16s ease-in-out infinite" }} />
-
-      {/* Teal orb bottom-left */}
-      <div className="absolute -bottom-40 -left-24 w-[550px] h-[550px] rounded-full bg-teal-500/[0.04] blur-[140px] pointer-events-none z-0"
-        style={{ animation: "float-b 12s ease-in-out infinite" }} />
-
-      {/* Scan line */}
-      <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/[0.06] to-transparent pointer-events-none z-0"
-        style={{ animation: "scan-line 14s linear infinite 2s" }} />
-
+    <div className="h-screen w-screen flex overflow-hidden" style={{ background: BG }}>
       <Sidebar active="/dashboard" />
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col overflow-hidden relative z-10">
+      <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-white/[0.05] bg-[#030712]/80 backdrop-blur-xl flex-shrink-0">
-          <div>
-            <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-amber-400/80 flex items-center gap-1.5 mb-1">
-              <span>✦</span> Dashboard
-            </div>
-            <h1 className="text-xl font-black text-white tracking-tight">Good morning, Arjun</h1>
+        <header className="flex items-center justify-between px-6 py-4 bg-white border-b">
+        
+        <div className="flex items-center gap-4">
+          {/* Search */}
+          <div className="flex items-center  border rounded-xl px-3 py-2">
+            <Search size={16} />
+
+            <input
+              placeholder="Search..."
+              className="outline-none text-sm"
+            />
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Search */}
-            <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.07] rounded-xl px-3 py-2 w-56 hover:border-amber-500/20 transition-colors">
-              <Search size={13} className="text-slate-600 flex-shrink-0" />
-              <input
-                className="bg-transparent text-sm outline-none text-slate-400 placeholder:text-slate-700 w-full"
-                placeholder="Search emails…"
-              />
-            </div>
-
-            {/* AI status */}
-            <div className="flex items-center gap-2 bg-amber-500/[0.08] border border-amber-500/20 text-amber-400 text-xs font-semibold px-3 py-1.5 rounded-full">
-              <span className="w-1.5 h-1.5 bg-amber-400 rounded-full" style={{ animation: "pulse-dot 1.8s ease-in-out infinite" }} />
-              AI Active
-            </div>
-
-            {/* Bell */}
-            <button className="relative w-9 h-9 bg-white/[0.04] border border-white/[0.07] rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-300 hover:border-white/[0.12] transition-all">
-              <Bell size={14} />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-amber-400 rounded-full" />
+          {/* Profile */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() =>
+                setShowProfile((prev) => !prev)
+              }
+              className="w-10 h-10 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center"
+            >
+              {initials}
             </button>
 
-            {/* Avatar */}
-            <div className="w-9 h-9 bg-gradient-to-tr from-amber-500 to-orange-500 rounded-full flex items-center justify-center font-bold text-black text-xs flex-shrink-0 cursor-pointer shadow-[0_2px_10px_rgba(245,158,11,0.3)] hover:shadow-[0_2px_18px_rgba(245,158,11,0.45)] transition-shadow">
-              AM
-            </div>
+            {showProfile && (
+              <div className="absolute right-0 top-12 w-72 bg-white border rounded-2xl shadow-xl p-4 z-50">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold">
+                    {initials}
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold">
+                      {session.user.name}
+                    </h3>
+
+                    <p className="text-sm text-gray-500">
+                      {session.user.email}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              </div>
+
+
+            )}
           </div>
-        </header>
+
+            <div className="px-4 mb-3 mt-4">
+        <button onClick={()=>{router.push("/integrations")}} className="w-full flex items-center gap-2 text-white text-xs font-bold px-3 py-2 rounded-xl transition-all"
+          style={{ background: "linear-gradient(135deg,#fb7185,#e11d48,#be123c)", boxShadow: "0 2px 10px rgba(225,29,72,0.25)" }}>
+          <Plus size={13} /> Add Integration
+        </button>
+      </div>
+        </div>
+      </header>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto">
 
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-4">
-            {STATS.map(({ label, value, delta, icon: Icon, glow, accent, bar, barW }) => (
-              <div key={label}
-                className="relative rounded-2xl bg-[#090d16]/80 border border-white/[0.06] backdrop-blur-sm p-5 overflow-hidden hover:border-white/[0.10] transition-all group shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
-                style={{ boxShadow: `0 0 0 1px rgba(255,255,255,0.04), inset 0 0 40px ${glow}` }}>
-                {/* Glow bleed */}
-                <div className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ background: `radial-gradient(ellipse at 50% 0%, ${glow} 0%, transparent 70%)` }} />
-
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-600">{label}</span>
-                    <Icon size={14} className={accent} />
-                  </div>
-                  <div className="text-3xl font-black text-white tracking-tight mb-3">{value}</div>
-                  <div className="text-[11px] text-slate-600 mb-3 font-medium">{delta}</div>
-                  <div className="h-0.5 bg-white/[0.05] rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full bg-gradient-to-r ${bar} transition-all duration-700`}
-                      style={{ width: barW }} />
-                  </div>
+          {/* Stats strip */}
+          <div className="grid grid-cols-4" style={{ borderBottom: `1px solid ${BORDER}` }}>
+            {STATS.map(({ label, value, sub, accent, dot }, i) => (
+              <div key={label} className="px-6 py-4 flex items-center gap-4"
+                style={{ borderRight: i < 3 ? `1px solid ${BORDER}` : "none" }}>
+                <div>
+                  <p className="text-[10px] font-medium mb-1" style={{ color: TEXT_MUT }}>{label}</p>
+                  <p className="text-2xl font-black tracking-tight" style={{ color: accent }}>{value}</p>
+                </div>
+                <div className="ml-auto text-right">
+                  <div className="w-1.5 h-1.5 rounded-full ml-auto mb-2 opacity-60" style={{ background: dot }} />
+                  <p className="text-[10px]" style={{ color: TEXT_MUT }}>{sub}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Two-column */}
-          <div className="grid grid-cols-[1fr_320px] gap-5">
+          <div className="flex h-full">
 
-            {/* Email threads */}
-            <div className="rounded-2xl bg-[#090d16]/80 border border-white/[0.06] backdrop-blur-sm overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.4)] flex flex-col">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05]">
-                <div className="flex items-center gap-2.5">
-                  <Inbox size={14} className="text-amber-400" />
-                  <span className="font-bold text-sm text-white">Priority Inbox</span>
-                  <span className="text-[10px] bg-amber-500/15 text-amber-400 border border-amber-500/20 font-bold px-2 py-0.5 rounded-full">71</span>
+            {/* Inbox */}
+            <div className="flex-1 flex flex-col min-h-0" style={{ borderRight: `1px solid ${BORDER}` }}>
+              <div className="flex items-center justify-between px-6 py-3.5" style={{ borderBottom: `1px solid ${BORDER}` }}>
+                <div className="flex items-center gap-2">
+                  <Inbox size={13} style={{ color: TEXT_MUT }} />
+                  <span className="text-sm font-bold" style={{ color: TEXT_PRI }}>Priority inbox</span>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                    style={{ background: ACCENT_LT, color: ACCENT }}>71</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button className="text-[11px] text-slate-600 hover:text-slate-400 font-medium flex items-center gap-1 transition-colors">
+                  <button className="text-[11px] flex items-center gap-1 transition-colors"
+                    style={{ color: TEXT_MUT }}>
                     <RefreshCw size={10} /> Refresh
                   </button>
-                  <Link href="/" className="text-[11px] text-amber-400/80 hover:text-amber-400 font-semibold flex items-center gap-0.5 transition-colors">
-                    View all <ChevronRight size={11} />
+                  <Link href="/" className="text-[11px] flex items-center gap-0.5 font-semibold transition-colors"
+                    style={{ color: ACCENT }}>
+                    All <ChevronRight size={11} />
                   </Link>
                 </div>
               </div>
 
-              <div className="divide-y divide-white/[0.03] overflow-y-auto">
-                {THREADS.map((thread) => (
-                  <div key={thread.id}
-                    onClick={() => setActiveThread(thread.id === activeThread ? null : thread.id)}
-                    className={`px-5 py-4 cursor-pointer transition-all ${
-                      activeThread === thread.id
-                        ? "bg-amber-500/[0.04] border-l-2 border-amber-500/40"
-                        : "hover:bg-white/[0.02] border-l-2 border-transparent"
-                    }`}>
+              <div className="flex-1 overflow-y-auto">
+                {THREADS.map((t) => (
+                  <div key={t.id}
+                    onClick={() => setActiveThread(t.id === activeThread ? null : t.id)}
+                    className="px-6 py-4 cursor-pointer transition-all"
+                    style={{
+                      background: activeThread === t.id ? "rgba(225,29,72,0.04)" : "transparent",
+                      borderBottom: `1px solid ${BORDER}`,
+                      borderLeft: activeThread === t.id ? `2px solid ${ACCENT}` : "2px solid transparent",
+                    }}
+                    onMouseEnter={e => { if (activeThread !== t.id) (e.currentTarget as HTMLElement).style.background = "rgba(225,29,72,0.02)"; }}
+                    onMouseLeave={e => { if (activeThread !== t.id) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                  >
                     <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div className={`w-8 h-8 rounded-full bg-gradient-to-tr ${thread.avatarColor} flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 mt-0.5 shadow-sm`}>
-                        {thread.initials}
+                      <div className="mt-2 w-1.5 flex-shrink-0">
+                        {t.unread && <span className="block w-1.5 h-1.5 rounded-full" style={{ background: ACCENT }} />}
                       </div>
-
+                      <div className={`w-7 h-7 rounded-full bg-gradient-to-tr ${t.color} flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0`}>
+                        {t.initials}
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center justify-between mb-0.5">
                           <div className="flex items-center gap-2">
-                            <span className={`text-sm font-${thread.unread ? "bold text-white" : "medium text-slate-400"}`}>
-                              {thread.from}
+                            <span className="text-xs font-medium" style={{ color: t.unread ? TEXT_PRI : TEXT_MUT, fontWeight: t.unread ? 700 : 500 }}>
+                              {t.from}
                             </span>
-                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${thread.tagCls}`}>
-                              {thread.tag}
-                            </span>
+                            <span className="text-[9px] font-semibold" style={{ color: t.tagColor }}>{t.tag}</span>
                           </div>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {thread.unread && <span className="w-1.5 h-1.5 bg-amber-400 rounded-full flex-shrink-0" />}
-                            <span className="text-[10px] text-slate-700">{thread.time}</span>
-                          </div>
+                          <span className="text-[10px] flex-shrink-0" style={{ color: TEXT_MUT }}>{t.time}</span>
                         </div>
-
-                        <p className={`text-xs ${thread.unread ? "font-semibold text-slate-300" : "text-slate-600"} truncate`}>
-                          {thread.subject}
+                        <p className="text-xs truncate" style={{ color: t.unread ? TEXT_SEC : TEXT_MUT, fontWeight: t.unread ? 500 : 400 }}>
+                          {t.subject}
                         </p>
-                        <p className="text-[11px] text-slate-700 truncate mt-0.5">{thread.preview}</p>
+                        <p className="text-[11px] truncate mt-0.5" style={{ color: TEXT_MUT }}>{t.preview}</p>
 
-                        {/* Expanded */}
-                        {activeThread === thread.id && (
+                        {activeThread === t.id && (
                           <div className="mt-3 space-y-2">
-                            <div className="flex items-start gap-2 bg-amber-500/[0.06] border border-amber-500/[0.15] rounded-xl px-3 py-2.5">
-                              <Sparkles size={11} className="text-amber-400 mt-0.5 flex-shrink-0" />
-                              <p className="text-[11px] text-amber-200/80 font-medium leading-relaxed">
-                                {thread.aiSummary}
-                              </p>
+                            <div className="flex items-start gap-2 rounded-xl px-3 py-2.5"
+                              style={{ background: ACCENT_LT, border: `1px solid rgba(225,29,72,0.12)` }}>
+                              <Sparkles size={11} className="mt-0.5 flex-shrink-0" style={{ color: ACCENT }} />
+                              <p className="text-[11px] leading-relaxed" style={{ color: TEXT_SEC }}>{t.aiSummary}</p>
                             </div>
                             <div className="flex items-center gap-2">
                               <button
-                                onClick={(e) => { e.stopPropagation(); setAiSent((p) => ({ ...p, [thread.id]: true })); }}
-                                className={`flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl transition-all ${
-                                  aiSent[thread.id]
-                                    ? "bg-teal-500/10 border border-teal-500/20 text-teal-400"
-                                    : "bg-amber-500 hover:bg-amber-400 text-black shadow-[0_2px_10px_rgba(245,158,11,0.3)]"
-                                }`}>
-                                {aiSent[thread.id]
-                                  ? <><CheckCircle size={10} /> Sent</>
-                                  : <><Bot size={10} /> AI Reply</>}
+                                onClick={(e) => { e.stopPropagation(); setAiSent((p) => ({ ...p, [t.id]: true })); }}
+                                className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl transition-all"
+                                style={aiSent[t.id]
+                                  ? { background:"rgba(20,184,166,0.10)", border:"1px solid rgba(20,184,166,0.20)", color:"#0d9488" }
+                                  : { background: "linear-gradient(135deg,#fb7185,#e11d48)", color:"#fff", boxShadow:"0 2px 8px rgba(225,29,72,0.25)" }}>
+                                {aiSent[t.id] ? <><CheckCircle size={10} /> Sent</> : <><Bot size={10} /> AI Reply</>}
                               </button>
                               <button onClick={(e) => e.stopPropagation()}
-                                className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.07] text-slate-400 transition-all">
+                                className="flex items-center gap-1.5 text-[11px] px-2 py-1.5 rounded-xl transition-all"
+                                style={{ color: TEXT_MUT }}>
                                 <Archive size={10} /> Archive
                               </button>
                               <button onClick={(e) => e.stopPropagation()}
-                                className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.07] text-slate-400 transition-all">
+                                className="flex items-center gap-1.5 text-[11px] px-2 py-1.5 rounded-xl transition-all"
+                                style={{ color: TEXT_MUT }}>
                                 <Clock size={10} /> Snooze
                               </button>
-                              <button onClick={(e) => e.stopPropagation()}
-                                className="ml-auto text-slate-700 hover:text-slate-500 transition-colors">
-                                <MoreHorizontal size={14} />
+                              <button onClick={(e) => e.stopPropagation()} className="ml-auto" style={{ color: TEXT_DIM }}>
+                                <MoreHorizontal size={13} />
                               </button>
                             </div>
                           </div>
@@ -459,93 +421,71 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Right column */}
-            <div className="flex flex-col gap-4">
+            {/* Right panel */}
+            <div className="w-72 flex-shrink-0 flex flex-col overflow-y-auto" style={{ background: SURFACE }}>
 
-              {/* Today's schedule */}
-              <div className="rounded-2xl bg-[#090d16]/80 border border-white/[0.06] backdrop-blur-sm shadow-[0_4px_24px_rgba(0,0,0,0.4)] overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.05]">
+              {/* Schedule */}
+              <div className="p-5" style={{ borderBottom: `1px solid ${BORDER}` }}>
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <Calendar size={13} className="text-violet-400" />
-                    <span className="font-bold text-sm text-white">Today</span>
-                    <span className="text-[9px] text-slate-600 font-medium">Jun 14</span>
+                    <Calendar size={12} style={{ color: TEXT_MUT }} />
+                    <span className="text-xs font-bold" style={{ color: TEXT_PRI }}>Today</span>
+                    <span className="text-[10px]" style={{ color: TEXT_MUT }}>Jun 14</span>
                   </div>
-                  <Link href="/calendar"
-                    className="text-[11px] text-violet-400/80 hover:text-violet-400 font-semibold flex items-center gap-0.5 transition-colors">
-                    Full view <ChevronRight size={11} />
+                  <Link href="/calendar" className="text-[10px] flex items-center gap-0.5 transition-colors" style={{ color: TEXT_MUT }}>
+                    View <ArrowUpRight size={10} />
                   </Link>
                 </div>
-
-                <div className="px-4 py-3 space-y-2.5">
-                  {TODAY_EVENTS.map(({ time, label, dur, color, meet }) => (
-                    <div key={time} className="flex items-center gap-3 group">
-                      <span className="text-[10px] font-mono text-slate-700 w-9 flex-shrink-0">{time}</span>
-                      <div className={`w-0.5 h-9 rounded-full flex-shrink-0 bg-gradient-to-b ${color} opacity-80`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-300 truncate group-hover:text-white transition-colors">{label}</p>
-                        <p className="text-[10px] text-slate-700 flex items-center gap-1">
-                          {dur}
-                          {meet && <><span className="text-slate-800">·</span><Video size={8} className="text-slate-700" /><span>Meet</span></>}
-                        </p>
+                <div className="space-y-3">
+                  {EVENTS.map(({ time, label, dur, color }) => (
+                    <div key={time} className="flex items-center gap-3">
+                      <span className="text-[10px] font-mono w-8 flex-shrink-0" style={{ color: TEXT_MUT }}>{time}</span>
+                      <div className="w-0.5 h-8 rounded-full flex-shrink-0 opacity-60" style={{ background: color }} />
+                      <div className="min-w-0">
+                        <p className="text-xs truncate" style={{ color: TEXT_PRI }}>{label}</p>
+                        <p className="text-[10px]" style={{ color: TEXT_MUT }}>{dur}</p>
                       </div>
-                      <button className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-700 hover:text-slate-400">
-                        <ArrowRight size={12} />
-                      </button>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* AI suggestions */}
-              <div className="rounded-2xl bg-[#090d16]/80 border border-white/[0.06] backdrop-blur-sm shadow-[0_4px_24px_rgba(0,0,0,0.4)] overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.05]">
-                  <div className="flex items-center gap-2">
-                    <Zap size={13} className="text-amber-400" />
-                    <span className="font-bold text-sm text-white">AI Suggestions</span>
-                  </div>
-                  <Link href="/chat"
-                    className="text-[11px] text-amber-400/80 hover:text-amber-400 font-semibold flex items-center gap-0.5 transition-colors">
-                    Agent <ChevronRight size={11} />
-                  </Link>
+              <div className="p-5" style={{ borderBottom: `1px solid ${BORDER}` }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap size={12} style={{ color: ACCENT }} />
+                  <span className="text-xs font-bold" style={{ color: TEXT_PRI }}>AI suggestions</span>
                 </div>
-
-                <div className="px-3 py-3 space-y-1">
-                  {AI_SUGGESTIONS.map(({ icon: Icon, label, accent, bg }, i) => (
+                <div className="space-y-1">
+                  {AI_ACTIONS.map(({ label, icon: Icon, accent }, i) => (
                     <button key={i}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.04] border border-transparent hover:border-white/[0.06] text-left transition-all group">
-                      <div className={`w-7 h-7 ${bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                        <Icon size={12} className={accent} />
-                      </div>
-                      <span className="text-xs font-medium text-slate-500 group-hover:text-slate-300 transition-colors flex-1 leading-tight">{label}</span>
-                      <ArrowRight size={11} className="text-slate-800 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                      className="w-full flex items-center gap-3 px-2 py-2.5 rounded-xl text-left transition-all group"
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = ACCENT_LT}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "transparent"}>
+                      <Icon size={12} style={{ color: accent, flexShrink: 0 }} />
+                      <span className="text-xs flex-1 leading-tight transition-colors" style={{ color: TEXT_MUT }}>{label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Quick compose */}
-              <div className="rounded-2xl overflow-hidden relative shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
-                style={{ background: "linear-gradient(135deg, #1a0e00 0%, #0d0800 100%)", border: "1px solid rgba(245,158,11,0.15)" }}>
-                {/* Inner glow */}
-                <div className="absolute inset-0 pointer-events-none"
-                  style={{ background: "radial-gradient(ellipse at 50% -10%, rgba(245,158,11,0.12) 0%, transparent 65%)" }} />
-
-                <div className="relative z-10 p-4">
-                  <div className="text-[9px] font-bold tracking-[0.3em] uppercase text-amber-400/80 flex items-center gap-1.5 mb-2">
-                    <Sparkles size={9} /> Quick compose
-                  </div>
-                  <p className="text-slate-500 text-[11px] mb-3 leading-relaxed">
-                    Describe the email and AI will draft it in your voice.
-                  </p>
-                  <div className="bg-white/[0.04] rounded-xl px-3 py-2.5 flex items-center gap-2 border border-amber-500/[0.12] hover:border-amber-500/25 transition-colors">
-                    <input
-                      className="flex-1 bg-transparent text-xs text-slate-400 placeholder:text-slate-700 outline-none"
-                      placeholder="e.g. Follow up with James about the call…"
-                    />
-                    <button className="w-6 h-6 bg-gradient-to-tr from-amber-500 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0 hover:from-amber-400 hover:to-orange-400 transition-all shadow-[0_2px_8px_rgba(245,158,11,0.3)]">
-                      <Send size={10} className="text-black" />
-                    </button>
-                  </div>
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles size={12} style={{ color: ACCENT }} />
+                  <span className="text-xs font-bold" style={{ color: TEXT_PRI }}>Quick compose</span>
+                </div>
+                <div className="rounded-xl px-3 py-2.5 flex items-center gap-2 transition-colors"
+                  style={{ background: "#fff", border: `1px solid ${BORDER}` }}>
+                  <input
+                    className="flex-1 bg-transparent text-xs outline-none"
+                    style={{ color: TEXT_PRI }}
+                    placeholder="Describe email, AI drafts it…"
+                  />
+                  <button className="w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
+                    style={{ background: "linear-gradient(135deg,#fb7185,#e11d48)" }}>
+                    <Send size={9} className="text-white" />
+                  </button>
                 </div>
               </div>
 

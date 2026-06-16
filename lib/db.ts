@@ -12,7 +12,6 @@ function createPrismaClient() {
     throw new Error("DATABASE_URL is not set");
   }
 
-  // Prisma 7+ uses driver adapters instead of baking the connection into the client.
   const adapter = new PrismaPg({ connectionString: url });
   return new PrismaClient({ adapter });
 }

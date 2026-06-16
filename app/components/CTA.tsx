@@ -1,34 +1,28 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import navigation from 'next/navigation';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function CTA() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const buttonRef    = useRef<HTMLButtonElement>(null);
+  const router       = useRouter();
 
   useEffect(() => {
     const container = containerRef.current;
-    const button = buttonRef.current;
+    const button    = buttonRef.current;
     if (!container) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(".fade-up-cta",
         { opacity: 0, y: 40, scale: 0.98 },
         {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: container,
-            start: "top 85%",
-          }
+          opacity: 1, y: 0, scale: 1, duration: 1, ease: "power3.out",
+          scrollTrigger: { trigger: container, start: "top 85%" },
         }
       );
     }, container);
@@ -36,70 +30,128 @@ export default function CTA() {
     if (button && !("ontouchstart" in window)) {
       const onMouseMove = (e: MouseEvent) => {
         const rect = button.getBoundingClientRect();
-        const x = e.clientX - (rect.left + rect.width / 2);
-        const y = e.clientY - (rect.top + rect.height / 2);
-
         gsap.to(button, {
-          x: x * 0.35,
-          y: y * 0.35,
-          duration: 0.3,
-          ease: "power2.out"
+          x: (e.clientX - (rect.left + rect.width  / 2)) * 0.35,
+          y: (e.clientY - (rect.top  + rect.height / 2)) * 0.35,
+          duration: 0.3, ease: "power2.out",
         });
       };
-
       const onMouseLeave = () => {
         gsap.to(button, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1, 0.5)" });
       };
 
-      button.addEventListener("mousemove", onMouseMove);
+      button.addEventListener("mousemove",  onMouseMove);
       button.addEventListener("mouseleave", onMouseLeave);
     }
 
     return () => ctx.revert();
   }, []);
 
-   const getStarted = () => {
-
-    navigation.redirect('/dashboard');
-    
-  }
+  const getStarted = () => router.push("/dashboard");
 
   return (
     <section
       ref={containerRef}
-      className="relative w-full bg-[#030712] py-24 md:py-36 px-6 md:px-12 overflow-hidden flex flex-col items-center justify-center text-center"
       id="cta"
+      className="relative w-full py-24 md:py-36 px-6 md:px-12 overflow-hidden flex flex-col items-center justify-center text-center"
+      style={{ backgroundColor: "#fce7f3" }}
     >
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(45deg,_rgba(217,119,6,0.004)_1px,_transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,_black_40%,_transparent_100%)] z-0" />
+      {/* Fine rose grid */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: "linear-gradient(45deg, rgba(225,29,72,0.05) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+          maskImage: "radial-gradient(ellipse 60% 60% at 50% 50%, black 40%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse 60% 60% at 50% 50%, black 40%, transparent 100%)",
+        }}
+      />
 
-      <div className="absolute bottom-[-150px] left-1/2 -translate-x-1/2 w-[700px] md:w-[900px] h-[400px] rounded-full bg-gradient-to-t from-amber-500/[0.08] to-transparent blur-[120px] pointer-events-none mix-blend-screen z-0" />
-      <div className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 w-[350px] md:w-[500px] h-[100px] rounded-full bg-amber-400/[0.03] blur-[50px] pointer-events-none z-0" />
+      {/* Bottom glow orbs */}
+      <div
+        className="absolute pointer-events-none z-0"
+        style={{
+          bottom: -150, left: "50%", transform: "translateX(-50%)",
+          width: 900, height: 400, borderRadius: "50%",
+          background: "radial-gradient(ellipse at bottom, rgba(225,29,72,0.12) 0%, transparent 70%)",
+          filter: "blur(120px)",
+        }}
+      />
+      <div
+        className="absolute pointer-events-none z-0"
+        style={{
+          bottom: -20, left: "50%", transform: "translateX(-50%)",
+          width: 500, height: 100, borderRadius: "50%",
+          background: "rgba(251,113,133,0.06)",
+          filter: "blur(50px)",
+        }}
+      />
 
       <div className="fade-up-cta opacity-0 max-w-3xl flex flex-col items-center relative z-10 [transform-style:preserve-3d]">
 
-        <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-amber-400/90 mb-6 flex items-center gap-1.5 drop-shadow-[0_0_8px_rgba(245,158,11,0.25)]">
+        {/* Eyebrow */}
+        <div
+          className="text-[10px] font-bold tracking-[0.3em] uppercase mb-6 flex items-center gap-1.5"
+          style={{ color: "#e11d48" }}
+        >
           <span>✦</span> Get Started Immediately
         </div>
 
-        <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.1] mb-6 max-w-xl">
+        {/* Headline */}
+        <h2
+          className="text-4xl md:text-6xl font-black tracking-tight leading-[1.1] mb-6 max-w-xl"
+          style={{ color: "#1a0008" }}
+        >
           Ready to love <br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-amber-100 to-amber-300 drop-shadow-[0_2px_10px_rgba(255,255,255,0.05)]">
+          <span
+            style={{
+              background: "linear-gradient(90deg, #fb7185, #e11d48, #be123c)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
             your inbox again?
           </span>
         </h2>
 
-        <p className="text-sm md:text-base text-slate-400 font-medium tracking-wide mb-10 max-w-md leading-relaxed">
+        {/* Body */}
+        <p
+          className="text-sm md:text-base font-medium tracking-wide mb-10 max-w-md leading-relaxed"
+          style={{ color: "#7f1d1d" }}
+        >
           Free for 14 days. No credit card required. <br className="hidden sm:inline" />
           Cancel seamlessly with one click anytime.
         </p>
 
+        {/* Button wrapper */}
         <div className="relative p-4 [transform-style:preserve-3d]">
-          <div className="absolute inset-4 rounded-full bg-amber-500/10 blur-xl scale-90 opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
+          {/* Hover glow behind button */}
+          <div
+            className="absolute inset-4 rounded-full blur-xl scale-90 pointer-events-none"
+            style={{ background: "rgba(225,29,72,0.15)" }}
+          />
 
           <button
             ref={buttonRef}
-            onClick={() => getStarted()}
-            className="group relative px-8 py-4 rounded-full bg-gradient-to-b from-[#eab308] to-[#ca8a04] hover:from-[#facc15] hover:to-[#eab308] text-neutral-950 text-sm font-black tracking-tight shadow-[0_15px_40px_rgba(202,138,4,0.2),_inset_0_1px_0_rgba(255,255,255,0.4)] transition-all duration-300 transform active:scale-95 will-change-transform cursor-pointer"
+            onClick={getStarted}
+            className="group relative px-8 py-4 rounded-full text-white text-sm font-black tracking-tight transition-all duration-300 active:scale-95 will-change-transform cursor-pointer"
+            style={{
+              background: "linear-gradient(135deg, #fb7185, #e11d48, #be123c)",
+              boxShadow: "0 15px 40px rgba(225,29,72,0.30), inset 0 1px 0 rgba(255,255,255,0.35)",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                "linear-gradient(135deg, #fda4af, #fb7185, #e11d48)";
+              (e.currentTarget as HTMLElement).style.boxShadow =
+                "0 20px 50px rgba(225,29,72,0.40), inset 0 1px 0 rgba(255,255,255,0.4)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background =
+                "linear-gradient(135deg, #fb7185, #e11d48, #be123c)";
+              (e.currentTarget as HTMLElement).style.boxShadow =
+                "0 15px 40px rgba(225,29,72,0.30), inset 0 1px 0 rgba(255,255,255,0.35)";
+            }}
           >
             <span className="flex items-center gap-1.5 transform group-hover:translate-x-0.5 transition-transform duration-300">
               Start for free

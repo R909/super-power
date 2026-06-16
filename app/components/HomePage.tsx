@@ -119,7 +119,7 @@ export default function Home() {
     const container = fireworkContainerRef.current;
     if (!container) return;
 
-    const colors = ["#ff7b00", "#ff4500", "#ffaa00", "#00f5ff", "#ff007f", "#ffffff"];
+    const colors = ["#ff7b00","#ff4500","#ffaa00","#00f5ff","#ff007f","#ffffff"];
     const w = container.clientWidth;
     const h = container.clientHeight;
 
@@ -139,15 +139,11 @@ export default function Home() {
       gsap.fromTo(rocket,
         { x: startX, y: h, scaleY: 1.6 },
         {
-          x: targetX,
-          y: targetY,
-          scaleY: 1,
-          duration: 0.75,
-          delay: delay,
+          x: targetX, y: targetY, scaleY: 1,
+          duration: 0.75, delay,
           ease: "power2.out",
           onComplete: () => {
             rocket.remove();
-
             const particleCount = 28;
             for (let i = 0; i < particleCount; i++) {
               const particle = document.createElement("div");
@@ -155,26 +151,21 @@ export default function Home() {
               particle.style.backgroundColor = burstColor;
               particle.style.boxShadow = `0 0 10px ${burstColor}, 0 0 2px #fff`;
               container.appendChild(particle);
-
               const angle = (i / particleCount) * Math.PI * 2;
               const velocity = gsap.utils.random(60, 130);
-              const driftX = Math.cos(angle) * velocity;
-              const driftY = Math.sin(angle) * velocity;
-
               gsap.fromTo(particle,
                 { x: targetX, y: targetY, scale: 1, opacity: 1 },
                 {
-                  x: targetX + driftX,
-                  y: targetY + driftY + 30,
-                  scale: 0,
-                  opacity: 0,
+                  x: targetX + Math.cos(angle) * velocity,
+                  y: targetY + Math.sin(angle) * velocity + 30,
+                  scale: 0, opacity: 0,
                   duration: gsap.utils.random(0.9, 1.4),
                   ease: "power3.out",
-                  onComplete: () => particle.remove()
+                  onComplete: () => particle.remove(),
                 }
               );
             }
-          }
+          },
         }
       );
     }
@@ -189,15 +180,15 @@ export default function Home() {
     const isMobile = "ontouchstart" in window || VW < 768;
 
     const ctx = gsap.context(() => {
-      const tiles     = gsap.utils.toArray<HTMLElement>(".anim-icon");
-      const powerBox  = section.querySelector<HTMLElement>(".power-box")!;
-      const tagline   = section.querySelector<HTMLElement>(".tagline")!;
-      const scrollCue = section.querySelector<HTMLElement>(".scroll-cue")!;
-      const tapBtn    = section.querySelector<HTMLElement>(".tap-btn")!;
+      const tiles    = gsap.utils.toArray<HTMLElement>(".anim-icon");
+      const powerBox = section.querySelector<HTMLElement>(".power-box")!;
+      const tagline  = section.querySelector<HTMLElement>(".tagline")!;
+      const scrollCue= section.querySelector<HTMLElement>(".scroll-cue")!;
+      const tapBtn   = section.querySelector<HTMLElement>(".tap-btn")!;
 
       if (isMobile) {
         if (scrollCue) scrollCue.style.setProperty("display", "none", "important");
-        if (tapBtn) tapBtn.style.setProperty("display", "flex", "important");
+        if (tapBtn)    tapBtn.style.setProperty("display", "flex", "important");
       }
 
       tiles.forEach((tile, i) => {
@@ -246,11 +237,9 @@ export default function Home() {
             const R = 220;
             if (dist < R) {
               const strength = (1 - dist / R) * 18;
-              const curX = gsap.getProperty(tile, "x") as number;
-              const curY = gsap.getProperty(tile, "y") as number;
               gsap.to(tile, {
-                x: curX + (dx / dist) * strength * 0.3,
-                y: curY + (dy / dist) * strength * 0.3,
+                x: (gsap.getProperty(tile, "x") as number) + (dx / dist) * strength * 0.3,
+                y: (gsap.getProperty(tile, "y") as number) + (dy / dist) * strength * 0.3,
                 duration: 0.15, overwrite: "auto",
               });
             }
@@ -268,8 +257,8 @@ export default function Home() {
         lbl.style.cssText = `
           position:absolute; left:50%; top:-10px;
           white-space:nowrap; font-size:10px; font-weight:800;
-          letter-spacing:.08em; color:#ffd0a0;
-          text-shadow:0 0 8px rgba(255,120,0,0.5);
+          letter-spacing:.08em; color:#9f1239;
+          text-shadow:0 0 8px rgba(225,29,72,0.25);
           pointer-events:none;
           animation:labelPop .9s ease-out forwards;
           transform-origin:bottom center;
@@ -292,12 +281,10 @@ export default function Home() {
           }
           const t = p / 0.35;
           const ease = gsap.parseEase("power2.inOut")(t);
-
           tiles.forEach((tile, i) => {
             const sc = SCATTERED_POS[i];
-            const angle = ORBIT_ANGLE[i];
-            const orbitX = Math.cos(angle) * ORBIT_R;
-            const orbitY = Math.sin(angle) * ORBIT_R;
+            const orbitX = Math.cos(ORBIT_ANGLE[i]) * ORBIT_R;
+            const orbitY = Math.sin(ORBIT_ANGLE[i]) * ORBIT_R;
             const sx = (sc.x / 100) * VW;
             const sy = (sc.y / 100) * VH;
             gsap.set(tile, {
@@ -316,8 +303,7 @@ export default function Home() {
             currentPhase = 2;
             if (!whooshPlayed) { whooshPlayed = true; playWhoosh(); }
           }
-          const t = (p - 0.35) / 0.27;
-          const spinDeg = t * 540;
+          const spinDeg = ((p - 0.35) / 0.27) * 540;
           tiles.forEach((tile, i) => {
             const angle = ORBIT_ANGLE[i] + (spinDeg * Math.PI) / 180;
             gsap.set(tile, {
@@ -338,18 +324,15 @@ export default function Home() {
           const ease = gsap.parseEase("power3.in")(t);
           tiles.forEach((tile, i) => {
             const baseAngle = ORBIT_ANGLE[i] + (540 * Math.PI) / 180;
-            const orbitX = Math.cos(baseAngle) * ORBIT_R;
-            const orbitY = Math.sin(baseAngle) * ORBIT_R;
             gsap.set(tile, {
-              x: orbitX * (1 - ease),
-              y: orbitY * (1 - ease),
+              x: Math.cos(baseAngle) * ORBIT_R * (1 - ease),
+              y: Math.sin(baseAngle) * ORBIT_R * (1 - ease),
               scale: 1.05 - ease * 0.9,
               opacity: 1 - ease * 0.9,
               rotation: ease * 360,
             });
           });
-          const pulse = Math.sin(ease * Math.PI * 4) * 0.08;
-          gsap.set(powerBox, { scale: 1 + pulse, rotation: ease * 12 });
+          gsap.set(powerBox, { scale: 1 + Math.sin(ease * Math.PI * 4) * 0.08, rotation: ease * 12 });
         }
 
         if (p > 0.80) {
@@ -358,11 +341,10 @@ export default function Home() {
             tiles.forEach(tile => gsap.set(tile, { opacity: 0, scale: 0 }));
             gsap.to(powerBox, {
               scale: 1.15, rotation: 0,
-              boxShadow: "0 15px 60px rgba(255,115,0,0.5), 0 0 140px rgba(255,180,0,0.25)",
+              boxShadow: "0 20px 70px rgba(225,29,72,0.45), 0 0 120px rgba(251,113,133,0.25)",
               duration: 0.3, ease: "power2.out",
             });
             gsap.to(tagline, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", delay: 0.15 });
-
             createFireworkBlast();
             if (!powerPlayed) { powerPlayed = true; playPowerUp(); }
           }
@@ -385,9 +367,7 @@ export default function Home() {
         tapTrigger?.addEventListener("click", () => {
           if (tapBtn) tapBtn.style.setProperty("display", "none", "important");
           gsap.to({ val: 0 }, {
-            val: 1,
-            duration: 4.5,
-            ease: "power1.inOut",
+            val: 1, duration: 4.5, ease: "power1.inOut",
             onUpdate: function () { runPhase((this as any).targets()[0].val); },
           });
         });
@@ -397,7 +377,6 @@ export default function Home() {
         section.removeEventListener("mousemove", onMouseMove);
         cancelAnimationFrame(rafId);
       };
-
     }, section);
 
     return () => ctx.revert();
@@ -405,62 +384,181 @@ export default function Home() {
 
   return (
     <>
+      <style>{`
+        @keyframes labelPop {
+          0%   { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.8); }
+          30%  { opacity: 1; transform: translateX(-50%) translateY(-2px) scale(1.05); }
+          100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.9); }
+        }
+        @keyframes scrollDot {
+          0%,100% { transform: translateY(0); opacity: 1; }
+          60%     { transform: translateY(8px); opacity: 0.3; }
+        }
+        @keyframes tapPulse {
+          0%,100% { box-shadow: 0 0 0 0 rgba(225,29,72,0.3); }
+          50%     { box-shadow: 0 0 0 10px rgba(225,29,72,0); }
+        }
+      `}</style>
+
       <div
         ref={sectionRef}
-        className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-[#030712]"
+        className="relative w-full h-screen overflow-hidden flex items-center justify-center"
+        style={{ backgroundColor: "#fce7f3" }}
       >
-        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.012)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(255,255,255,0.012)_1px,_transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_70%_at_50%_50%,_black_40%,_transparent_90%)]" />
+        {/* Rose grid */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(225,29,72,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(225,29,72,0.07) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+            maskImage: "radial-gradient(ellipse 85% 75% at 50% 50%, black 40%, transparent 90%)",
+            WebkitMaskImage: "radial-gradient(ellipse 85% 75% at 50% 50%, black 40%, transparent 90%)",
+          }}
+        />
 
-        <div className="absolute w-[500px] h-[500px] rounded-full bg-orange-500/5 blur-[120px] pointer-events-none z-0" />
+        {/* Soft center glow */}
+        <div
+          className="absolute pointer-events-none z-0"
+          style={{
+            width: 480, height: 480,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(251,113,133,0.18) 0%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
 
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[160%] aspect-[2.5/1] rounded-[100%] bg-[radial-gradient(ellipse_at_bottom,_rgba(251,146,60,0.18)_0%,_rgba(251,146,60,0.04)_45%,_transparent_70%)] pointer-events-none z-10 filter blur-sm border-t border-orange-500/10" />
+        {/* Bottom vignette */}
+        <div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none z-10"
+          style={{
+            width: "160%",
+            aspectRatio: "2.5 / 1",
+            borderRadius: "100%",
+            background: "radial-gradient(ellipse at bottom, rgba(225,29,72,0.12) 0%, rgba(251,113,133,0.04) 45%, transparent 70%)",
+            filter: "blur(8px)",
+            borderTop: "1px solid rgba(225,29,72,0.08)",
+          }}
+        />
 
-        <div ref={fireworkContainerRef} className="absolute inset-0 z-15 pointer-events-none w-full h-full" />
+        {/* Firework container */}
+        <div ref={fireworkContainerRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 15 }} />
 
-        <div className="power-box absolute z-20 w-[112px] h-[112px] rounded-[28px] bg-gradient-to-br from-[#ffbe1a] via-[#ff7300] to-[#e61700] flex flex-col items-center justify-center gap-1 border border-white/20 shadow-[0_15px_45px_rgba(249,115,22,0.3)]">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white" stroke="rgba(255,255,255,.25)" strokeWidth=".5"/>
+        {/* Power box — glossy crimson like screenshot */}
+        <div
+          className="power-box absolute z-20 flex flex-col items-center justify-center gap-1"
+          style={{
+            width: 112, height: 112,
+            borderRadius: 28,
+            background: "linear-gradient(145deg, #fb7185 0%, #e11d48 45%, #be123c 100%)",
+            border: "1.5px solid rgba(255,255,255,0.35)",
+            boxShadow: "0 16px 48px rgba(225,29,72,0.4), 0 4px 12px rgba(0,0,0,0.12), inset 0 1.5px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.15)",
+          }}
+        >
+          {/* Inner gloss sheen */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              inset: 0, borderRadius: 27,
+              background: "linear-gradient(170deg, rgba(255,255,255,0.22) 0%, transparent 55%)",
+            }}
+          />
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{ position: "relative", zIndex: 1 }}>
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white" stroke="rgba(255,255,255,.2)" strokeWidth=".5"/>
           </svg>
-          <span className="text-[9px] font-black tracking-widest uppercase text-white/90">
+          <span style={{
+            fontSize: 9, fontWeight: 900, letterSpacing: "0.16em",
+            textTransform: "uppercase", color: "#ffffff",
+            position: "relative", zIndex: 1,
+          }}>
             Superpower
           </span>
         </div>
 
-        <div className="tagline absolute bottom-[22%] left-1/2 -translate-x-1/2 text-center z-25 whitespace-nowrap">
-          <p className="text-2xl font-black tracking-tight text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)] m-0">
+        {/* Tagline */}
+        <div
+          className="tagline absolute left-1/2 -translate-x-1/2 text-center whitespace-nowrap"
+          style={{ bottom: "22%", zIndex: 25 }}
+        >
+          <p style={{
+            margin: 0,
+            fontSize: 24, fontWeight: 900,
+            letterSpacing: "-0.02em",
+            color: "#1a0008",
+            textShadow: "0 2px 16px rgba(225,29,72,0.12)",
+          }}>
             Everything. One place. Super-powerful.
           </p>
-          <p className="text-sm font-medium text-slate-400 mt-2 tracking-wide">
+          <p style={{ margin: "8px 0 0", fontSize: 14, fontWeight: 600, color: "#9f1239", letterSpacing: "0.02em" }}>
             All your tools, working flawlessly as one.
           </p>
         </div>
 
+        {/* Animated icons */}
         {ICONS.map(({ Icon, bg, glow, label }, i) => (
           <div
             key={i}
-            className="anim-icon absolute w-[66px] h-[66px] rounded-[20px] flex items-center justify-center z-10 will-change-transform border border-white/10 cursor-default"
+            className="anim-icon absolute will-change-transform cursor-default flex items-center justify-center"
             style={{
+              width: 66, height: 66,
+              borderRadius: 20,
               background: `linear-gradient(135deg, ${bg[0]}, ${bg[1]})`,
-              boxShadow: `0 14px 35px ${glow}, inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)`,
+              border: "1.5px solid rgba(255,255,255,0.45)",
+              boxShadow: `0 10px 28px ${glow}, inset 0 1.5px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08)`,
+              zIndex: 10,
             }}
           >
-            <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-            <Icon size={28} color="#fff" title={label} />
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                borderRadius: 19,
+                background: "linear-gradient(145deg, rgba(255,255,255,0.18) 0%, transparent 55%)",
+              }}
+            />
+            <Icon size={28} color="#fff" title={label} style={{ position: "relative", zIndex: 1 }} />
           </div>
         ))}
 
-        <div className="scroll-cue absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-30 opacity-60">
-          <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-slate-400 font-mono">
+        {/* Scroll cue */}
+        <div
+          className="scroll-cue absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-30"
+          style={{ opacity: 0.55 }}
+        >
+          <span style={{
+            fontSize: 9, fontWeight: 700, letterSpacing: "0.18em",
+            textTransform: "uppercase", color: "#9f1239", fontFamily: "monospace",
+          }}>
             Scroll to see the magic
           </span>
-          <div className="w-5 h-8 border-[1.5px] border-slate-600 rounded-full flex justify-center pt-1">
-            <div className="w-[3px] h-1.5 bg-slate-400 rounded-full animate-[scrollDot_1.8s_ease-in-out_infinite]" />
+          <div style={{
+            width: 20, height: 32,
+            border: "1.5px solid #e11d48",
+            borderRadius: 10,
+            display: "flex", justifyContent: "center", paddingTop: 4,
+          }}>
+            <div style={{
+              width: 3, height: 6,
+              background: "#e11d48",
+              borderRadius: 2,
+              animation: "scrollDot 1.8s ease-in-out infinite",
+            }} />
           </div>
         </div>
 
-        <div className="tap-btn absolute bottom-8 left-1/2 -translate-x-1/2 hidden flex-col items-center gap-[10px] z-30">
+        {/* Tap button (mobile) */}
+        <div className="tap-btn absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-[10px] z-30" style={{ display: "none" }}>
           <button
-            className="tap-trigger bg-white/5 hover:bg-white/10 active:scale-95 border border-white/20 text-white text-[11px] font-bold tracking-widest uppercase px-6 py-2.5 rounded-full transition-transform cursor-pointer animate-[tapPulse_2s_ease-in-out_infinite]"
+            className="tap-trigger"
+            style={{
+              background: "rgba(225,29,72,0.08)",
+              border: "1px solid rgba(225,29,72,0.25)",
+              color: "#9f1239",
+              fontSize: 11, fontWeight: 700,
+              letterSpacing: "0.16em", textTransform: "uppercase",
+              padding: "10px 24px", borderRadius: 999,
+              cursor: "pointer",
+              animation: "tapPulse 2s ease-in-out infinite",
+            }}
           >
             Tap to see the magic
           </button>

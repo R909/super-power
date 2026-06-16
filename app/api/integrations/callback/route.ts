@@ -1,12 +1,4 @@
-// app/api/integrations/callback/route.ts
-// ─────────────────────────────────────────────────────────────────────────────
-// GET /api/integrations/callback
-//
-// Corsair redirects here after the connectLink flow completes.
-// Tokens are already stored by Corsair at this point.
-// We just redirect the user back to the integrations page.
-// The page polls /api/integrations/status to detect the new connection.
-// ─────────────────────────────────────────────────────────────────────────────
+
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {

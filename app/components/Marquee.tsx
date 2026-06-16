@@ -1,3 +1,12 @@
+const ITEMS = [
+  "Zero inbox anxiety",
+  "Smart scheduling",
+  "Replies in your voice",
+  "Thread memory",
+  "Calendar OS",
+  "Privacy-first AI",
+];
+
 export default function Marquee() {
   const doubled = [...ITEMS, ...ITEMS, ...ITEMS];
 
@@ -5,7 +14,7 @@ export default function Marquee() {
     <>
       <style>{`
         @keyframes marqueeSlide {
-          0% { transform: translateX(0); }
+          0%   { transform: translateX(0); }
           100% { transform: translateX(-33.3333%); }
         }
         .animate-custom-marquee {
@@ -13,18 +22,43 @@ export default function Marquee() {
         }
       `}</style>
 
-      <div className="relative w-full bg-[#030712] py-8 overflow-hidden select-none border-t border-b border-white/[0.05]">
-        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#030712] to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#030712] to-transparent z-10 pointer-events-none" />
+      <div
+        className="relative w-full py-8 overflow-hidden select-none"
+        style={{
+          backgroundColor: "#fce7f3",
+          borderTop:    "1px solid rgba(225,29,72,0.12)",
+          borderBottom: "1px solid rgba(225,29,72,0.12)",
+        }}
+      >
+        {/* Left fade */}
+        <div
+          className="absolute inset-y-0 left-0 w-24 z-10 pointer-events-none"
+          style={{ background: "linear-gradient(to right, #fce7f3, transparent)" }}
+        />
+        {/* Right fade */}
+        <div
+          className="absolute inset-y-0 right-0 w-24 z-10 pointer-events-none"
+          style={{ background: "linear-gradient(to left, #fce7f3, transparent)" }}
+        />
 
         <div className="flex w-full overflow-hidden">
           <div className="flex gap-12 whitespace-nowrap animate-custom-marquee py-2">
             {doubled.map((label, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 text-sm font-semibold tracking-wide text-slate-400 hover:text-white transition-colors duration-200 cursor-default"
+                className="flex items-center gap-3 text-sm font-semibold tracking-wide transition-colors duration-200 cursor-default"
+                style={{ color: "#be123c" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "#9f1239")}
+                onMouseLeave={e => (e.currentTarget.style.color = "#be123c")}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.6)]" />
+                {/* Dot — rose glow */}
+                <span
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #fb7185, #e11d48)",
+                    boxShadow: "0 0 8px rgba(225,29,72,0.45)",
+                  }}
+                />
                 {label}
               </div>
             ))}
@@ -34,12 +68,3 @@ export default function Marquee() {
     </>
   );
 }
-
-const ITEMS = [
-  "Zero inbox anxiety",
-  "Smart scheduling",
-  "Replies in your voice",
-  "Thread memory",
-  "Calendar OS",
-  "Privacy-first AI",
-];

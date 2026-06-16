@@ -728,38 +728,6 @@ function IntegrationsInner() {
       />
 
       <div className="relative z-10 flex w-full h-full">
-
-        {/* ── Sidebar ── */}
-        <aside
-          className={`w-[220px] flex-shrink-0 border-r border-white/[0.05] ${SURFACE} flex flex-col py-6 px-4 gap-1`}
-        >
-          <div className="flex items-center gap-2 px-2 mb-6">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-[0_0_16px_rgba(245,158,11,0.4)]">
-              <Zap size={14} className="text-black" />
-            </div>
-            <span className="font-black text-sm text-white tracking-tight">SuperPower</span>
-          </div>
-          {[
-            { icon: Mail,      label: "Inbox"                       },
-            { icon: Calendar,  label: "Calendar"                    },
-            { icon: Plug,      label: "Integrations", active: true  },
-            { icon: BarChart2, label: "Analytics"                   },
-            { icon: Globe,     label: "Settings"                    },
-          ].map(({ icon: SIcon, label, active }) => (
-            <div
-              key={label}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all ${
-                active
-                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                  : "text-slate-600 hover:text-slate-300 hover:bg-white/[0.03]"
-              }`}
-            >
-              <SIcon size={14} />
-              {label}
-            </div>
-          ))}
-        </aside>
-
         {/* ── Main ── */}
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-5xl mx-auto px-8 py-8 space-y-8">
@@ -770,14 +738,10 @@ function IntegrationsInner() {
                 <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-amber-400/70 flex items-center gap-1.5 mb-2">
                   <span>✦</span> Integrations
                 </div>
-                <h1 className="text-2xl font-black text-white tracking-tight">Connected apps</h1>
                 <p className="text-sm text-slate-600 mt-1 font-medium">
                   Manage everything SuperPower can access on your behalf.
                 </p>
               </div>
-              <button className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black text-xs font-bold px-5 py-2.5 rounded-xl shadow-[0_4px_16px_rgba(245,158,11,0.28)] transition-all">
-                <Plus size={13} /> Add integration
-              </button>
             </div>
 
             {/* Stats */}
@@ -863,55 +827,6 @@ function IntegrationsInner() {
                 </a>
               </div>
             </div>
-
-            {/* Available integrations */}
-            <div>
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <Globe size={13} className="text-slate-700" />
-                  <span className="text-sm font-bold text-white">Available integrations</span>
-                  <span className="text-[10px] bg-white/[0.04] text-slate-600 border border-white/[0.07] font-bold px-2 py-0.5 rounded-full">
-                    {AVAILABLE_GROUPS.reduce((a, g) => a + g.items.length, 0)}
-                  </span>
-                </div>
-                <div
-                  className={`flex items-center gap-2 ${INNER} hover:border-amber-500/20 rounded-xl px-3 py-2 w-56 transition-colors`}
-                >
-                  <Search size={12} className="text-slate-700 flex-shrink-0" />
-                  <input
-                    className="bg-transparent text-xs outline-none text-slate-400 placeholder:text-slate-700 w-full"
-                    placeholder="Search integrations…"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {filtered.length === 0 ? (
-                <div className="text-center py-16 text-slate-700 text-sm font-medium">
-                  No integrations match &ldquo;{search}&rdquo;
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {filtered.map(({ category, icon: CatIcon, color, items }) => (
-                    <div key={category}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <CatIcon size={12} className={color} />
-                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.15em]">
-                          {category}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {items.map((item) => (
-                          <AvailableCard key={item.id} {...item} />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
           </div>
         </main>
       </div>

@@ -14,7 +14,8 @@ const PLUGINS: PluginId[] = ["gmail", "googlecalendar"];
 export async function GET(req: NextRequest) {
   try {
     // Replace with your real auth / session lookup
-    const userId = req.headers.get("x-user-id") ?? "demo-user";
+    const userId = req.headers.get("id") ?? "demo-user";
+    console.log("userId:", userId,req);
     await ensureTenant(userId);
 
     const inst = corsair.instance(process.env.CORSAIR_INSTANCE_ID!);

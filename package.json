@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@corsair-dev/app": "^0.1.5",
+    "@corsair-dev/cli": "^0.1.19",
     "@corsair-dev/gmail": "^0.1.4",
     "@corsair-dev/googlecalendar": "^0.1.4",
     "@prisma/adapter-pg": "^7.8.0",
@@ -24,11 +25,13 @@
     "gsap": "^3.15.0",
     "lucide-react": "^1.17.0",
     "next": "16.2.9",
+    "next-auth": "^4.24.14",
     "pg": "^8.21.0",
     "pnpm": "^10.34.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-icons": "^5.6.0"
+    "react-icons": "^5.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
