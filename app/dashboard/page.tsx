@@ -7,7 +7,7 @@ import {
   Star, Clock, Send, FileText, AlertCircle, Archive, Trash2,
   Users, CheckCircle, Bot, Search, Zap, MoreHorizontal,
   LayoutDashboard, Sparkles, RefreshCw, ChevronRight,
-  ArrowUpRight, LogOut,
+  ArrowUpRight, LogOut, Plug,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -58,11 +58,12 @@ const AI_ACTIONS = [
 ];
 
 const NAV = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: Inbox,           label: "Inbox",     href: "/",          count: 71 },
-  { icon: Calendar,        label: "Calendar",  href: "/calendar"  },
-  { icon: MessageSquare,   label: "AI Agent",  href: "/chat"      },
-  { icon: Settings,        label: "Settings",  href: "/settings"  },
+  { icon: LayoutDashboard, label: "Dashboard",    href: "/dashboard"    },
+  { icon: Inbox,           label: "Inbox",        href: "/",             count: 71 },
+  { icon: Calendar,        label: "Calendar",     href: "/calendar"     },
+  { icon: MessageSquare,   label: "AI Agent",     href: "/chat"         },
+  { icon: Plug,            label: "Integrations", href: "/integrations" },
+  { icon: Settings,        label: "Settings",     href: "/settings"     },
 ];
 
 const FOLDERS = [

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { corsair, ensureTenant } from "@/lib/corsair";
+import { auth } from "@/lib/auth";
+import { corsair, ensureReady } from "@/app/server/corsair";
+import { generateOAuthUrl } from "corsair/oauth";
 
 const ALLOWED_PLUGINS = ["gmail", "googlecalendar"] as const;
 type PluginId = (typeof ALLOWED_PLUGINS)[number];
@@ -16,17 +18,18 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Replace with your real session/auth — e.g. getServerSession()
-    const userId = req.headers.get("x-user-id") ?? "demo-user";
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
-    await ensureTenant(userId);
+    await ensureReady();
 
-    const inst = corsair.instance(process.env.CORSAIR_INSTANCE_ID!);
-    const t    = inst.tenant(userId);
-    
-    const { url } = await t.connectLink.create({
-      plugins: [plugin],
-      ttlMs:   30 * 60 * 1000, // 30 minutes
+    const redirectUri = `${process.env.BETTER_AUTH_URL}/api/integrations/callback`;
+    const { url } = await generateOAuthUrl(corsair, plugin, {
+      tenantId: userId,
+      redirectUri,
     });
 
     return NextResponse.json({ authorizeUrl: url });

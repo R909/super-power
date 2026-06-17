@@ -142,14 +142,6 @@ export default function LoginPage() {
             <span className="font-bold tracking-tight text-base" style={{ color: T.textPri }}>Super-Power</span>
           </div>
 
-          {/* Eyebrow */}
-          <div
-            className="text-[10px] font-bold tracking-[0.3em] uppercase flex items-center gap-1.5 mb-4"
-            style={{ color: T.accent }}
-          >
-            <span>✦</span> AI EMAIL &amp; CALENDAR OS
-          </div>
-
           {/* Headline */}
           <h1
             className="text-4xl xl:text-5xl font-black tracking-tight leading-[1.1] mb-5"
@@ -366,27 +358,6 @@ export default function LoginPage() {
                   <span className="text-[13px] font-bold tracking-wide" style={{ color: T.textPri }}>
                     {loading ? "Connecting..." : "Continue with Google"}
                   </span>
-                </button>
-
-                {/* Or divider + sign up hint */}
-                <div className="mt-5 flex items-center gap-3">
-                  <div className="flex-1 h-px" style={{ background: T.border }} />
-                  <span className="text-[10px] font-medium" style={{ color: T.textMuted }}>or</span>
-                  <div className="flex-1 h-px" style={{ background: T.border }} />
-                </div>
-
-                {/* Rose-tinted "magic link" placeholder — matches overall palette */}
-                <button
-                  className="w-full mt-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-[0.98]"
-                  style={{
-                    background: "rgba(225,29,72,0.06)",
-                    border: `1.5px solid ${T.border}`,
-                    color: T.accent,
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(225,29,72,0.10)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "rgba(225,29,72,0.06)"; }}
-                >
-                  Continue with email
                 </button>
 
                 {/* Trust copy */}

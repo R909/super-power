@@ -1,22 +1,13 @@
-// app/api/integrations/disconnect/route.ts
-// ─────────────────────────────────────────────────────────────────────────────
-// POST /api/integrations/disconnect
-// Body: { plugin: "gmail" | "googlecalendar" }
-//
-// Clears the stored OAuth tokens for that plugin on the tenant.
-// The user will need to reconnect to use the integration again.
-// ─────────────────────────────────────────────────────────────────────────────
 import { NextRequest, NextResponse } from "next/server";
-import { corsair, ensureTenant } from "@/lib/corsair";
-import type { PluginId } from "@/types/integrations";
+import { auth } from "@/lib/auth";
+import { corsair, ensureReady } from "@/app/server/corsair";
 
-const ALLOWED_PLUGINS: PluginId[] = ["gmail", "googlecalendar"];
+const ALLOWED_PLUGINS = ["gmail", "googlecalendar"] as const;
+type PluginId = (typeof ALLOWED_PLUGINS)[number];
 
 export async function POST(req: NextRequest) {
   try {
-    const body   = await req.json();
-    const plugin = body.plugin as PluginId;
-
+    const { plugin } = await req.json();
     if (!plugin || !ALLOWED_PLUGINS.includes(plugin)) {
       return NextResponse.json(
         { error: `plugin must be one of: ${ALLOWED_PLUGINS.join(", ")}` },
@@ -24,17 +15,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Replace with your real auth / session lookup
-    const userId = req.headers.get("x-user-id") ?? "demo-user";
-    await ensureTenant(userId);
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
-    const inst = corsair.instance(process.env.CORSAIR_INSTANCE_ID!);
-    const t    = inst.tenant(userId);
+    await ensureReady();
+    const tenant = corsair.withTenant(userId);
+    const p = plugin as PluginId;
 
-    // Clear OAuth tokens for the plugin.
-    // Corsair stores "access_token" and "refresh_token" after OAuth.
-    await t.plugins.credentials.clear(plugin, "access_token");
-    await t.plugins.credentials.clear(plugin, "refresh_token");
+    await tenant[p].keys.set_access_token(null);
+    await tenant[p].keys.set_refresh_token(null);
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
