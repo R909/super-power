@@ -3,16 +3,14 @@ import { auth } from "@/lib/auth";
 import { corsair, ensureReady } from "@/app/server/corsair";
 
 function buildRfc2822(to: string, subject: string, body: string, from?: string): string {
-  const lines = [
+  const headers = [
+    "MIME-Version: 1.0",
+    "Content-Type: text/plain; charset=utf-8",
     from ? `From: ${from}` : null,
     `To: ${to}`,
     `Subject: ${subject}`,
-    "Content-Type: text/plain; charset=utf-8",
-    "MIME-Version: 1.0",
-    "",
-    body,
-  ].filter(Boolean);
-  return lines.join("\r\n");
+  ].filter((line): line is string => line !== null);
+  return [...headers, "", body].join("\r\n");
 }
 
 function toBase64Url(str: string): string {

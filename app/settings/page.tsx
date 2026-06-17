@@ -5,7 +5,7 @@ import {
   CheckCircle, Plus, Zap, Mail, Calendar, Globe, Trash2,
   AlertTriangle, Sparkles, Eye, EyeOff,
 } from "lucide-react";
-import Sidebar from "../components/sidebar";
+
 
 // ─── Design tokens — shared with dashboard/integrations pages ────────────────
 const T = {
@@ -399,8 +399,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex" style={{ background: T.bg }}>
-      <Sidebar />
+    <div className="h-screen flex-1 overflow-hidden flex" style={{ background: T.bg }}>
 
       {/* Settings nav */}
       <aside className="w-52 flex-shrink-0 flex flex-col py-6 px-3" style={{ background: T.surface, borderRight: `1px solid ${T.border}` }}>

@@ -1,6 +1,3 @@
-// lib/corsair.ts
-// Single Corsair client shared across all API routes.
-// ─────────────────────────────────────────────────────────────────────────────
 import { createClient } from "@corsair-dev/app";
 
 if (!process.env.CORSAIR_KEK) {

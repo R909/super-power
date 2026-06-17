@@ -99,18 +99,6 @@ const INTEGRATION_CONFIG: Omit<Integration, "status">[] = [
     bg: "rgba(37,99,235,0.06)",
     border: "rgba(37,99,235,0.16)",
   },
-  {
-    id: "corsair",
-    name: "Corsair MCP",
-    desc: "Model Context Protocol server that bridges your AI agent with all connected apps.",
-    icon: Zap,
-    category: "AI Infrastructure",
-    detail: "Active",
-    accent: "#d97706",
-    accentHex: "#d97706",
-    bg: "rgba(217,119,6,0.07)",
-    border: "rgba(217,119,6,0.18)",
-  },
 ];
 
 const AVAILABLE_GROUPS = [
@@ -484,11 +472,13 @@ function ConnectedCard({
   onDisconnect,
   onAction,
   liveStats,
+  detailText,
 }: {
   item: Integration;
   onDisconnect: (i: Integration) => void;
   onAction?: () => void;
   liveStats?: { label: string; value: string }[];
+  detailText?: string;
 }) {
   const Icon = item.icon;
 
@@ -515,7 +505,7 @@ function ConnectedCard({
         <p className="text-xs leading-relaxed mb-4" style={{ color: T.sec }}>{item.desc}</p>
 
         <div className="flex items-center justify-between mb-4 rounded-xl px-3 py-2.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-          <span className="text-xs font-mono truncate" style={{ color: T.muted }}>{item.detail}</span>
+          <span className="text-xs font-mono truncate" style={{ color: T.muted }}>{detailText ?? item.detail}</span>
           <span className="text-[10px] flex items-center gap-1 flex-shrink-0" style={{ color: T.dim }}>
             <RefreshCw size={9} /> Live
           </span>
@@ -570,7 +560,6 @@ function ConnectCard({ item, onConnect }: { item: Integration; onConnect: (i: In
   const SCOPE_LABELS: Record<string, string> = {
     gmail:          "Read · Send · Draft",
     googlecalendar: "View · Create · Invite",
-    corsair:        "Route · Auth · Store",
   };
   return (
     <div className={`rounded-2xl ${CARD} border-dashed overflow-hidden transition-all hover:shadow-md group`} style={{ borderColor: T.border }}>
@@ -790,14 +779,12 @@ function IntegrationsInner() {
   const getLiveStats = (id: string): { label: string; value: string }[] | undefined => {
     if (id === "gmail" && gmailStats) {
       return [
-        { label: "Unread", value: String(gmailStats.unreadCount) },
-        { label: "Email", value: gmailStats.emailAddress?.split("@")[0] ?? "–" },
+        { label: "Unread emails", value: String(gmailStats.unreadCount) },
       ];
     }
     if (id === "googlecalendar" && calStats) {
       return [
-        { label: "This week", value: String(calStats.eventCount) },
-        { label: "Events", value: calStats.eventCount === 1 ? "event" : "upcoming" },
+        { label: "Events this week", value: String(calStats.eventCount) },
       ];
     }
     return undefined;
@@ -813,7 +800,7 @@ function IntegrationsInner() {
   if (!session) return null;
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden" style={{ background: T.bg }}>
+    <div className="h-screen flex-1 flex overflow-hidden" style={{ background: T.bg }}>
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto px-8 py-8 space-y-8">
 
@@ -874,7 +861,7 @@ function IntegrationsInner() {
               {loadingStatus && <Loader2 size={14} className="animate-spin" style={{ color: T.dim }} />}
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {integrations.map(item => {
                 if (item.status === "connected")
                   return (
@@ -883,6 +870,11 @@ function IntegrationsInner() {
                       item={item}
                       onDisconnect={setDisconnectTarget}
                       liveStats={getLiveStats(item.id)}
+                      detailText={
+                        item.id === "gmail" && gmailStats?.emailAddress
+                          ? gmailStats.emailAddress
+                          : undefined
+                      }
                       onAction={
                         item.id === "gmail"
                           ? () => setComposeOpen(true)

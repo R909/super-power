@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import {
-  Mail, Bell, Plus, Inbox, Calendar, MessageSquare, Settings,
-  Star, Clock, Send, FileText, AlertCircle, Archive, Trash2,
-  Users, CheckCircle, Bot, Search, Zap, MoreHorizontal,
-  LayoutDashboard, Sparkles, RefreshCw, ChevronRight,
-  ArrowUpRight, LogOut, Plug,
+  Mail, Plus, Inbox, Calendar, Send,
+  Archive, Trash2, CheckCircle, Bot, Search,
+  Zap, Sparkles, RefreshCw,
+  ChevronRight, ArrowUpRight, LogOut, X, Loader2,
+  Star, StarOff,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -24,186 +24,357 @@ const T = {
   muted:    "#c084a0",
   dim:      "#e9b8c8",
   gradient: "linear-gradient(135deg,#fb7185,#e11d48,#be123c)",
+  success:  "#0d9488",
+  blue:     "#2563eb",
 };
 
-// ─── Static data ──────────────────────────────────────────────────────────────
-const STATS = [
-  { label: "Unread",     value: "71",   sub: "+12 today",       color: T.accent   },
-  { label: "Meetings",   value: "4",    sub: "Next in 38 min",  color: "#7c3aed"  },
-  { label: "AI tasks",   value: "12",   sub: "3 need review",   color: "#0d9488"  },
-  { label: "Time saved", value: "3.2h", sub: "↑ 18% this week", color: T.accent   },
-];
-
-const THREADS = [
-  { id: 1, from: "James K.",    initials: "JK", gradient: "from-violet-500 to-indigo-500",  subject: "Re: Term Sheet — final comments",      preview: "I've left a few notes on clause 4…",            summary: "Investor feedback on clause 4. Reply today.", time: "9:14 AM",   unread: true,  tag: "Investor", tagColor: "#7c3aed" },
-  { id: 2, from: "Priya V.",    initials: "PV", gradient: "from-rose-500 to-pink-500",       subject: "Demo date — can we move to Thursday?",  preview: "Checking if Thursday 2pm works better…",        summary: "Requesting reschedule to Thu 2pm.",           time: "8:47 AM",   unread: true,  tag: "Investor", tagColor: "#7c3aed" },
-  { id: 3, from: "Design Team", initials: "DT", gradient: "from-teal-500 to-emerald-500",   subject: "Q3 brand refresh — assets ready",        preview: "New logo variants and tokens are in Figma…",    summary: "Brand assets in Figma. No action needed.",   time: "Yesterday", unread: false, tag: "Internal", tagColor: "#0d9488" },
-  { id: 4, from: "Sequoia",     initials: "SQ", gradient: "from-amber-500 to-orange-500",   subject: "Introduction: Ravi Shah → SuperPower",   preview: "Ravi, meet the team at SuperPower…",            summary: "New investor intro. Draft a warm reply.",    time: "Yesterday", unread: true,  tag: "Intro",    tagColor: "#d97706" },
-  { id: 5, from: "Stripe",      initials: "ST", gradient: "from-slate-500 to-slate-600",    subject: "Your June invoice is ready",             preview: "Invoice #INV-0042 for $1,240 is ready…",        summary: "Routine billing. No reply needed.",          time: "Jun 12",    unread: false, tag: "Billing",  tagColor: "#64748b" },
-];
-
-const EVENTS = [
-  { time: "9:00",  label: "Standup · Engineering",   dur: "15m", color: "#0d9488" },
-  { time: "10:30", label: "1:1 with Sarah",           dur: "30m", color: "#7c3aed" },
-  { time: "12:00", label: "Lunch · Sequoia",          dur: "1h",  color: "#d97706" },
-  { time: "15:00", label: "Investor call · James K.", dur: "30m", color: "#2563eb" },
-  { time: "17:00", label: "Product review",           dur: "1h",  color: T.accent  },
-];
-
-const AI_ACTIONS = [
-  { label: "Reply to James K. re term sheet", icon: Send,    color: T.accent   },
-  { label: "Reschedule demo — Thu 2pm",       icon: Calendar, color: "#7c3aed" },
-  { label: "Draft intro reply for Ravi Shah", icon: Mail,    color: "#0d9488"  },
-  { label: "Archive 14 newsletter threads",   icon: Archive, color: T.muted   },
-];
-
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function getInitials(name?: string | null) {
-  if (!name) return "?";
-  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface Thread {
+  id: string;
+  snippet: string;
+  subject: string;
+  from: string;
+  date: string;
+  unread: boolean;
+  starred: boolean;
+  messageId: string;
+  messageCount: number;
 }
 
+interface ThreadMessage {
+  id: string;
+  from: string;
+  to: string;
+  subject: string;
+  date: string;
+  snippet: string;
+  body: string;
+  isHtml: boolean;
+  unread: boolean;
+  starred: boolean;
+}
 
+interface CalEvent {
+  id: string;
+  summary: string;
+  start: string;
+  end: string;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function parseFrom(from: string): { name: string; initials: string } {
+  const match = from.match(/^"?([^"<]+?)"?\s*(?:<[^>]+>)?$/);
+  const name = match?.[1]?.trim() || from.split("@")[0] || from;
+  return { name, initials: getInitials(name) };
+}
+
+function formatDate(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 86400000);
+    const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    if (day.getTime() === today.getTime())
+      return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    if (day.getTime() === yesterday.getTime()) return "Yesterday";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  } catch {
+    return dateStr;
+  }
+}
+
+function formatEventTime(iso: string): string {
+  try {
+    return new Date(iso).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+const GRADIENTS = [
+  "from-violet-500 to-indigo-500",
+  "from-rose-500 to-pink-500",
+  "from-teal-500 to-emerald-500",
+  "from-amber-500 to-orange-500",
+  "from-slate-500 to-slate-600",
+  "from-blue-500 to-cyan-500",
+  "from-purple-500 to-pink-500",
+];
+
+function gradientFor(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  return GRADIENTS[Math.abs(hash) % GRADIENTS.length];
+}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const router                            = useRouter();
-  const { data: session, isPending }      = authClient.useSession();
-  const [activeThread, setActiveThread]   = useState<number | null>(1);
-  const [sentThreads,  setSentThreads]    = useState<Record<number, boolean>>({});
-  const [showProfile,  setShowProfile]    = useState(false);
-  const dropdownRef                       = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Redirect unauthenticated users
+  // Data state
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number | null>(null);
+  const [events, setEvents] = useState<CalEvent[]>([]);
+  const [threadDetail, setThreadDetail] = useState<Record<string, ThreadMessage[]>>({});
+
+  // UI state
+  const [loadingThreads, setLoadingThreads] = useState(true);
+  const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
+  const [activeThread, setActiveThread] = useState<string | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [search, setSearch] = useState("");
+  const [actionBusy, setActionBusy] = useState<string | null>(null);
+
+  // Compose modal
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [composeTo, setComposeTo] = useState("");
+  const [composeSubj, setComposeSubj] = useState("");
+  const [composeBody, setComposeBody] = useState("");
+  const [composeSending, setComposeSending] = useState(false);
+  const [composeSent, setComposeSent] = useState(false);
+  const [composeErr, setComposeErr] = useState("");
+  const [quickText, setQuickText] = useState("");
+
   useEffect(() => {
     if (!isPending && !session) router.replace("/login");
   }, [session, isPending, router]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
         setShowProfile(false);
-      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  const loadInbox = useCallback(async (q = "in:inbox") => {
+    setLoadingThreads(true);
+    try {
+      const res = await fetch(`/api/gmail/inbox?q=${encodeURIComponent(q)}&maxResults=15`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setThreads(data.threads ?? []);
+    } finally {
+      setLoadingThreads(false);
+    }
+  }, []);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await fetch("/api/gmail/profile");
+      if (!res.ok) return;
+      const data = await res.json();
+      setUnreadCount(data.unreadCount ?? 0);
+    } catch {}
+  }, []);
+
+  const loadEvents = useCallback(async () => {
+    try {
+      const res = await fetch("/api/calendar/events?days=1");
+      if (!res.ok) return;
+      const data = await res.json();
+      setEvents(data.items ?? []);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (session) {
+      loadInbox();
+      loadStats();
+      loadEvents();
+    }
+  }, [session, loadInbox, loadStats, loadEvents]);
+
+  const handleThreadClick = useCallback(
+    async (id: string) => {
+      if (activeThread === id) {
+        setActiveThread(null);
+        return;
+      }
+      setActiveThread(id);
+      if (threadDetail[id]) return;
+      setLoadingDetail(id);
+      try {
+        const res = await fetch(`/api/gmail/thread/${id}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setThreadDetail((prev) => ({ ...prev, [id]: data.messages ?? [] }));
+        // Mark as read locally
+        setThreads((prev) =>
+          prev.map((t) => (t.id === id ? { ...t, unread: false } : t))
+        );
+      } finally {
+        setLoadingDetail(null);
+      }
+    },
+    [activeThread, threadDetail]
+  );
+
+  const handleAction = useCallback(
+    async (action: string, messageId: string, threadId: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+      setActionBusy(messageId);
+      try {
+        await fetch("/api/gmail/action", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, messageId }),
+        });
+        if (action === "archive" || action === "trash") {
+          setThreads((prev) => prev.filter((t) => t.id !== threadId));
+          if (activeThread === threadId) setActiveThread(null);
+        } else if (action === "star") {
+          setThreads((prev) =>
+            prev.map((t) => (t.id === threadId ? { ...t, starred: true } : t))
+          );
+        } else if (action === "unstar") {
+          setThreads((prev) =>
+            prev.map((t) => (t.id === threadId ? { ...t, starred: false } : t))
+          );
+        }
+      } finally {
+        setActionBusy(null);
+      }
+    },
+    [activeThread]
+  );
+
+  const handleSearch = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && search.trim()) loadInbox(search.trim());
+    },
+    [search, loadInbox]
+  );
 
   const handleLogout = async () => {
     await authClient.signOut();
     router.replace("/login");
   };
 
-  // Loading / unauthenticated states
+  function openCompose(prefillSubject = "") {
+    setComposeTo(""); setComposeSubj(prefillSubject); setComposeBody("");
+    setComposeSent(false); setComposeErr("");
+    setComposeOpen(true);
+  }
+
+  async function handleComposeSend() {
+    if (!composeTo.trim() || !composeSubj.trim()) return;
+    setComposeSending(true); setComposeErr("");
+    try {
+      const res = await fetch("/api/gmail/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: composeTo.trim(), subject: composeSubj.trim(), body: composeBody }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Send failed");
+      setComposeSent(true);
+      setQuickText("");
+      setTimeout(() => { setComposeOpen(false); setComposeSent(false); }, 1500);
+    } catch (err: any) {
+      setComposeErr(err.message ?? "Failed to send");
+    } finally {
+      setComposeSending(false);
+    }
+  }
+
   if (isPending) {
     return (
       <div className="h-screen flex items-center justify-center" style={{ background: T.bg }}>
-        <div className="w-8 h-8 rounded-full border-2 border-rose-300 border-t-rose-600 animate-spin" />
+        <Loader2 size={24} className="animate-spin" style={{ color: T.accent }} />
       </div>
     );
   }
   if (!session) return null;
 
-  const initials = getInitials(session.user.name);
+  const initials = getInitials(session.user.name ?? session.user.email ?? "?");
+  const todayEvents = events.filter((ev) => ev.start);
+  const unreadThreads = threads.filter((t) => t.unread).length;
+
+  const STATS = [
+    { label: "Unread",   value: unreadCount !== null ? String(unreadCount) : "–", sub: `${unreadThreads} in view`, color: T.accent },
+    { label: "Today",    value: String(todayEvents.length), sub: "calendar events", color: "#7c3aed" },
+    { label: "AI Agent", value: "On", sub: "Claude Sonnet 4.6", color: T.success },
+    { label: "Inbox",    value: String(threads.length), sub: "threads loaded", color: T.accent },
+  ];
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden" style={{ background: T.bg }}>
-      {/* <Sidebar active="/dashboard" /> */}
+    <>
+      <div className="h-screen flex-1 flex overflow-hidden" style={{ background: T.bg }}>
+        <div className="flex-1 flex flex-col overflow-hidden">
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header */}
+          <header className="flex items-center gap-3 px-6 py-3 bg-white" style={{ borderBottom: `1px solid ${T.border}` }}>
+            <div className="flex items-center gap-2 flex-1 max-w-xs px-3 py-2 rounded-xl text-xs" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+              <Search size={13} style={{ color: T.muted, flexShrink: 0 }} />
+              <input
+                placeholder="Search emails…"
+                className="bg-transparent outline-none text-xs w-full"
+                style={{ color: T.pri }}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleSearch}
+              />
+            </div>
 
-        {/* ── Header ─────────────────────────────────────────────────────── */}
-        <header
-          className="flex items-center gap-3 px-6 py-3 bg-white"
-          style={{ borderBottom: `1px solid ${T.border}` }}
-        >
-          {/* Search */}
-          <div
-            className="flex items-center gap-2 flex-1 max-w-xs px-3 py-2 rounded-xl text-xs"
-            style={{ background: T.surface, border: `1px solid ${T.border}` }}
-          >
-            <Search size={13} style={{ color: T.muted, flexShrink: 0 }} />
-            <input
-              placeholder="Search…"
-              className="bg-transparent outline-none text-xs w-full"
-              style={{ color: T.pri }}
-            />
-          </div>
-
-          {/* Add integration */}
-          <button
-            onClick={() => router.push("/integrations")}
-            className="flex items-center gap-2 text-white text-xs font-bold px-4 py-2 rounded-xl ml-auto"
-            style={{ background: T.gradient, boxShadow: "0 2px 10px rgba(225,29,72,0.25)" }}
-          >
-            <Plus size={13} /> Add Integration
-          </button>
-
-          {/* User avatar + dropdown */}
-          <div className="relative" ref={dropdownRef}>
             <button
-              onClick={() => setShowProfile((p) => !p)}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-              style={{ background: T.gradient }}
+              onClick={() => router.push("/integrations")}
+              className="flex items-center gap-2 text-white text-xs font-bold px-4 py-2 rounded-xl ml-auto"
+              style={{ background: T.gradient, boxShadow: "0 2px 10px rgba(225,29,72,0.25)" }}
             >
-              {initials}
+              <Plus size={13} /> Add Integration
             </button>
 
-            {showProfile && (
-              <div className="absolute right-0 top-10 w-64 bg-white rounded-2xl shadow-xl border z-50 overflow-hidden"
-                style={{ borderColor: T.border }}>
-                {/* Profile card */}
-                <div className="flex items-center gap-3 px-4 py-4" style={{ borderBottom: `1px solid ${T.border}` }}>
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                    style={{ background: T.gradient }}
-                  >
-                    {initials}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: T.pri }}>{session.user.name}</p>
-                    <p className="text-xs truncate" style={{ color: T.muted }}>{session.user.email}</p>
-                  </div>
-                </div>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowProfile((p) => !p)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                style={{ background: T.gradient }}
+              >
+                {initials}
+              </button>
 
-                {/* Connected services */}
-                <div className="px-4 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: T.dim }}>Connected</p>
-                  {["Gmail", "Google Calendar"].map((svc) => (
-                    <div key={svc} className="flex items-center gap-2 py-1 text-xs" style={{ color: T.muted }}>
-                      <CheckCircle size={11} style={{ color: "#16a34a" }} /> {svc}
+              {showProfile && (
+                <div className="absolute right-0 top-10 w-64 bg-white rounded-2xl shadow-xl border z-50 overflow-hidden" style={{ borderColor: T.border }}>
+                  <div className="flex items-center gap-3 px-4 py-4" style={{ borderBottom: `1px solid ${T.border}` }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style={{ background: T.gradient }}>
+                      {initials}
                     </div>
-                  ))}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate" style={{ color: T.pri }}>{session.user.name}</p>
+                      <p className="text-xs truncate" style={{ color: T.muted }}>{session.user.email}</p>
+                    </div>
+                  </div>
+                  <div className="px-3 py-2">
+                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all hover:bg-rose-50" style={{ color: T.accent }}>
+                      <LogOut size={14} /> Sign out
+                    </button>
+                  </div>
                 </div>
-
-                {/* Sign out */}
-                <div className="px-3 py-2">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all hover:bg-rose-50"
-                    style={{ color: T.accent }}
-                  >
-                    <LogOut size={14} /> Sign out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </header>
-
-        {/* ── Body ───────────────────────────────────────────────────────── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+              )}
+            </div>
+          </header>
 
           {/* Stats strip */}
           <div className="grid grid-cols-4" style={{ borderBottom: `1px solid ${T.border}` }}>
             {STATS.map(({ label, value, sub, color }, i) => (
-              <div
-                key={label}
-                className="px-6 py-4"
-                style={{ borderRight: i < 3 ? `1px solid ${T.border}` : "none" }}
-              >
+              <div key={label} className="px-6 py-4 bg-white" style={{ borderRight: i < 3 ? `1px solid ${T.border}` : "none" }}>
                 <p className="text-[10px] font-medium mb-1" style={{ color: T.muted }}>{label}</p>
                 <p className="text-2xl font-black tracking-tight" style={{ color }}>{value}</p>
                 <p className="text-[10px] mt-1" style={{ color: T.muted }}>{sub}</p>
@@ -214,147 +385,161 @@ export default function DashboardPage() {
           {/* Main columns */}
           <div className="flex flex-1 min-h-0 overflow-hidden">
 
-            {/* ── Inbox ───────────────────────────────────────────────────── */}
-            <div className="flex-1 flex flex-col min-h-0" style={{ borderRight: `1px solid ${T.border}` }}>
-
-              {/* Inbox toolbar */}
-              <div
-                className="flex items-center justify-between px-6 py-3"
-                style={{ borderBottom: `1px solid ${T.border}` }}
-              >
+            {/* Inbox */}
+            <div className="flex-1 flex flex-col min-h-0 bg-white" style={{ borderRight: `1px solid ${T.border}` }}>
+              <div className="flex items-center justify-between px-6 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
                 <div className="flex items-center gap-2">
                   <Inbox size={13} style={{ color: T.muted }} />
-                  <span className="text-sm font-bold" style={{ color: T.pri }}>Priority inbox</span>
-                  <span
-                    className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{ background: T.accentLt, color: T.accent }}
-                  >71</span>
+                  <span className="text-sm font-bold" style={{ color: T.pri }}>Inbox</span>
+                  {unreadThreads > 0 && (
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: T.accentLt, color: T.accent }}>
+                      {unreadThreads}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <button className="text-[11px] flex items-center gap-1" style={{ color: T.muted }}>
-                    <RefreshCw size={10} /> Refresh
-                  </button>
-                  <Link
-                    href="/"
-                    className="text-[11px] flex items-center gap-0.5 font-semibold"
-                    style={{ color: T.accent }}
+                  <button
+                    onClick={() => loadInbox()}
+                    className="text-[11px] flex items-center gap-1"
+                    style={{ color: T.muted }}
                   >
-                    All <ChevronRight size={11} />
+                    <RefreshCw size={10} className={loadingThreads ? "animate-spin" : ""} /> Refresh
+                  </button>
+                  <Link href="/chat" className="text-[11px] flex items-center gap-0.5 font-semibold" style={{ color: T.accent }}>
+                    AI Agent <ChevronRight size={11} />
                   </Link>
                 </div>
               </div>
 
-              {/* Thread list */}
               <div className="flex-1 overflow-y-auto">
-                {THREADS.map((t) => {
-                  const open = activeThread === t.id;
-                  return (
-                    <div
-                      key={t.id}
-                      onClick={() => setActiveThread(open ? null : t.id)}
-                      className="px-6 py-4 cursor-pointer transition-all"
-                      style={{
-                        background:  open ? "rgba(225,29,72,0.04)" : "transparent",
-                        borderBottom: `1px solid ${T.border}`,
-                        borderLeft:  open ? `2px solid ${T.accent}` : "2px solid transparent",
-                      }}
-                      onMouseEnter={(e) => { if (!open) (e.currentTarget as HTMLElement).style.background = "rgba(225,29,72,0.02)"; }}
-                      onMouseLeave={(e) => { if (!open) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-                    >
-                      <div className="flex items-start gap-3">
-                        {/* Unread dot */}
-                        <div className="mt-2 w-1.5 flex-shrink-0">
-                          {t.unread && <span className="block w-1.5 h-1.5 rounded-full" style={{ background: T.accent }} />}
-                        </div>
+                {loadingThreads && threads.length === 0 ? (
+                  <div className="flex items-center justify-center h-40 gap-2" style={{ color: T.muted }}>
+                    <Loader2 size={16} className="animate-spin" /> Loading inbox…
+                  </div>
+                ) : threads.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-40 gap-2" style={{ color: T.muted }}>
+                    <Mail size={24} style={{ opacity: 0.4 }} />
+                    <p className="text-sm">No emails found</p>
+                  </div>
+                ) : (
+                  threads.map((t) => {
+                    const open = activeThread === t.id;
+                    const { name, initials: fromInitials } = parseFrom(t.from);
+                    const grad = gradientFor(t.from);
+                    const detail = threadDetail[t.id];
+                    const isLoadingThis = loadingDetail === t.id;
 
-                        {/* Avatar */}
-                        <div className={`w-7 h-7 rounded-full bg-gradient-to-tr ${t.gradient} flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0`}>
-                          {t.initials}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-0.5">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="text-xs"
-                                style={{ color: t.unread ? T.pri : T.muted, fontWeight: t.unread ? 700 : 500 }}
-                              >{t.from}</span>
-                              <span className="text-[9px] font-semibold" style={{ color: t.tagColor }}>{t.tag}</span>
-                            </div>
-                            <span className="text-[10px] flex-shrink-0" style={{ color: T.muted }}>{t.time}</span>
+                    return (
+                      <div
+                        key={t.id}
+                        onClick={() => handleThreadClick(t.id)}
+                        className="px-6 py-4 cursor-pointer transition-all"
+                        style={{
+                          background: open ? "rgba(225,29,72,0.04)" : "transparent",
+                          borderBottom: `1px solid ${T.border}`,
+                          borderLeft: open ? `2px solid ${T.accent}` : "2px solid transparent",
+                        }}
+                        onMouseEnter={(e) => { if (!open) (e.currentTarget as HTMLElement).style.background = "rgba(225,29,72,0.02)"; }}
+                        onMouseLeave={(e) => { if (!open) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-2 w-1.5 flex-shrink-0">
+                            {t.unread && <span className="block w-1.5 h-1.5 rounded-full" style={{ background: T.accent }} />}
                           </div>
 
-                          <p className="text-xs truncate" style={{ color: t.unread ? T.sec : T.muted, fontWeight: t.unread ? 500 : 400 }}>
-                            {t.subject}
-                          </p>
-                          <p className="text-[11px] truncate mt-0.5" style={{ color: T.muted }}>{t.preview}</p>
+                          <div className={`w-7 h-7 rounded-full bg-gradient-to-tr ${grad} flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0`}>
+                            {fromInitials}
+                          </div>
 
-                          {/* Expanded view */}
-                          {open && (
-                            <div className="mt-3 space-y-2">
-                              {/* AI summary */}
-                              <div
-                                className="flex items-start gap-2 rounded-xl px-3 py-2.5"
-                                style={{ background: T.accentLt, border: `1px solid rgba(225,29,72,0.12)` }}
-                              >
-                                <Sparkles size={11} className="mt-0.5 flex-shrink-0" style={{ color: T.accent }} />
-                                <p className="text-[11px] leading-relaxed" style={{ color: T.sec }}>{t.summary}</p>
-                              </div>
-
-                              {/* Actions */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-0.5">
                               <div className="flex items-center gap-2">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSentThreads((p) => ({ ...p, [t.id]: true }));
-                                  }}
-                                  className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl transition-all"
-                                  style={
-                                    sentThreads[t.id]
-                                      ? { background: "rgba(20,184,166,0.10)", border: "1px solid rgba(20,184,166,0.20)", color: "#0d9488" }
-                                      : { background: T.gradient, color: "#fff", boxShadow: "0 2px 8px rgba(225,29,72,0.25)" }
-                                  }
-                                >
-                                  {sentThreads[t.id]
-                                    ? <><CheckCircle size={10} /> Sent</>
-                                    : <><Bot size={10} /> AI Reply</>
-                                  }
-                                </button>
-                                <button
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="flex items-center gap-1.5 text-[11px] px-2 py-1.5 rounded-xl"
-                                  style={{ color: T.muted }}
-                                >
-                                  <Archive size={10} /> Archive
-                                </button>
-                                <button
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="flex items-center gap-1.5 text-[11px] px-2 py-1.5 rounded-xl"
-                                  style={{ color: T.muted }}
-                                >
-                                  <Clock size={10} /> Snooze
-                                </button>
-                                <button
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="ml-auto"
-                                  style={{ color: T.dim }}
-                                >
-                                  <MoreHorizontal size={13} />
-                                </button>
+                                <span className="text-xs" style={{ color: t.unread ? T.pri : T.muted, fontWeight: t.unread ? 700 : 500 }}>
+                                  {name}
+                                </span>
+                                {t.starred && <Star size={9} fill="currentColor" style={{ color: "#f59e0b" }} />}
+                                {t.messageCount > 1 && (
+                                  <span className="text-[9px]" style={{ color: T.dim }}>({t.messageCount})</span>
+                                )}
                               </div>
+                              <span className="text-[10px] flex-shrink-0" style={{ color: T.muted }}>{formatDate(t.date)}</span>
                             </div>
-                          )}
+
+                            <p className="text-xs truncate" style={{ color: t.unread ? T.sec : T.muted, fontWeight: t.unread ? 500 : 400 }}>
+                              {t.subject}
+                            </p>
+                            <p className="text-[11px] truncate mt-0.5" style={{ color: T.muted }}>{t.snippet}</p>
+
+                            {open && (
+                              <div className="mt-3 space-y-3">
+                                {isLoadingThis ? (
+                                  <div className="flex items-center gap-2" style={{ color: T.muted }}>
+                                    <Loader2 size={11} className="animate-spin" />
+                                    <span className="text-[11px]">Loading…</span>
+                                  </div>
+                                ) : detail ? (
+                                  <div className="space-y-2">
+                                    {detail.map((msg, idx) => (
+                                      <div key={msg.id} className="rounded-xl p-3" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+                                        <div className="flex items-center justify-between mb-1">
+                                          <span className="text-[10px] font-semibold truncate" style={{ color: T.sec }}>{msg.from}</span>
+                                          <span className="text-[9px] flex-shrink-0 ml-2" style={{ color: T.dim }}>{formatDate(msg.date)}</span>
+                                        </div>
+                                        <p className="text-xs leading-relaxed whitespace-pre-wrap break-words" style={{ color: T.pri, maxHeight: idx === detail.length - 1 ? "none" : "4rem", overflow: "hidden" }}>
+                                          {msg.body || msg.snippet}
+                                        </p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : null}
+
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={(e) => openCompose(`Re: ${t.subject}`) || e.stopPropagation()}
+                                    className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl transition-all text-white"
+                                    style={{ background: T.gradient, boxShadow: "0 2px 8px rgba(225,29,72,0.25)" }}
+                                  >
+                                    <Send size={10} /> Reply
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleAction("archive", t.messageId, t.id, e)}
+                                    disabled={actionBusy === t.messageId}
+                                    className="flex items-center gap-1.5 text-[11px] px-2 py-1.5 rounded-xl transition-all"
+                                    style={{ color: T.muted }}
+                                  >
+                                    {actionBusy === t.messageId ? <Loader2 size={10} className="animate-spin" /> : <Archive size={10} />} Archive
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleAction(t.starred ? "unstar" : "star", t.messageId, t.id, e)}
+                                    disabled={actionBusy === t.messageId}
+                                    className="flex items-center gap-1.5 text-[11px] px-2 py-1.5 rounded-xl transition-all"
+                                    style={{ color: t.starred ? "#f59e0b" : T.muted }}
+                                  >
+                                    {t.starred ? <StarOff size={10} /> : <Star size={10} />}
+                                    {t.starred ? "Unstar" : "Star"}
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleAction("trash", t.messageId, t.id, e)}
+                                    disabled={actionBusy === t.messageId}
+                                    className="flex items-center gap-1.5 text-[11px] px-2 py-1.5 rounded-xl transition-all ml-auto"
+                                    style={{ color: "#dc2626" }}
+                                  >
+                                    <Trash2 size={10} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
 
-            {/* ── Right panel ─────────────────────────────────────────────── */}
-            <div className="w-64 flex-shrink-0 flex flex-col overflow-y-auto" style={{ background: T.surface }}>
+            {/* Right panel */}
+            <div className="w-64 flex-shrink-0 flex flex-col overflow-y-auto bg-white" style={{ background: T.surface }}>
 
               {/* Today's schedule */}
               <div className="p-5" style={{ borderBottom: `1px solid ${T.border}` }}>
@@ -362,43 +547,54 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-2">
                     <Calendar size={12} style={{ color: T.muted }} />
                     <span className="text-xs font-bold" style={{ color: T.pri }}>Today</span>
-                    <span className="text-[10px]" style={{ color: T.muted }}>Jun 14</span>
+                    <span className="text-[10px]" style={{ color: T.muted }}>
+                      {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </span>
                   </div>
                   <Link href="/calendar" className="text-[10px] flex items-center gap-0.5" style={{ color: T.muted }}>
                     View <ArrowUpRight size={10} />
                   </Link>
                 </div>
-                <div className="space-y-3">
-                  {EVENTS.map(({ time, label, dur, color }) => (
-                    <div key={time} className="flex items-center gap-3">
-                      <span className="text-[10px] font-mono w-8 flex-shrink-0" style={{ color: T.muted }}>{time}</span>
-                      <div className="w-0.5 h-8 rounded-full flex-shrink-0 opacity-60" style={{ background: color }} />
-                      <div className="min-w-0">
-                        <p className="text-xs truncate" style={{ color: T.pri }}>{label}</p>
-                        <p className="text-[10px]" style={{ color: T.muted }}>{dur}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {todayEvents.length === 0 ? (
+                  <p className="text-[11px]" style={{ color: T.dim }}>No events today</p>
+                ) : (
+                  <div className="space-y-3">
+                    {todayEvents.slice(0, 5).map((ev, i) => {
+                      const colors = ["#0d9488", "#7c3aed", "#d97706", "#2563eb", T.accent];
+                      return (
+                        <div key={ev.id} className="flex items-center gap-3">
+                          <span className="text-[10px] font-mono w-12 flex-shrink-0" style={{ color: T.muted }}>
+                            {formatEventTime(ev.start)}
+                          </span>
+                          <div className="w-0.5 h-8 rounded-full flex-shrink-0 opacity-60" style={{ background: colors[i % colors.length] }} />
+                          <p className="text-xs truncate" style={{ color: T.pri }}>{ev.summary}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
-              {/* AI suggestions */}
+              {/* AI actions */}
               <div className="p-5" style={{ borderBottom: `1px solid ${T.border}` }}>
                 <div className="flex items-center gap-2 mb-3">
                   <Zap size={12} style={{ color: T.accent }} />
-                  <span className="text-xs font-bold" style={{ color: T.pri }}>AI suggestions</span>
+                  <span className="text-xs font-bold" style={{ color: T.pri }}>AI Agent</span>
                 </div>
-                <div className="space-y-1">
-                  {AI_ACTIONS.map(({ label, icon: Icon, color }) => (
-                    <button
+                <div className="space-y-2">
+                  {[
+                    { label: "Summarize my inbox", icon: Bot },
+                    { label: "What's on my calendar?", icon: Calendar },
+                    { label: "Draft a reply", icon: Send },
+                  ].map(({ label, icon: Icon }) => (
+                    <Link
                       key={label}
-                      className="w-full flex items-center gap-3 px-2 py-2.5 rounded-xl text-left transition-all"
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = T.accentLt; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                      href={`/chat?q=${encodeURIComponent(label)}`}
+                      className="w-full flex items-center gap-3 px-2 py-2.5 rounded-xl text-left transition-all hover:bg-rose-50 block"
                     >
-                      <Icon size={12} style={{ color, flexShrink: 0 }} />
+                      <Icon size={12} style={{ color: T.accent, flexShrink: 0 }} />
                       <span className="text-xs leading-tight" style={{ color: T.muted }}>{label}</span>
-                    </button>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -409,16 +605,17 @@ export default function DashboardPage() {
                   <Sparkles size={12} style={{ color: T.accent }} />
                   <span className="text-xs font-bold" style={{ color: T.pri }}>Quick compose</span>
                 </div>
-                <div
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
-                  style={{ background: "#fff", border: `1px solid ${T.border}` }}
-                >
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: "#fff", border: `1px solid ${T.border}` }}>
                   <input
                     className="flex-1 bg-transparent text-xs outline-none"
                     style={{ color: T.pri }}
-                    placeholder="Describe email, AI drafts it…"
+                    placeholder="Subject or note…"
+                    value={quickText}
+                    onChange={(e) => setQuickText(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") openCompose(quickText); }}
                   />
                   <button
+                    onClick={() => openCompose(quickText)}
                     className="w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ background: T.gradient }}
                   >
@@ -426,11 +623,40 @@ export default function DashboardPage() {
                   </button>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Compose modal */}
+      {composeOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) setComposeOpen(false); }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden flex flex-col" style={{ border: `1px solid ${T.border}` }}>
+            <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: `1px solid ${T.border}`, background: T.surface }}>
+              <span className="text-sm font-bold" style={{ color: T.pri }}>New Message</span>
+              <button onClick={() => setComposeOpen(false)} style={{ color: T.muted }}><X size={16} /></button>
+            </div>
+            <div className="px-5 py-3 flex items-center gap-3" style={{ borderBottom: `1px solid ${T.border}` }}>
+              <span className="text-xs font-semibold w-14 flex-shrink-0" style={{ color: T.muted }}>To</span>
+              <input autoFocus type="email" className="flex-1 text-sm outline-none" style={{ color: T.pri }} placeholder="recipient@example.com" value={composeTo} onChange={(e) => setComposeTo(e.target.value)} />
+            </div>
+            <div className="px-5 py-3 flex items-center gap-3" style={{ borderBottom: `1px solid ${T.border}` }}>
+              <span className="text-xs font-semibold w-14 flex-shrink-0" style={{ color: T.muted }}>Subject</span>
+              <input className="flex-1 text-sm outline-none" style={{ color: T.pri }} placeholder="Subject" value={composeSubj} onChange={(e) => setComposeSubj(e.target.value)} />
+            </div>
+            <textarea className="w-full px-5 py-4 text-sm outline-none resize-none" style={{ color: T.pri, minHeight: 200 }} placeholder="Write your message…" value={composeBody} onChange={(e) => setComposeBody(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) handleComposeSend(); }} />
+            <div className="px-5 py-3 flex items-center justify-between gap-3" style={{ borderTop: `1px solid ${T.border}`, background: T.surface }}>
+              <span className="text-xs flex-1" style={{ color: T.accent }}>{composeErr}</span>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button onClick={() => setComposeOpen(false)} className="text-xs px-4 py-2 rounded-xl font-medium" style={{ color: T.muted, border: `1px solid ${T.border}` }}>Discard</button>
+                <button onClick={handleComposeSend} disabled={composeSending || composeSent || !composeTo.trim() || !composeSubj.trim()} className="flex items-center gap-2 text-white text-xs font-bold px-5 py-2 rounded-xl transition-all disabled:opacity-50" style={{ background: T.gradient }}>
+                  {composeSent ? <><CheckCircle size={12} /> Sent!</> : composeSending ? "Sending…" : <><Send size={12} /> Send</>}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

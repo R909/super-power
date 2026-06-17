@@ -3,7 +3,7 @@ import { Nunito, Plus_Jakarta_Sans } from "next/font/google";
 import ScrollReveal from "@/app/components/ScrollReveal";
 import "./globals.css";
 import { QueryProvider } from "./components/providers/query-provider";
-import ConditionalSidebar from "./components/conditionalSidebar";
+import Sidebar from "./components/sidebar";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -31,13 +31,11 @@ export default function RootLayout({
   return (
     <QueryProvider>
     <html lang="en" className={`${nunito.variable} ${jakarta.variable}`}>
-      <body >
-        {/* <div className="flex gap-4">
-               <ConditionalSidebar/> */}
-                {children}
-
-        {/* </div> */}
-        
+      <body>
+        <div className="flex">
+          <Sidebar />
+          {children}
+        </div>
         <ScrollReveal />
       </body>
     </html>
