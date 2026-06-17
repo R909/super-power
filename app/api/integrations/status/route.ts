@@ -5,6 +5,7 @@ import { corsair, ensureReady } from "@/app/server/corsair";
 export async function GET(req: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: req.headers });
+    console.log("session ===>>status page===>", session);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

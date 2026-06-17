@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
 
     await ensureReady();
     const tenant = corsair.withTenant(session.user.id);
+    console.log("tenant",tenant);
 
     const event = await tenant.googlecalendar.api.events.create({
       calendarId: "primary",
