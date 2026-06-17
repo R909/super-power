@@ -31,7 +31,6 @@ interface Integration {
   accentHex: string;
   bg: string;
   border: string;
-  glow: string;
   status: Status;
 }
 
@@ -44,6 +43,35 @@ interface GmailStats { unreadCount: number; emailAddress?: string }
 interface CalStats   { eventCount: number }
 
 // ─────────────────────────────────────────────────────────
+// Design tokens — shared with dashboard/page.tsx
+// ─────────────────────────────────────────────────────────
+const T = {
+  bg:        "#fce7f3",
+  surface:   "#fff5f8",
+  border:    "rgba(225,29,72,0.10)",
+  borderHv:  "rgba(225,29,72,0.22)",
+  accent:    "#e11d48",
+  accentLt:  "rgba(225,29,72,0.08)",
+  pri:       "#1a0008",
+  sec:       "#7f1d1d",
+  muted:     "#c084a0",
+  dim:       "#e9b8c8",
+  gradient:  "linear-gradient(135deg,#fb7185,#e11d48,#be123c)",
+  success:   "#0d9488",
+  successLt: "rgba(13,148,136,0.08)",
+  danger:    "#dc2626",
+  dangerLt:  "rgba(220,38,38,0.06)",
+  warn:      "#d97706",
+  warnLt:    "rgba(217,119,6,0.08)",
+  blue:      "#2563eb",
+  blueLt:    "rgba(37,99,235,0.07)",
+};
+
+const CARD  = "bg-white border";
+const MODAL = "bg-white";
+const INNER = "border";
+
+// ─────────────────────────────────────────────────────────
 // Static config
 // ─────────────────────────────────────────────────────────
 const INTEGRATION_CONFIG: Omit<Integration, "status">[] = [
@@ -54,11 +82,10 @@ const INTEGRATION_CONFIG: Omit<Integration, "status">[] = [
     icon: Mail,
     category: "Communication",
     detail: "Connected via OAuth",
-    accent: "text-rose-400",
-    accentHex: "#fb7185",
-    bg: "bg-rose-500/10",
-    border: "border-rose-500/20",
-    glow: "rgba(244,63,94,0.12)",
+    accent: "#e11d48",
+    accentHex: "#e11d48",
+    bg: "rgba(225,29,72,0.06)",
+    border: "rgba(225,29,72,0.16)",
   },
   {
     id: "googlecalendar",
@@ -67,11 +94,10 @@ const INTEGRATION_CONFIG: Omit<Integration, "status">[] = [
     icon: Calendar,
     category: "Productivity",
     detail: "Connected via OAuth",
-    accent: "text-blue-400",
-    accentHex: "#60a5fa",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
-    glow: "rgba(59,130,246,0.12)",
+    accent: "#2563eb",
+    accentHex: "#2563eb",
+    bg: "rgba(37,99,235,0.06)",
+    border: "rgba(37,99,235,0.16)",
   },
   {
     id: "corsair",
@@ -80,11 +106,10 @@ const INTEGRATION_CONFIG: Omit<Integration, "status">[] = [
     icon: Zap,
     category: "AI Infrastructure",
     detail: "Active",
-    accent: "text-amber-400",
-    accentHex: "#fbbf24",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20",
-    glow: "rgba(245,158,11,0.14)",
+    accent: "#d97706",
+    accentHex: "#d97706",
+    bg: "rgba(217,119,6,0.07)",
+    border: "rgba(217,119,6,0.18)",
   },
 ];
 
@@ -92,7 +117,7 @@ const AVAILABLE_GROUPS = [
   {
     category: "Productivity",
     icon: Layers,
-    color: "text-teal-400",
+    color: "#0d9488",
     items: [
       { id: "notion",   name: "Notion",   desc: "Sync email summaries and meeting notes"    },
       { id: "linear",   name: "Linear",   desc: "Create issues from emails automatically"    },
@@ -103,7 +128,7 @@ const AVAILABLE_GROUPS = [
   {
     category: "CRM",
     icon: BarChart2,
-    color: "text-pink-400",
+    color: "#e11d48",
     items: [
       { id: "hubspot",    name: "HubSpot",    desc: "Log emails and schedule follow-ups"          },
       { id: "salesforce", name: "Salesforce", desc: "Sync contacts and pipeline from your inbox"  },
@@ -113,7 +138,7 @@ const AVAILABLE_GROUPS = [
   {
     category: "Storage & Files",
     icon: Cloud,
-    color: "text-sky-400",
+    color: "#2563eb",
     items: [
       { id: "gdrive",   name: "Google Drive", desc: "Attach and search Drive files in emails"  },
       { id: "dropbox",  name: "Dropbox",      desc: "Share links directly from the AI agent"   },
@@ -123,36 +148,33 @@ const AVAILABLE_GROUPS = [
 ];
 
 // ─────────────────────────────────────────────────────────
-// Design tokens
-// ─────────────────────────────────────────────────────────
-const CARD    = "bg-[#05080f] border border-white/[0.07]";
-const MODAL   = "bg-[#040710]";
-const INNER   = "bg-white/[0.03] border border-white/[0.06]";
-
-// ─────────────────────────────────────────────────────────
 // Status Badge
 // ─────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: Status }) {
   if (status === "connected")
     return (
-      <span className="flex items-center gap-1.5 text-[10px] font-bold bg-teal-500/10 text-teal-400 border border-teal-500/25 px-2.5 py-1 rounded-full">
-        <span className="w-1.5 h-1.5 bg-teal-400 rounded-full animate-pulse" /> Connected
+      <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full"
+        style={{ background: T.successLt, color: T.success, border: `1px solid rgba(13,148,136,0.25)` }}>
+        <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: T.success }} /> Connected
       </span>
     );
   if (status === "error")
     return (
-      <span className="flex items-center gap-1.5 text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/25 px-2.5 py-1 rounded-full">
+      <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full"
+        style={{ background: T.dangerLt, color: T.danger, border: `1px solid rgba(220,38,38,0.22)` }}>
         <AlertTriangle size={9} /> Error
       </span>
     );
   if (status === "connecting")
     return (
-      <span className="flex items-center gap-1.5 text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/25 px-2.5 py-1 rounded-full">
+      <span className="flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full"
+        style={{ background: T.warnLt, color: T.warn, border: `1px solid rgba(217,119,6,0.22)` }}>
         <Loader2 size={9} className="animate-spin" /> Connecting…
       </span>
     );
   return (
-    <span className="text-[10px] font-bold bg-white/[0.04] text-slate-500 border border-white/[0.08] px-2.5 py-1 rounded-full">
+    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+      style={{ background: T.accentLt, color: T.muted, border: `1px solid ${T.border}` }}>
       Not connected
     </span>
   );
@@ -166,9 +188,15 @@ function Toast({ message, type, onDismiss }: { message: string; type: "success" 
     const t = setTimeout(onDismiss, 4000);
     return () => clearTimeout(t);
   }, [onDismiss]);
+  const ok = type === "success";
   return (
-    <div className={`fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-[0_8px_32px_rgba(0,0,0,0.6)] text-sm font-semibold ${type === "success" ? "bg-teal-500/10 border-teal-500/25 text-teal-300" : "bg-red-500/10 border-red-500/25 text-red-300"}`}>
-      {type === "success" ? <CheckCircle size={15} /> : <AlertTriangle size={15} />}
+    <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg text-sm font-semibold"
+      style={{
+        background: ok ? T.successLt : T.dangerLt,
+        border: `1px solid ${ok ? "rgba(13,148,136,0.25)" : "rgba(220,38,38,0.22)"}`,
+        color: ok ? T.success : T.danger,
+      }}>
+      {ok ? <CheckCircle size={15} /> : <AlertTriangle size={15} />}
       {message}
       <button onClick={onDismiss} className="ml-1 opacity-50 hover:opacity-100 transition-opacity"><X size={13} /></button>
     </div>
@@ -206,30 +234,32 @@ function ComposeModal({ onClose, onSent }: { onClose: () => void; onSent: () => 
     }
   }
 
-  const fieldCls = "w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2.5 text-xs text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-rose-500/40 focus:bg-white/[0.06] transition-all";
+  const fieldCls = "w-full bg-white border rounded-xl px-3 py-2.5 text-xs outline-none transition-all";
+  const fieldStyle = { borderColor: T.border, color: T.pri } as React.CSSProperties;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
-      <div className={`relative w-[480px] rounded-2xl border border-white/[0.08] overflow-hidden shadow-[0_32px_100px_rgba(0,0,0,0.9)] ${MODAL}`}>
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-rose-500/40 to-transparent" />
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-700 hover:text-slate-300 transition-colors"><X size={15} /></button>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
+      <div className={`relative w-[480px] rounded-2xl overflow-hidden shadow-2xl ${MODAL}`} style={{ border: `1px solid ${T.border}` }}>
+        <div className="h-1" style={{ background: T.gradient }} />
+        <button onClick={onClose} className="absolute top-4 right-4 transition-colors" style={{ color: T.dim }}><X size={15} /></button>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
-              <PenLine size={15} className="text-rose-400" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: T.accentLt, border: `1px solid ${T.border}` }}>
+              <PenLine size={15} style={{ color: T.accent }} />
             </div>
             <div>
-              <div className="font-bold text-sm text-white">Compose Email</div>
-              <div className="text-[10px] text-slate-600">Send via Gmail</div>
+              <div className="font-bold text-sm" style={{ color: T.pri }}>Compose Email</div>
+              <div className="text-[10px]" style={{ color: T.muted }}>Send via Gmail</div>
             </div>
           </div>
 
           <div className="space-y-3">
-            <input className={fieldCls} placeholder="To: email@example.com" value={to} onChange={e => setTo(e.target.value)} />
-            <input className={fieldCls} placeholder="Subject" value={subject} onChange={e => setSubject(e.target.value)} />
+            <input className={fieldCls} style={fieldStyle} placeholder="To: email@example.com" value={to} onChange={e => setTo(e.target.value)} />
+            <input className={fieldCls} style={fieldStyle} placeholder="Subject" value={subject} onChange={e => setSubject(e.target.value)} />
             <textarea
               className={`${fieldCls} resize-none h-32`}
+              style={fieldStyle}
               placeholder="Write your message…"
               value={body}
               onChange={e => setBody(e.target.value)}
@@ -237,20 +267,21 @@ function ComposeModal({ onClose, onSent }: { onClose: () => void; onSent: () => 
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5 mt-3">
-              <AlertTriangle size={11} className="text-red-400 flex-shrink-0" />
-              <span className="text-[11px] text-red-400">{error}</span>
+            <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 mt-3" style={{ background: T.dangerLt, border: `1px solid rgba(220,38,38,0.2)` }}>
+              <AlertTriangle size={11} style={{ color: T.danger }} className="flex-shrink-0" />
+              <span className="text-[11px]" style={{ color: T.danger }}>{error}</span>
             </div>
           )}
 
           <div className="flex gap-2 mt-4">
-            <button onClick={onClose} className={`flex-1 text-xs font-semibold text-slate-500 ${INNER} hover:bg-white/[0.06] px-4 py-2.5 rounded-xl transition-all`}>
+            <button onClick={onClose} className="flex-1 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all" style={{ color: T.muted, background: T.surface, border: `1px solid ${T.border}` }}>
               Cancel
             </button>
             <button
               onClick={handleSend}
               disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 text-xs font-bold text-white bg-rose-500/80 hover:bg-rose-500 px-4 py-2.5 rounded-xl transition-all disabled:opacity-60"
+              className="flex-1 flex items-center justify-center gap-2 text-xs font-bold text-white px-4 py-2.5 rounded-xl transition-all disabled:opacity-60"
+              style={{ background: T.gradient, boxShadow: "0 2px 10px rgba(225,29,72,0.25)" }}
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
               {loading ? "Sending…" : "Send Email"}
@@ -306,56 +337,58 @@ function CreateEventModal({ onClose, onCreated }: { onClose: () => void; onCreat
     }
   }
 
-  const fieldCls = "w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2.5 text-xs text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-blue-500/40 focus:bg-white/[0.06] transition-all";
+  const fieldCls = "w-full bg-white border rounded-xl px-3 py-2.5 text-xs outline-none transition-all";
+  const fieldStyle = { borderColor: T.border, color: T.pri } as React.CSSProperties;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
-      <div className={`relative w-[480px] rounded-2xl border border-white/[0.08] overflow-hidden shadow-[0_32px_100px_rgba(0,0,0,0.9)] ${MODAL}`}>
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-700 hover:text-slate-300 transition-colors"><X size={15} /></button>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
+      <div className={`relative w-[480px] rounded-2xl overflow-hidden shadow-2xl ${MODAL}`} style={{ border: `1px solid ${T.border}` }}>
+        <div className="h-1" style={{ background: "linear-gradient(135deg,#60a5fa,#2563eb)" }} />
+        <button onClick={onClose} className="absolute top-4 right-4 transition-colors" style={{ color: T.dim }}><X size={15} /></button>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-              <Calendar size={15} className="text-blue-400" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: T.blueLt, border: `1px solid rgba(37,99,235,0.18)` }}>
+              <Calendar size={15} style={{ color: T.blue }} />
             </div>
             <div>
-              <div className="font-bold text-sm text-white">Create Event</div>
-              <div className="text-[10px] text-slate-600">Add to Google Calendar</div>
+              <div className="font-bold text-sm" style={{ color: T.pri }}>Create Event</div>
+              <div className="text-[10px]" style={{ color: T.muted }}>Add to Google Calendar</div>
             </div>
           </div>
 
           <div className="space-y-3">
-            <input className={fieldCls} placeholder="Event title" value={title} onChange={e => setTitle(e.target.value)} />
-            <textarea className={`${fieldCls} resize-none h-20`} placeholder="Description (optional)" value={description} onChange={e => setDesc(e.target.value)} />
+            <input className={fieldCls} style={fieldStyle} placeholder="Event title" value={title} onChange={e => setTitle(e.target.value)} />
+            <textarea className={`${fieldCls} resize-none h-20`} style={fieldStyle} placeholder="Description (optional)" value={description} onChange={e => setDesc(e.target.value)} />
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[9px] text-slate-700 font-bold tracking-wide uppercase mb-1 block">Start</label>
-                <input type="datetime-local" className={fieldCls} value={start} onChange={e => setStart(e.target.value)} />
+                <label className="text-[9px] font-bold tracking-wide uppercase mb-1 block" style={{ color: T.dim }}>Start</label>
+                <input type="datetime-local" className={fieldCls} style={fieldStyle} value={start} onChange={e => setStart(e.target.value)} />
               </div>
               <div>
-                <label className="text-[9px] text-slate-700 font-bold tracking-wide uppercase mb-1 block">End</label>
-                <input type="datetime-local" className={fieldCls} value={end} onChange={e => setEnd(e.target.value)} />
+                <label className="text-[9px] font-bold tracking-wide uppercase mb-1 block" style={{ color: T.dim }}>End</label>
+                <input type="datetime-local" className={fieldCls} style={fieldStyle} value={end} onChange={e => setEnd(e.target.value)} />
               </div>
             </div>
-            <input className={fieldCls} placeholder="Attendees: a@b.com, c@d.com" value={attendees} onChange={e => setAttendees(e.target.value)} />
+            <input className={fieldCls} style={fieldStyle} placeholder="Attendees: a@b.com, c@d.com" value={attendees} onChange={e => setAttendees(e.target.value)} />
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5 mt-3">
-              <AlertTriangle size={11} className="text-red-400 flex-shrink-0" />
-              <span className="text-[11px] text-red-400">{error}</span>
+            <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 mt-3" style={{ background: T.dangerLt, border: `1px solid rgba(220,38,38,0.2)` }}>
+              <AlertTriangle size={11} style={{ color: T.danger }} className="flex-shrink-0" />
+              <span className="text-[11px]" style={{ color: T.danger }}>{error}</span>
             </div>
           )}
 
           <div className="flex gap-2 mt-4">
-            <button onClick={onClose} className={`flex-1 text-xs font-semibold text-slate-500 ${INNER} hover:bg-white/[0.06] px-4 py-2.5 rounded-xl transition-all`}>
+            <button onClick={onClose} className="flex-1 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all" style={{ color: T.muted, background: T.surface, border: `1px solid ${T.border}` }}>
               Cancel
             </button>
             <button
               onClick={handleCreate}
               disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 text-xs font-bold text-white bg-blue-500/80 hover:bg-blue-500 px-4 py-2.5 rounded-xl transition-all disabled:opacity-60"
+              className="flex-1 flex items-center justify-center gap-2 text-xs font-bold text-white px-4 py-2.5 rounded-xl transition-all disabled:opacity-60"
+              style={{ background: "linear-gradient(135deg,#60a5fa,#2563eb)", boxShadow: "0 2px 10px rgba(37,99,235,0.25)" }}
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
               {loading ? "Creating…" : "Create Event"}
@@ -394,43 +427,44 @@ function DisconnectModal({ item, onClose, onConfirm }: { item: Integration; onCl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
-      <div className={`relative w-[380px] rounded-2xl border border-white/[0.08] overflow-hidden shadow-[0_32px_100px_rgba(0,0,0,0.9)] ${MODAL}`}>
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-red-500/40 to-transparent" />
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-700 hover:text-slate-300 transition-colors"><X size={15} /></button>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
+      <div className={`relative w-[380px] rounded-2xl overflow-hidden shadow-2xl ${MODAL}`} style={{ border: `1px solid ${T.border}` }}>
+        <div className="h-1" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }} />
+        <button onClick={onClose} className="absolute top-4 right-4 transition-colors" style={{ color: T.dim }}><X size={15} /></button>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className={`w-10 h-10 rounded-xl ${item.bg} border ${item.border} flex items-center justify-center`}>
-              <Icon size={18} className={item.accent} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: item.bg, border: `1px solid ${item.border}` }}>
+              <Icon size={18} style={{ color: item.accent }} />
             </div>
             <div>
-              <div className="font-bold text-sm text-white">Disconnect {item.name}?</div>
-              <div className="text-[10px] text-slate-600 mt-0.5">Reconnect any time to restore access</div>
+              <div className="font-bold text-sm" style={{ color: T.pri }}>Disconnect {item.name}?</div>
+              <div className="text-[10px] mt-0.5" style={{ color: T.muted }}>Reconnect any time to restore access</div>
             </div>
           </div>
-          <div className="bg-red-500/[0.07] border border-red-500/[0.15] rounded-xl px-4 py-3 mb-5">
+          <div className="rounded-xl px-4 py-3 mb-5" style={{ background: T.dangerLt, border: `1px solid rgba(220,38,38,0.16)` }}>
             <div className="flex gap-2">
-              <AlertTriangle size={13} className="text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <AlertTriangle size={13} style={{ color: T.danger }} className="flex-shrink-0 mt-0.5" />
+              <p className="text-[11px] leading-relaxed" style={{ color: T.sec }}>
                 Removing this will stop all AI actions relying on{" "}
-                <span className="text-red-300 font-semibold">{item.name}</span>. Your data won&apos;t be deleted.
+                <span className="font-semibold" style={{ color: T.danger }}>{item.name}</span>. Your data won&apos;t be deleted.
               </p>
             </div>
           </div>
           {error && (
-            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2.5 mb-4">
-              <AlertTriangle size={11} className="text-red-400 flex-shrink-0" />
-              <span className="text-[11px] text-red-400">{error}</span>
+            <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 mb-4" style={{ background: T.dangerLt, border: `1px solid rgba(220,38,38,0.2)` }}>
+              <AlertTriangle size={11} style={{ color: T.danger }} className="flex-shrink-0" />
+              <span className="text-[11px]" style={{ color: T.danger }}>{error}</span>
             </div>
           )}
           <div className="flex gap-2">
-            <button onClick={onClose} className={`flex-1 text-xs font-semibold text-slate-500 ${INNER} hover:bg-white/[0.06] px-4 py-2.5 rounded-xl transition-all`}>
+            <button onClick={onClose} className="flex-1 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all" style={{ color: T.muted, background: T.surface, border: `1px solid ${T.border}` }}>
               Keep connected
             </button>
             <button
               onClick={handleDisconnect}
               disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 text-xs font-bold text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-4 py-2.5 rounded-xl transition-all disabled:opacity-60"
+              className="flex-1 flex items-center justify-center gap-2 text-xs font-bold px-4 py-2.5 rounded-xl transition-all disabled:opacity-60"
+              style={{ color: T.danger, background: T.dangerLt, border: `1px solid rgba(220,38,38,0.2)` }}
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
               {loading ? "Disconnecting…" : "Disconnect"}
@@ -462,30 +496,27 @@ function ConnectedCard({
   const ActionIcon  = item.id === "gmail" ? PenLine : item.id === "googlecalendar" ? Plus : null;
 
   return (
-    <div
-      className={`rounded-2xl ${CARD} overflow-hidden hover:border-white/[0.12] transition-all`}
-      style={{ boxShadow: `0 0 0 1px rgba(255,255,255,0.03), inset 0 0 70px ${item.glow}` }}
-    >
-      <div className="h-px w-full" style={{ background: `linear-gradient(90deg, transparent, ${item.accentHex}44, transparent)` }} />
+    <div className={`rounded-2xl ${CARD} overflow-hidden transition-all hover:shadow-md`} style={{ borderColor: T.border }}>
+      <div className="h-1" style={{ background: `linear-gradient(90deg, transparent, ${item.accentHex}66, transparent)` }} />
       <div className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl ${item.bg} border ${item.border} flex items-center justify-center flex-shrink-0`}>
-              <Icon size={18} className={item.accent} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: item.bg, border: `1px solid ${item.border}` }}>
+              <Icon size={18} style={{ color: item.accent }} />
             </div>
             <div>
-              <div className="font-bold text-sm text-white">{item.name}</div>
-              <div className="text-[10px] text-slate-600 mt-0.5">{item.category}</div>
+              <div className="font-bold text-sm" style={{ color: T.pri }}>{item.name}</div>
+              <div className="text-[10px] mt-0.5" style={{ color: T.muted }}>{item.category}</div>
             </div>
           </div>
           <StatusBadge status={item.status} />
         </div>
 
-        <p className="text-xs text-slate-600 leading-relaxed mb-4">{item.desc}</p>
+        <p className="text-xs leading-relaxed mb-4" style={{ color: T.sec }}>{item.desc}</p>
 
-        <div className={`flex items-center justify-between mb-4 ${INNER} rounded-xl px-3 py-2.5`}>
-          <span className="text-xs text-slate-500 font-mono truncate">{item.detail}</span>
-          <span className="text-[10px] text-slate-700 flex items-center gap-1 flex-shrink-0">
+        <div className="flex items-center justify-between mb-4 rounded-xl px-3 py-2.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <span className="text-xs font-mono truncate" style={{ color: T.muted }}>{item.detail}</span>
+          <span className="text-[10px] flex items-center gap-1 flex-shrink-0" style={{ color: T.dim }}>
             <RefreshCw size={9} /> Live
           </span>
         </div>
@@ -494,9 +525,9 @@ function ConnectedCard({
         {liveStats && liveStats.length > 0 && (
           <div className={`grid grid-cols-${liveStats.length} gap-2 mb-4`}>
             {liveStats.map(({ label, value }) => (
-              <div key={label} className={`${INNER} rounded-xl px-2 py-2.5 text-center`}>
-                <div className={`text-base font-black ${item.accent} leading-none mb-1`}>{value}</div>
-                <div className="text-[9px] text-slate-700 leading-tight">{label}</div>
+              <div key={label} className="rounded-xl px-2 py-2.5 text-center" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+                <div className="text-base font-black leading-none mb-1" style={{ color: item.accent }}>{value}</div>
+                <div className="text-[9px] leading-tight" style={{ color: T.muted }}>{label}</div>
               </div>
             ))}
           </div>
@@ -506,18 +537,21 @@ function ConnectedCard({
           {actionLabel && ActionIcon && onAction && (
             <button
               onClick={onAction}
-              className={`flex items-center gap-1.5 text-xs font-semibold ${item.accent} ${item.bg} border ${item.border} hover:opacity-80 px-3 py-2 rounded-xl transition-all`}
+              className="flex items-center gap-1.5 text-xs font-semibold hover:opacity-80 px-3 py-2 rounded-xl transition-all"
+              style={{ color: item.accent, background: item.bg, border: `1px solid ${item.border}` }}
             >
               <ActionIcon size={11} /> {actionLabel}
             </button>
           )}
-          <button className={`flex items-center gap-1.5 text-xs font-semibold text-slate-500 ${INNER} hover:bg-white/[0.06] hover:text-slate-300 px-3 py-2 rounded-xl transition-all`}>
+          <button className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all hover:opacity-80"
+            style={{ color: T.muted, background: T.surface, border: `1px solid ${T.border}` }}>
             <Activity size={11} /> Logs
           </button>
           {item.id !== "corsair" && (
             <button
               onClick={() => onDisconnect(item)}
-              className="flex items-center gap-1.5 ml-auto text-xs font-semibold text-red-400 bg-red-500/[0.07] hover:bg-red-500/15 border border-red-500/20 px-3 py-2 rounded-xl transition-all"
+              className="flex items-center gap-1.5 ml-auto text-xs font-semibold px-3 py-2 rounded-xl transition-all hover:opacity-80"
+              style={{ color: T.danger, background: T.dangerLt, border: `1px solid rgba(220,38,38,0.18)` }}
             >
               <Trash2 size={11} /> Disconnect
             </button>
@@ -539,33 +573,30 @@ function ConnectCard({ item, onConnect }: { item: Integration; onConnect: (i: In
     corsair:        "Route · Auth · Store",
   };
   return (
-    <div
-      className={`rounded-2xl ${CARD} border-dashed overflow-hidden hover:border-white/[0.14] transition-all group`}
-      style={{ boxShadow: `inset 0 0 50px ${item.glow}` }}
-    >
-      <div className="h-px w-full opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `linear-gradient(90deg, transparent, ${item.accentHex}33, transparent)` }} />
+    <div className={`rounded-2xl ${CARD} border-dashed overflow-hidden transition-all hover:shadow-md group`} style={{ borderColor: T.border }}>
       <div className="p-5 flex flex-col h-full">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl ${item.bg} border ${item.border} flex items-center justify-center flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity`}>
-              <Icon size={18} className={item.accent} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" style={{ background: item.bg, border: `1px solid ${item.border}` }}>
+              <Icon size={18} style={{ color: item.accent }} />
             </div>
             <div>
-              <div className="font-bold text-sm text-white/60 group-hover:text-white transition-colors">{item.name}</div>
-              <div className="text-[10px] text-slate-700 mt-0.5">{item.category}</div>
+              <div className="font-bold text-sm transition-colors" style={{ color: T.muted }}>{item.name}</div>
+              <div className="text-[10px] mt-0.5" style={{ color: T.dim }}>{item.category}</div>
             </div>
           </div>
           <StatusBadge status={item.status} />
         </div>
-        <p className="text-xs text-slate-700 leading-relaxed mb-4">{item.desc}</p>
-        <div className={`flex items-center gap-2 mb-4 ${INNER} rounded-xl px-3 py-2.5`}>
-          <ShieldCheck size={11} className="text-slate-700" />
-          <span className="text-[10px] text-slate-700">Permissions: </span>
-          <span className={`text-[10px] font-semibold ${item.accent} opacity-60`}>{SCOPE_LABELS[item.id]}</span>
+        <p className="text-xs leading-relaxed mb-4" style={{ color: T.muted }}>{item.desc}</p>
+        <div className="flex items-center gap-2 mb-4 rounded-xl px-3 py-2.5" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <ShieldCheck size={11} style={{ color: T.dim }} />
+          <span className="text-[10px]" style={{ color: T.dim }}>Permissions: </span>
+          <span className="text-[10px] font-semibold opacity-80" style={{ color: item.accent }}>{SCOPE_LABELS[item.id]}</span>
         </div>
         <button
           onClick={() => onConnect(item)}
-          className="w-full flex items-center justify-center gap-2 text-xs font-bold text-black bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 px-4 py-2.5 rounded-xl transition-all shadow-[0_4px_14px_rgba(245,158,11,0.18)] hover:shadow-[0_4px_22px_rgba(245,158,11,0.35)]"
+          className="w-full flex items-center justify-center gap-2 text-xs font-bold text-white px-4 py-2.5 rounded-xl transition-all"
+          style={{ background: T.gradient, boxShadow: "0 2px 10px rgba(225,29,72,0.22)" }}
         >
           <Plug size={12} /> Connect {item.name} <ArrowRight size={12} />
         </button>
@@ -580,76 +611,23 @@ function ConnectCard({ item, onConnect }: { item: Integration; onConnect: (i: In
 function ConnectingCard({ item }: { item: Integration }) {
   const Icon = item.icon;
   return (
-    <div className={`rounded-2xl ${CARD} overflow-hidden`} style={{ boxShadow: `inset 0 0 50px ${item.glow}` }}>
-      <div className="h-px w-full" style={{ background: `linear-gradient(90deg, transparent, ${item.accentHex}33, transparent)` }} />
+    <div className={`rounded-2xl ${CARD} overflow-hidden`} style={{ borderColor: T.border }}>
+      <div className="h-1" style={{ background: `linear-gradient(90deg, transparent, ${item.accentHex}55, transparent)` }} />
       <div className="p-5 flex flex-col items-center justify-center min-h-[220px] gap-4">
-        <div className={`w-12 h-12 rounded-xl ${item.bg} border ${item.border} flex items-center justify-center`}>
-          <Icon size={20} className={item.accent} />
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: item.bg, border: `1px solid ${item.border}` }}>
+          <Icon size={20} style={{ color: item.accent }} />
         </div>
         <div className="flex flex-col items-center gap-2">
-          <Loader2 size={18} className="text-amber-400 animate-spin" />
-          <div className="text-sm font-semibold text-white">Opening Google…</div>
-          <div className="text-[11px] text-slate-600 text-center">Complete the sign-in in the new tab</div>
+          <Loader2 size={18} className="animate-spin" style={{ color: T.accent }} />
+          <div className="text-sm font-semibold" style={{ color: T.pri }}>Opening Google…</div>
+          <div className="text-[11px] text-center" style={{ color: T.muted }}>Complete the sign-in in the new tab</div>
         </div>
-        <div className={`flex items-center gap-1.5 ${INNER} rounded-xl px-3 py-2`}>
-          <Lock size={10} className="text-slate-700" />
-          <span className="text-[10px] text-slate-700">Secured via Corsair OAuth</span>
+        <div className="flex items-center gap-1.5 rounded-xl px-3 py-2" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+          <Lock size={10} style={{ color: T.dim }} />
+          <span className="text-[10px]" style={{ color: T.dim }}>Secured via Corsair OAuth</span>
         </div>
       </div>
     </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────
-// Sidebar
-// ─────────────────────────────────────────────────────────
-const NAV = [
-  { icon: LayoutDashboard, label: "Dashboard",    href: "/dashboard"    },
-  { icon: Inbox,           label: "Inbox",        href: "/"             },
-  { icon: Calendar,        label: "Calendar",     href: "/calendar"     },
-  { icon: MessageSquare,   label: "AI Agent",     href: "/chat"         },
-  { icon: Zap,             label: "Integrations", href: "/integrations" },
-  { icon: Settings,        label: "Settings",     href: "/settings"     },
-];
-
-const ST = {
-  bg:       "#fce7f3",
-  surface:  "#fff5f8",
-  border:   "rgba(225,29,72,0.10)",
-  accent:   "#e11d48",
-  accentLt: "rgba(225,29,72,0.08)",
-  pri:      "#1a0008",
-  muted:    "#c084a0",
-  gradient: "linear-gradient(135deg,#fb7185,#e11d48,#be123c)",
-};
-
-function Sidebar({ onLogout }: { onLogout: () => void }) {
-  return (
-    <aside className="w-52 flex-shrink-0 flex flex-col z-20" style={{ background: ST.surface, borderRight: `1px solid ${ST.border}` }}>
-      <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${ST.border}` }}>
-        <span className="flex items-center gap-2 font-extrabold text-sm tracking-tight" style={{ color: ST.pri }}>
-          <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs text-white" style={{ background: ST.gradient, boxShadow: "0 2px 10px rgba(225,29,72,0.30)" }}>⚡</div>
-          Super-Power
-        </span>
-        <Bell size={13} style={{ color: ST.muted }} />
-      </div>
-      <nav className="px-3 flex flex-col gap-0.5 flex-1 overflow-y-auto pt-4 pb-4">
-        {NAV.map(({ icon: Icon, label, href }) => {
-          const on = href === "/integrations";
-          return (
-            <Link key={href} href={href} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all"
-              style={{ background: on ? ST.accentLt : "transparent", color: on ? ST.accent : ST.muted, borderRight: on ? `2px solid ${ST.accent}` : "2px solid transparent" }}>
-              <Icon size={13} /> {label}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="px-3 pb-4" style={{ borderTop: `1px solid ${ST.border}` }}>
-        <button onClick={onLogout} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium mt-3 transition-all hover:bg-rose-50" style={{ color: ST.accent }}>
-          <LogOut size={13} /> Sign out
-        </button>
-      </div>
-    </aside>
   );
 }
 
@@ -684,7 +662,6 @@ function IntegrationsInner() {
   const [createEventOpen, setCreateEventOpen] = useState(false);
   const [loadingStatus, setLoadingStatus]     = useState(true);
 
-  // Fetch real stats for a plugin once it's connected
   const fetchGmailStats = useCallback(async () => {
     try {
       const res = await fetch("/api/gmail/profile");
@@ -704,7 +681,6 @@ function IntegrationsInner() {
     } catch {}
   }, []);
 
-  // Load real statuses on mount
   useEffect(() => {
     (async () => {
       try {
@@ -721,14 +697,12 @@ function IntegrationsInner() {
         if (gmailConnected) fetchGmailStats();
         if (calConnected)   fetchCalStats();
       } catch {
-        /* non-fatal */
       } finally {
         setLoadingStatus(false);
       }
     })();
   }, [fetchGmailStats, fetchCalStats]);
 
-  // Handle OAuth callback redirect params
   useEffect(() => {
     const connected = searchParams.get("connected");
     const error     = searchParams.get("error");
@@ -749,7 +723,6 @@ function IntegrationsInner() {
     }
   }, [searchParams, fetchGmailStats, fetchCalStats]);
 
-  // Start OAuth flow
   const handleConnect = useCallback(async (item: Integration) => {
     setStatuses(prev => ({ ...prev, [item.id]: "connecting" }));
     try {
@@ -758,7 +731,6 @@ function IntegrationsInner() {
       const { authorizeUrl } = await res.json();
       window.open(authorizeUrl, "_blank", "noopener,noreferrer");
 
-      // Poll until connected
       const poll = setInterval(async () => {
         try {
           const sr = await fetch("/api/integrations/status");
@@ -809,10 +781,10 @@ function IntegrationsInner() {
   })).filter(g => g.items.length > 0);
 
   const STATS_OVERVIEW = [
-    { label: "Connected", value: String(connectedCount), sub: "integrations active", accent: "text-teal-400", bar: "bg-teal-400", barW: `${Math.round((connectedCount / 3) * 100)}%` },
-    { label: "Unread emails", value: gmailStats ? String(gmailStats.unreadCount) : "–", sub: "in your inbox", accent: "text-rose-400", bar: "bg-rose-400", barW: gmailStats ? `${Math.min((gmailStats.unreadCount / 100) * 100, 100)}%` : "0%" },
-    { label: "Events this week", value: calStats ? String(calStats.eventCount) : "–", sub: "upcoming 7 days", accent: "text-blue-400", bar: "bg-blue-400", barW: calStats ? `${Math.min((calStats.eventCount / 20) * 100, 100)}%` : "0%" },
-    { label: "Uptime", value: "99.9%", sub: "last 30 days", accent: "text-emerald-400", bar: "bg-emerald-400", barW: "99%" },
+    { label: "Connected", value: String(connectedCount), sub: "integrations active", accent: T.success, bar: T.success, barW: `${Math.round((connectedCount / 3) * 100)}%` },
+    { label: "Unread emails", value: gmailStats ? String(gmailStats.unreadCount) : "–", sub: "in your inbox", accent: T.accent, bar: T.accent, barW: gmailStats ? `${Math.min((gmailStats.unreadCount / 100) * 100, 100)}%` : "0%" },
+    { label: "Events this week", value: calStats ? String(calStats.eventCount) : "–", sub: "upcoming 7 days", accent: T.blue, bar: T.blue, barW: calStats ? `${Math.min((calStats.eventCount / 20) * 100, 100)}%` : "0%" },
+    { label: "Uptime", value: "99.9%", sub: "last 30 days", accent: T.success, bar: T.success, barW: "99%" },
   ];
 
   const getLiveStats = (id: string): { label: string; value: string }[] | undefined => {
@@ -833,188 +805,174 @@ function IntegrationsInner() {
 
   if (isPending) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-[#020508]">
-        <Loader2 size={24} className="text-amber-400 animate-spin" />
+      <div className="h-screen w-screen flex items-center justify-center" style={{ background: T.bg }}>
+        <Loader2 size={24} className="animate-spin" style={{ color: T.accent }} />
       </div>
     );
   }
   if (!session) return null;
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-[#020508] relative">
-      <style>{`
-        @keyframes float-a  { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(18px,-28px) scale(1.04)} }
-        @keyframes float-b  { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-14px,22px) scale(0.97)} }
-        @keyframes scan-line{ 0%{top:0;opacity:0} 8%{opacity:1} 92%{opacity:1} 100%{top:100%;opacity:0} }
-      `}</style>
+    <div className="h-screen w-screen flex overflow-hidden" style={{ background: T.bg }}>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-5xl mx-auto px-8 py-8 space-y-8">
 
-      <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(rgba(255,255,255,0.0025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.0025)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black_40%,transparent_100%)]" />
-      <div className="absolute -top-32 -right-32 w-[700px] h-[700px] rounded-full bg-amber-500/[0.04] blur-[180px] pointer-events-none z-0" style={{ animation: "float-a 16s ease-in-out infinite" }} />
-      <div className="absolute -bottom-40 -left-24 w-[550px] h-[550px] rounded-full bg-teal-500/[0.03] blur-[160px] pointer-events-none z-0" style={{ animation: "float-b 12s ease-in-out infinite" }} />
-
-      <div className="relative z-10 flex w-full h-full">
-        <Sidebar onLogout={handleLogout} />
-
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-5xl mx-auto px-8 py-8 space-y-8">
-
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-amber-400/70 flex items-center gap-1.5 mb-2">
-                  <span>✦</span> Integrations
-                </div>
-                <p className="text-sm text-slate-600 mt-1 font-medium">
-                  Manage everything SuperPower can access on your behalf.
-                </p>
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="text-[10px] font-bold tracking-[0.3em] uppercase flex items-center gap-1.5 mb-2" style={{ color: T.accent }}>
+                <span>✦</span> Integrations
               </div>
-              <div className="flex gap-2">
-                {statuses.gmail === "connected" && (
-                  <button
-                    onClick={() => setComposeOpen(true)}
-                    className="flex items-center gap-2 text-xs font-bold text-rose-300 bg-rose-500/10 border border-rose-500/20 px-4 py-2 rounded-xl hover:bg-rose-500/20 transition-all"
-                  >
-                    <PenLine size={12} /> Compose
-                  </button>
-                )}
-                {statuses.googlecalendar === "connected" && (
-                  <button
-                    onClick={() => setCreateEventOpen(true)}
-                    className="flex items-center gap-2 text-xs font-bold text-blue-300 bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-xl hover:bg-blue-500/20 transition-all"
-                  >
-                    <Plus size={12} /> New Event
-                  </button>
-                )}
+              <p className="text-sm mt-1 font-medium" style={{ color: T.sec }}>
+                Manage everything SuperPower can access on your behalf.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {statuses.gmail === "connected" && (
+                <button
+                  onClick={() => setComposeOpen(true)}
+                  className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl transition-all hover:opacity-80"
+                  style={{ color: T.accent, background: T.accentLt, border: `1px solid ${T.border}` }}
+                >
+                  <PenLine size={12} /> Compose
+                </button>
+              )}
+              {statuses.googlecalendar === "connected" && (
+                <button
+                  onClick={() => setCreateEventOpen(true)}
+                  className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl transition-all hover:opacity-80"
+                  style={{ color: T.blue, background: T.blueLt, border: `1px solid rgba(37,99,235,0.18)` }}
+                >
+                  <Plus size={12} /> New Event
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-4">
+            {STATS_OVERVIEW.map(({ label, value, sub, accent, bar, barW }) => (
+              <div key={label} className={`${CARD} rounded-2xl p-4`} style={{ borderColor: T.border }}>
+                <div className="text-[9px] font-bold tracking-[0.2em] uppercase mb-3" style={{ color: T.dim }}>{label}</div>
+                <div className="text-2xl font-black tracking-tight mb-1" style={{ color: accent }}>{value}</div>
+                <div className="text-[10px] mb-3" style={{ color: T.muted }}>{sub}</div>
+                <div className="h-0.5 rounded-full overflow-hidden" style={{ background: T.accentLt }}>
+                  <div className="h-full rounded-full opacity-60 transition-all duration-700" style={{ width: barW, background: bar }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Core integrations */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <CheckCircle size={13} style={{ color: T.success }} />
+              <span className="text-sm font-bold" style={{ color: T.pri }}>Core integrations</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: T.successLt, color: T.success, border: `1px solid rgba(13,148,136,0.2)` }}>
+                {connectedCount} / {integrations.length}
+              </span>
+              {loadingStatus && <Loader2 size={14} className="animate-spin" style={{ color: T.dim }} />}
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              {integrations.map(item => {
+                if (item.status === "connected")
+                  return (
+                    <ConnectedCard
+                      key={item.id}
+                      item={item}
+                      onDisconnect={setDisconnectTarget}
+                      liveStats={getLiveStats(item.id)}
+                      onAction={
+                        item.id === "gmail"
+                          ? () => setComposeOpen(true)
+                          : item.id === "googlecalendar"
+                          ? () => setCreateEventOpen(true)
+                          : undefined
+                      }
+                    />
+                  );
+                if (item.status === "connecting")
+                  return <ConnectingCard key={item.id} item={item} />;
+                return <ConnectCard key={item.id} item={item} onConnect={handleConnect} />;
+              })}
+            </div>
+          </div>
+
+          {/* Available integrations search */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Globe size={13} style={{ color: T.muted }} />
+                <span className="text-sm font-bold" style={{ color: T.pri }}>More integrations</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: T.surface, color: T.muted, border: `1px solid ${T.border}` }}>
+                  Coming soon
+                </span>
+              </div>
+              <div className="relative">
+                <Search size={11} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: T.dim }} />
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Search…"
+                  className="rounded-xl pl-8 pr-3 py-2 text-xs outline-none w-40"
+                  style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.pri }}
+                />
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-4 gap-4">
-              {STATS_OVERVIEW.map(({ label, value, sub, accent, bar, barW }) => (
-                <div key={label} className={`${CARD} rounded-2xl p-4`}>
-                  <div className="text-[9px] font-bold tracking-[0.2em] uppercase text-slate-700 mb-3">{label}</div>
-                  <div className={`text-2xl font-black tracking-tight mb-1 ${accent}`}>{value}</div>
-                  <div className="text-[10px] text-slate-700 mb-3">{sub}</div>
-                  <div className="h-0.5 bg-white/[0.04] rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${bar} opacity-50 transition-all duration-700`} style={{ width: barW }} />
+            <div className="space-y-4">
+              {filtered.map(group => (
+                <div key={group.category}>
+                  <div className="flex items-center gap-2 mb-2 text-[10px] font-bold tracking-[0.2em] uppercase" style={{ color: group.color }}>
+                    <group.icon size={10} /> {group.category}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {group.items.map(i => (
+                      <div key={i.id} className={`${CARD} rounded-xl px-4 py-3 flex items-center justify-between group transition-all hover:shadow-sm`} style={{ borderColor: T.border }}>
+                        <div>
+                          <div className="text-xs font-semibold transition-colors" style={{ color: T.sec }}>{i.name}</div>
+                          <div className="text-[10px] mt-0.5" style={{ color: T.muted }}>{i.desc}</div>
+                        </div>
+                        <button className="text-[10px] font-bold flex items-center gap-1 flex-shrink-0 ml-3 transition-colors hover:opacity-70" style={{ color: T.dim }}>
+                          <Plus size={9} /> Add
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Core integrations */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <CheckCircle size={13} className="text-teal-400" />
-                <span className="text-sm font-bold text-white">Core integrations</span>
-                <span className="text-[10px] bg-teal-500/10 text-teal-400 border border-teal-500/20 font-bold px-2 py-0.5 rounded-full">
-                  {connectedCount} / {integrations.length}
-                </span>
-                {loadingStatus && <Loader2 size={11} className="text-slate-600 animate-spin" />}
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                {integrations.map(item => {
-                  if (item.status === "connected")
-                    return (
-                      <ConnectedCard
-                        key={item.id}
-                        item={item}
-                        onDisconnect={setDisconnectTarget}
-                        liveStats={getLiveStats(item.id)}
-                        onAction={
-                          item.id === "gmail"
-                            ? () => setComposeOpen(true)
-                            : item.id === "googlecalendar"
-                            ? () => setCreateEventOpen(true)
-                            : undefined
-                        }
-                      />
-                    );
-                  if (item.status === "connecting")
-                    return <ConnectingCard key={item.id} item={item} />;
-                  return <ConnectCard key={item.id} item={item} onConnect={handleConnect} />;
-                })}
-              </div>
-            </div>
-
-            {/* Available integrations search */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Globe size={13} className="text-slate-600" />
-                  <span className="text-sm font-bold text-white">More integrations</span>
-                  <span className="text-[10px] bg-white/[0.04] text-slate-600 border border-white/[0.06] font-bold px-2 py-0.5 rounded-full">
-                    Coming soon
-                  </span>
-                </div>
-                <div className="relative">
-                  <Search size={11} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-700" />
-                  <input
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    placeholder="Search…"
-                    className="bg-white/[0.03] border border-white/[0.06] rounded-xl pl-8 pr-3 py-2 text-xs text-slate-400 placeholder:text-slate-700 focus:outline-none focus:border-white/[0.12] w-40"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {filtered.map(group => (
-                  <div key={group.category}>
-                    <div className={`flex items-center gap-2 mb-2 text-[10px] font-bold tracking-[0.2em] uppercase ${group.color}`}>
-                      <group.icon size={10} /> {group.category}
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {group.items.map(i => (
-                        <div key={i.id} className={`${CARD} rounded-xl px-4 py-3 flex items-center justify-between group hover:border-white/[0.12] transition-all`}>
-                          <div>
-                            <div className="text-xs font-semibold text-slate-400 group-hover:text-white transition-colors">{i.name}</div>
-                            <div className="text-[10px] text-slate-700 mt-0.5">{i.desc}</div>
-                          </div>
-                          <button className="text-[10px] font-bold text-slate-700 hover:text-slate-400 flex items-center gap-1 flex-shrink-0 ml-3 transition-colors">
-                            <Plus size={9} /> Add
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Corsair banner */}
-            <div
-              className="relative rounded-2xl overflow-hidden border border-amber-500/[0.12]"
-              style={{ background: "linear-gradient(135deg, #0f0800 0%, #080500 100%)", boxShadow: "0 4px 40px rgba(0,0,0,0.6), inset 0 0 80px rgba(245,158,11,0.04)" }}
-            >
-              <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 18% 50%, rgba(245,158,11,0.08) 0%, transparent 60%)" }} />
-              <div className="relative z-10 flex items-center gap-6 px-6 py-5">
-                <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                  <Zap size={20} className="text-amber-400" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-amber-500/60 mb-1">AI Infrastructure</div>
-                  <div className="text-sm font-bold text-white mb-1">Corsair powers every integration</div>
-                  <div className="text-xs text-slate-600 leading-relaxed max-w-xl">
-                    OAuth tokens are stored encrypted in your own database via the local Corsair server.
-                    All API calls route through Corsair — no tokens ever leave your infrastructure.
-                  </div>
-                </div>
-                <a
-                  href="https://docs.corsair.dev"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-4 py-2.5 rounded-xl hover:bg-amber-500/20 transition-all flex-shrink-0 whitespace-nowrap"
-                >
-                  View docs <ChevronRight size={12} />
-                </a>
-              </div>
-            </div>
-
           </div>
-        </main>
-      </div>
+
+          {/* Corsair banner */}
+          <div className="relative rounded-2xl overflow-hidden" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+            <div className="relative z-10 flex items-center gap-6 px-6 py-5">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: T.warnLt, border: `1px solid rgba(217,119,6,0.2)` }}>
+                <Zap size={20} style={{ color: T.warn }} />
+              </div>
+              <div className="flex-1">
+                <div className="text-[10px] font-bold tracking-[0.25em] uppercase mb-1" style={{ color: T.warn }}>AI Infrastructure</div>
+                <div className="text-sm font-bold mb-1" style={{ color: T.pri }}>Corsair powers every integration</div>
+                <div className="text-xs leading-relaxed max-w-xl" style={{ color: T.muted }}>
+                  OAuth tokens are stored encrypted in your own database via the local Corsair server.
+                  All API calls route through Corsair — no tokens ever leave your infrastructure.
+                </div>
+              </div>
+              <a
+                href="https://docs.corsair.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex-shrink-0 whitespace-nowrap hover:opacity-80"
+                style={{ color: T.warn, background: T.warnLt, border: `1px solid rgba(217,119,6,0.2)` }}
+              >
+                View docs <ChevronRight size={12} />
+              </a>
+            </div>
+          </div>
+
+       </div>
+      </main>
 
       {/* Modals */}
       {disconnectTarget && (
@@ -1041,9 +999,9 @@ function IntegrationsInner() {
         />
       )}
 
-      {/* Toast */}
       {toast && <Toast message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
     </div>
+  
   );
 }
 
@@ -1054,8 +1012,8 @@ export default function IntegrationsPage() {
   return (
     <Suspense
       fallback={
-        <div className="h-screen w-screen flex items-center justify-center bg-[#020508]">
-          <Loader2 size={24} className="text-amber-400 animate-spin" />
+        <div className="h-screen w-screen flex items-center justify-center" style={{ background: "#fce7f3" }}>
+          <Loader2 size={24} className="animate-spin" style={{ color: "#e11d48" }} />
         </div>
       }
     >

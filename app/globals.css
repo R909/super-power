@@ -55,3 +55,13 @@ body {
         @keyframes icon-spin-smile { 0%,100%{transform:rotate(-8deg) scale(1)} 50%{transform:rotate(8deg) scale(1.15)} }
         @keyframes icon-glow-gmail { 0%,100%{box-shadow:0 4px 16px rgba(234,67,53,0.25)} 50%{box-shadow:0 6px 28px rgba(234,67,53,0.5)} }
         @keyframes icon-glow-cal { 0%,100%{box-shadow:0 4px 16px rgba(26,115,232,0.25)} 50%{box-shadow:0 6px 28px rgba(26,115,232,0.5)} }
+
+         @keyframes float-a  { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-20px,30px) scale(1.05); } }
+        @keyframes float-b  { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(25px,-20px) scale(1.04); } }
+        @keyframes left-in  { from { opacity:0; transform:translateX(-28px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes card-in  { from { opacity:0; transform:translateY(24px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes blink    { 0%,100% { opacity:1; } 50% { opacity:0; } }
+        @keyframes icon-float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+        @keyframes icon-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+        @keyframes icon-spin-smile { 0%{transform:rotate(-8deg) scale(1)} 50%{transform:rotate(8deg) scale(1.15)} 100%{transform:rotate(-8deg) scale(1)} }
+        @keyframes scan-line { 0%{top:-2px} 100%{top:100%} }
