@@ -7,7 +7,6 @@ if (!process.env.CORSAIR_INSTANCE_ID) {
   throw new Error("Missing env: CORSAIR_INSTANCE_ID");
 }
 
-console.log("Using Corsair instance:", process.env.CORSAIR_KEK);
 export const corsair = createClient({
   apiKey: process.env.CORSAIR_KEK!,
 });

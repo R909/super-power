@@ -1,38 +1,406 @@
-# Super-Power — AI-Powered Email & Calendar
+# Super-Power — Product Requirements Document
 
-Super-Power is a Next.js SaaS that replaces Gmail's and Google Calendar's default UIs with a smarter, faster, fully customisable workspace. It uses **Corsair** as the integration layer (OAuth tokens, webhooks, search), **Postgres (Neon)** for persistence, **Better Auth** for session management, and (optionally) **Claude** for agent chat.
+**Version:** 1.0
+**Date:** June 2026
+**Author:** Ritu Sood
+**Status:** In Development
 
 ---
 
 ## Table of Contents
 
-1. [Tech Stack](#tech-stack)
-2. [Architecture Overview](#architecture-overview)
-3. [Prerequisites](#prerequisites)
-4. [Step-by-Step Setup](#step-by-step-setup)
-   - [Step 1 — Clone & Install](#step-1--clone--install)
-   - [Step 2 — Create a Neon Postgres Database](#step-2--create-a-neon-postgres-database)
-   - [Step 3 — Set up Google OAuth Credentials](#step-3--set-up-google-oauth-credentials)
-   - [Step 4 — Create a Corsair Account & App](#step-4--create-a-corsair-account--app)
-   - [Step 5 — Wire up Gmail Integration in Corsair](#step-5--wire-up-gmail-integration-in-corsair)
-   - [Step 6 — Wire up Google Calendar Integration in Corsair](#step-6--wire-up-google-calendar-integration-in-corsair)
-   - [Step 7 — Configure Environment Variables](#step-7--configure-environment-variables)
-   - [Step 8 — Run Database Migrations](#step-8--run-database-migrations)
-   - [Step 9 — Implement Authentication (Better Auth + Google)](#step-9--implement-authentication-better-auth--google)
-   - [Step 10 — Build the Settings / Connect Integrations page](#step-10--build-the-settings--connect-integrations-page)
-   - [Step 11 — Build the Inbox (Gmail)](#step-11--build-the-inbox-gmail)
-   - [Step 12 — Build the Calendar](#step-12--build-the-calendar)
-   - [Step 13 — Build the AI Agent Chat (Corsair MCP)](#step-13--build-the-ai-agent-chat-corsair-mcp)
-   - [Step 14 — Add Webhooks for Real-Time Updates](#step-14--add-webhooks-for-real-time-updates)
-   - [Step 15 — Deploy](#step-15--deploy)
-5. [Full User Flow (Login → End)](#full-user-flow-login--end)
-6. [Bonus Features](#bonus-features)
-7. [Folder Structure](#folder-structure)
-8. [Environment Variable Reference](#environment-variable-reference)
+1. [Executive Summary](#1-executive-summary)
+2. [Problem Statement](#2-problem-statement)
+3. [Target Users](#3-target-users)
+4. [Goals & Success Metrics](#4-goals--success-metrics)
+5. [Scope](#5-scope)
+6. [Feature Requirements](#6-feature-requirements)
+   - [6.1 Landing Page](#61-landing-page)
+   - [6.2 Authentication](#62-authentication)
+   - [6.3 Dashboard — Email Inbox](#63-dashboard--email-inbox)
+   - [6.4 Calendar](#64-calendar)
+   - [6.5 AI Agent Chat](#65-ai-agent-chat)
+   - [6.6 Integrations](#66-integrations)
+   - [6.7 Settings](#67-settings)
+   - [6.8 Navigation & Layout](#68-navigation--layout)
+   - [6.9 Loading States](#69-loading-states)
+7. [User Flows](#7-user-flows)
+8. [Design System](#8-design-system)
+9. [Technical Architecture](#9-technical-architecture)
+10. [Non-Functional Requirements](#10-non-functional-requirements)
+11. [Out of Scope (v1)](#11-out-of-scope-v1)
+12. [Future Roadmap](#12-future-roadmap)
+13. [Developer Setup](#13-developer-setup)
 
 ---
 
-## Tech Stack
+## 1. Executive Summary
+
+**Super-Power** is an AI-powered email and calendar workspace built on Next.js. It replaces the default Gmail and Google Calendar UIs with a faster, smarter, fully customisable interface — and adds a Claude-powered AI agent that can take action (send emails, create events, search the inbox) directly from natural-language chat.
+
+The integration layer is provided by **Corsair**, which handles OAuth token management and proxies Gmail and Google Calendar API calls. User identity and sessions are managed by **Better Auth** (Google OAuth). Data is persisted in **PostgreSQL via Neon**, with **Prisma** as the ORM.
+
+---
+
+## 2. Problem Statement
+
+Standard email and calendar tools are built for the average user. Power users — founders, engineers, executives — constantly fight with:
+
+- **Too many clicks** to do common actions (reply, archive, create a meeting).
+- **No AI layer** — you have to read every email yourself and decide what to do.
+- **Fragmented tools** — inbox and calendar live in separate apps, but actions constantly cross between them (email → schedule a meeting).
+- **No keyboard-first workflows** — everything requires a mouse.
+- **No composable UI** — you use what Google gives you, not what your workflow needs.
+
+Super-Power solves this by giving users a single workspace where email, calendar, and an AI agent all live together — and where the user controls the layout, priority filters, and shortcuts.
+
+---
+
+## 3. Target Users
+
+| Persona | Description | Pain Points Addressed |
+|---|---|---|
+| **Startup founder** | Manages a high-volume inbox alongside a packed calendar | Faster triage, AI drafts replies, cross-product actions in one place |
+| **Engineer / developer** | Wants keyboard-first workflows, minimal UI noise | Clean dense UI, shortcut support, no ads or promotions tabs |
+| **Operations manager** | Schedules meetings and follows up over email all day | Calendar + inbox in one view, AI auto-creates invites from email |
+| **Cohort / course student** | Learning to build SaaS products with real integrations | Documented, well-structured codebase with clear architecture |
+
+---
+
+## 4. Goals & Success Metrics
+
+### Product Goals
+
+| Goal | Metric |
+|---|---|
+| Reduce time to triage inbox | User processes emails 2× faster than in Gmail |
+| Reduce friction for calendar actions | Meeting created in < 30 seconds from chat |
+| High AI task success rate | ≥ 90% of natural-language requests correctly executed by the agent |
+| Fast, polished UI | Page loads < 1 s; skeleton loaders shown within 100 ms |
+| Reliable integrations | < 1% of Gmail/Calendar API calls fail due to auth or connection errors |
+
+### Business Goals (v1)
+
+- Ship a fully functional MVP that demonstrates the Corsair integration pattern end-to-end.
+- Cover all core workflows: login → connect integrations → read/send email → manage calendar → chat with AI agent.
+- Codebase clean enough to serve as a reference implementation for Corsair-based apps.
+
+---
+
+## 5. Scope
+
+### In Scope (v1)
+
+- Landing page with marketing content
+- Google OAuth sign-in via Better Auth
+- Gmail inbox: list threads, read messages, compose, reply, send, search, folder navigation
+- Google Calendar: weekly view, event creation, event detail, delete
+- AI agent chat: streaming Claude responses, Corsair MCP tool use (email + calendar)
+- Integrations page: connect/disconnect Gmail and Google Calendar via Corsair
+- Settings page: profile, integrations, AI model, notifications, shortcuts, security
+- Real-time email push via Corsair webhooks
+- Skeleton loading states on all pages
+- Rose/pink design system applied consistently
+
+### Out of Scope (v1)
+
+- Mobile app or mobile-optimised layout
+- Non-Google email providers (Outlook, etc.)
+- Non-Google calendar providers
+- Multi-account support (more than one Gmail per user)
+- Email threads with > 50 messages (pagination deferred)
+- Push notifications to desktop/mobile OS
+- Billing and subscription management
+
+---
+
+## 6. Feature Requirements
+
+### 6.1 Landing Page
+
+**Route:** `/`
+**Layout:** Public (no sidebar)
+
+| # | Requirement | Priority |
+|---|---|---|
+| LP-1 | Animated hero section with headline, sub-headline, and a prominent "Get Started" CTA button | P0 |
+| LP-2 | Features section describing inbox, calendar, and AI agent capabilities | P0 |
+| LP-3 | "How It Works" step-by-step section | P1 |
+| LP-4 | Pricing section with tier cards | P1 |
+| LP-5 | Testimonials / social proof section | P2 |
+| LP-6 | Marquee / logo strip showing compatible integrations | P2 |
+| LP-7 | Navbar with logo and sign-in link | P0 |
+| LP-8 | Footer with links and copyright | P0 |
+| LP-9 | GSAP ScrollReveal animations on scroll | P1 |
+| LP-10 | Cursor glow interactive effect | P2 |
+
+---
+
+### 6.2 Authentication
+
+**Route:** `/login`
+**Layout:** Public (no sidebar)
+
+| # | Requirement | Priority |
+|---|---|---|
+| AU-1 | "Sign in with Google" button that initiates Google OAuth via Better Auth | P0 |
+| AU-2 | On successful sign-in, create User + Session + Account rows in Postgres | P0 |
+| AU-3 | Redirect authenticated users to `/dashboard` | P0 |
+| AU-4 | Redirect unauthenticated users away from protected routes to `/login` | P0 |
+| AU-5 | Session persisted in a secure HTTP-only cookie | P0 |
+| AU-6 | Sign-out clears session from DB and cookie | P0 |
+
+---
+
+### 6.3 Dashboard — Email Inbox
+
+**Route:** `/dashboard`
+**Layout:** Authenticated (sidebar visible)
+
+| # | Requirement | Priority |
+|---|---|---|
+| DB-1 | Three-column layout: folder list (sidebar), thread list (centre), message detail (right) | P0 |
+| DB-2 | Load email threads from `/api/gmail/threads` for the active folder | P0 |
+| DB-3 | Folder navigation: Inbox, Starred, Snoozed, Sent, Drafts, Spam, All Mail, Trash | P0 |
+| DB-4 | Show sender name, subject, snippet, and relative timestamp per thread | P0 |
+| DB-5 | Click a thread to load full message body in the right panel | P0 |
+| DB-6 | Compose new email via modal (To, Subject, Body, Send / Discard) | P0 |
+| DB-7 | Reply to selected thread | P1 |
+| DB-8 | Long email body capped at 18 rem (last message) / 4 rem (earlier messages) to prevent layout overflow | P0 |
+| DB-9 | Search bar queries Gmail API and updates the thread list | P1 |
+| DB-10 | Unread count badges on folders in sidebar | P1 |
+| DB-11 | Right panel: Today's calendar events from Google Calendar | P1 |
+| DB-12 | Right panel: AI quick-action buttons (Summarise, Draft Reply, Schedule) | P1 |
+| DB-13 | Right panel: Quick compose widget | P1 |
+| DB-14 | All-day calendar events displayed as "All day" (not a time) | P0 |
+| DB-15 | Long email content does not push the right panel off-screen (`min-w-0`, `overflow-x-hidden`) | P0 |
+
+---
+
+### 6.4 Calendar
+
+**Route:** `/calendar`
+**Layout:** Authenticated (sidebar visible)
+
+| # | Requirement | Priority |
+|---|---|---|
+| CA-1 | Weekly grid view (7-column, hourly rows) | P0 |
+| CA-2 | Load events from `/api/calendar/events` for the displayed week | P0 |
+| CA-3 | Events rendered in their correct time slot with colour coding by category | P0 |
+| CA-4 | Navigate forward and backward by week | P0 |
+| CA-5 | Click an empty slot to open "Create Event" form | P0 |
+| CA-6 | Create event: title, date/time, description, attendees | P0 |
+| CA-7 | Save event POSTs to `/api/calendar/events/create` → Google Calendar creates event and emails invites | P0 |
+| CA-8 | Click existing event to open detail panel (title, time, attendees, description) | P1 |
+| CA-9 | Delete event from detail panel | P1 |
+| CA-10 | Mini calendar in the left sidebar for month navigation | P1 |
+| CA-11 | "Upcoming events" list in the left sidebar | P1 |
+| CA-12 | Today's date highlighted in the grid | P0 |
+
+---
+
+### 6.5 AI Agent Chat
+
+**Route:** `/chat`
+**Layout:** Authenticated (sidebar visible)
+
+| # | Requirement | Priority |
+|---|---|---|
+| CH-1 | Chat interface with a scrollable message history | P0 |
+| CH-2 | Text input + Send button at the bottom | P0 |
+| CH-3 | Messages streamed from `/api/chat` as server-sent events | P0 |
+| CH-4 | User messages appear in rose-gradient bubbles; AI replies in white cards | P0 |
+| CH-5 | Claude uses Corsair MCP tools: read emails, send emails, search inbox, create calendar events | P0 |
+| CH-6 | Agent confirms before sending emails or creating events | P1 |
+| CH-7 | Prompt suggestion chips for common actions ("Summarise inbox", "What's on my calendar?", etc.) | P1 |
+| CH-8 | New-conversation button to clear history | P1 |
+| CH-9 | Conversations list in the left panel | P2 |
+| CH-10 | Rose/pink theme matching the rest of the authenticated UI | P0 |
+
+**Example agent prompts that must work:**
+
+- *"Show me unread emails from today"*
+- *"Reply to the last email from Sarah saying I'll be there at 3 pm"*
+- *"Create a meeting with friend@example.com tomorrow at 2 pm and send them an email"*
+- *"What's on my calendar this week?"*
+
+---
+
+### 6.6 Integrations
+
+**Route:** `/integrations`
+**Layout:** Authenticated (sidebar visible)
+
+| # | Requirement | Priority |
+|---|---|---|
+| IN-1 | Display cards for Gmail and Google Calendar showing connection status | P0 |
+| IN-2 | "Connect" button calls `/api/corsair/connect?integration=gmail` → Corsair OAuth → callback saves `connection_id` | P0 |
+| IN-3 | Same OAuth flow for Google Calendar | P0 |
+| IN-4 | "Disconnect" button revokes the Corsair connection and removes the DB record | P1 |
+| IN-5 | Status polling after OAuth redirect to confirm connection success | P0 |
+| IN-6 | Show last-synced timestamp per integration | P2 |
+
+---
+
+### 6.7 Settings
+
+**Route:** `/settings`
+**Layout:** Authenticated (sidebar visible)
+
+| # | Requirement | Priority |
+|---|---|---|
+| SE-1 | Left nav with sections: Profile, Integrations, AI Agent, Notifications, Shortcuts, Security | P0 |
+| SE-2 | **Profile** — edit display name, avatar URL, timezone | P1 |
+| SE-3 | **Integrations** — same connect/disconnect UI as `/integrations` | P0 |
+| SE-4 | **AI Agent** — choose Claude model, toggle permissions (send email, create events), set response style | P1 |
+| SE-5 | **Notifications** — toggles for new email, calendar event, AI action notifications | P2 |
+| SE-6 | **Shortcuts** — read-only list of keyboard shortcuts | P2 |
+| SE-7 | **Security** — view active sessions, revoke session, placeholder for 2FA | P2 |
+
+---
+
+### 6.8 Navigation & Layout
+
+| # | Requirement | Priority |
+|---|---|---|
+| NV-1 | Sidebar visible only on authenticated routes (`/dashboard`, `/calendar`, `/chat`, `/integrations`, `/settings`) | P0 |
+| NV-2 | Sidebar NOT shown on `/` (landing) or `/login` | P0 |
+| NV-3 | Sidebar shows active route highlight with rose accent | P0 |
+| NV-4 | Sidebar "Mail" section shows live unread counts per folder | P1 |
+| NV-5 | Sidebar "Connected" section shows real-time Gmail and Calendar connection status | P1 |
+| NV-6 | Compose modal accessible from sidebar "Compose" button on any page | P1 |
+| NV-7 | Next.js route groups `(public)` and `(app)` used for layout separation | P0 |
+
+---
+
+### 6.9 Loading States
+
+| # | Requirement | Priority |
+|---|---|---|
+| LS-1 | Rose-themed skeleton loader shown on all authenticated pages while data loads (via `loading.tsx`) | P0 |
+| LS-2 | Skeleton includes top-bar, stats cards, and row placeholders | P0 |
+| LS-3 | Centred rose-gradient spinner overlay on skeleton | P0 |
+| LS-4 | Chat page has its own loading screen (`chat/loading.tsx`) | P0 |
+| LS-5 | Login page has a full-screen loading screen (`login/loading.tsx`) | P1 |
+| LS-6 | Folder-switch in sidebar shows a per-folder spinner until inbox fetch completes | P1 |
+
+---
+
+## 7. User Flows
+
+### Flow 1 — First-time user
+
+```
+/ (Landing page)
+  → clicks "Get Started"
+  → /login
+  → "Sign in with Google" → Google OAuth consent
+  → /dashboard (first visit — integrations not yet connected)
+  → banner / prompt → /integrations
+  → Connect Gmail → Corsair OAuth → callback
+  → Connect Google Calendar → Corsair OAuth → callback
+  → /dashboard (inbox now loads real emails)
+```
+
+### Flow 2 — Daily email triage
+
+```
+/dashboard
+  → scan inbox thread list
+  → click thread → read message in right panel
+  → click "Reply" → compose modal → send
+  → click "Archive" → thread removed from inbox
+  → click folder "Starred" in sidebar → filtered thread list
+```
+
+### Flow 3 — Schedule a meeting via AI
+
+```
+/chat
+  → type "Schedule a 30-min call with alice@example.com tomorrow at 10 AM and email her the invite"
+  → Claude uses Corsair MCP:
+      - creates Google Calendar event
+      - sends email to alice@example.com
+  → Claude replies: "Done! I've created the event and sent Alice an email."
+```
+
+### Flow 4 — Create a calendar event manually
+
+```
+/calendar
+  → navigate to next week
+  → click empty slot on Thursday 3 PM
+  → fill in: Title, add attendee emails, add description
+  → click Save
+  → event appears in grid; attendees receive Google Calendar invites
+```
+
+---
+
+## 8. Design System
+
+The product uses a consistent **rose/pink** palette across all authenticated pages.
+
+### Design Tokens
+
+| Token | Value | Usage |
+|---|---|---|
+| `bg` | `#fce7f3` | Page background |
+| `surface` | `#fff5f8` | Card and sidebar background |
+| `card` | `#ffffff` | Elevated card background |
+| `border` | `rgba(225,29,72,0.10)` | Dividers and card borders |
+| `accent` | `#e11d48` | Active states, icons, links |
+| `accentLt` | `rgba(225,29,72,0.08)` | Hover and active backgrounds |
+| `gradient` | `linear-gradient(135deg, #fb7185, #e11d48, #be123c)` | Buttons, logo, user chat bubbles |
+| `pri` | `#1a0008` | Primary text |
+| `sec` | `#7f1d1d` | Secondary / heading text |
+| `muted` | `#c084a0` | Inactive labels, placeholders |
+| `dim` | `#e9b8c8` | Divider labels, faint text |
+
+### Typography
+
+| Font | Variable | Usage |
+|---|---|---|
+| Nunito | `--font-nunito` | Body text, labels |
+| Plus Jakarta Sans | `--font-jakarta` | Headings, hero |
+
+### Component Principles
+
+- All cards use `rounded-2xl` with a `1px solid border` and `surface` background.
+- Active nav items use `accentLt` background and a `2px solid accent` right border.
+- Primary action buttons use the rose gradient with `boxShadow: 0 2px 10px rgba(225,29,72,0.25)`.
+- Icons from **Lucide React** at 12–16 px for UI chrome; larger for empty states.
+- Spacing follows Tailwind's default scale; `gap-3`, `px-5 py-4` are common rhythm units.
+- No dark theme in authenticated pages; the landing page may use a dark hero section.
+
+---
+
+## 9. Technical Architecture
+
+```
+Browser
+  │
+  ▼
+Next.js 16 App Router (TypeScript)
+  │
+  ├── Route Groups
+  │   ├── (public)/         → Landing page, Login (no sidebar)
+  │   └── (app)/            → Dashboard, Calendar, Chat, Integrations, Settings (sidebar)
+  │
+  ├── Better Auth  ─────── Google OAuth ──── stores sessions in Neon Postgres
+  │
+  ├── Corsair SDK / REST
+  │   ├── Gmail API proxy   (search, read, draft, send, modify)
+  │   └── Google Calendar API proxy (list, create, delete events)
+  │
+  ├── Corsair Webhooks  ─── push new emails & calendar events in real-time
+  │
+  ├── Prisma ORM  ──────── Neon Postgres  (users, sessions, accounts, cached data)
+  │
+  └── Corsair MCP + Claude API  (AI agent — streaming, tool use)
+```
+
+### Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -44,784 +412,208 @@ Super-Power is a Next.js SaaS that replaces Gmail's and Google Calendar's defaul
 | ORM | Prisma 7 (pg adapter) |
 | Database | PostgreSQL via Neon |
 | Integrations | Corsair (Gmail + Google Calendar) |
-| AI/Agent | Corsair MCP + Claude API |
+| AI / Agent | Corsair MCP + Claude API (`claude-sonnet-4-6`) |
 | Data Fetching | TanStack React Query v5 |
 | Icons | Lucide React + React Icons |
 
----
-
-## Architecture Overview
-
-```
-Browser
-  │
-  ▼
-Next.js App (App Router)
-  │
-  ├── Better Auth  ──── Google OAuth ──── stores sessions in Postgres
-  │
-  ├── Corsair SDK / REST  ──── Gmail API  (search, draft, send, receive)
-  │                      └─── Google Calendar API (events, invites)
-  │
-  ├── Corsair Webhooks ─── push new emails & events in real-time
-  │
-  ├── Prisma ORM  ──── Neon Postgres  (users, sessions, cached emails)
-  │
-  └── Corsair MCP  ──── Claude  (AI agent chat)
-```
-
----
-
-## Prerequisites
-
-- **Node.js 20+** and **npm 10+**
-- A **Neon** account (free tier is fine) — [neon.tech](https://neon.tech)
-- A **Google Cloud** account — [console.cloud.google.com](https://console.cloud.google.com)
-- A **Corsair** account — sign up at their website and create an app
-- (Optional for agent chat) An **Anthropic API key** — [console.anthropic.com](https://console.anthropic.com)
-- (Optional for webhooks) **Ngrok** or a public URL — [ngrok.com](https://ngrok.com)
-
----
-
-## Step-by-Step Setup
-
-### Step 1 — Clone & Install
-
-```bash
-git clone <your-repo-url>
-cd super-power
-npm install
-```
-
----
-
-### Step 2 — Create a Neon Postgres Database
-
-1. Go to [neon.tech](https://neon.tech) → **New Project**
-2. Name it `super-power`, choose the closest region
-3. Copy the **Connection string** (it looks like `postgresql://user:pass@host/db?sslmode=require`)
-4. Save it — you'll add it to `.env` as `DATABASE_URL`
-
----
-
-### Step 3 — Set up Google OAuth Credentials
-
-You need a Google Cloud project with **Gmail API** and **Google Calendar API** enabled, plus OAuth 2.0 credentials.
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com) → **New Project** → name it `Super-Power`
-2. In the sidebar go to **APIs & Services → Library**
-3. Search for and **Enable**:
-   - `Gmail API`
-   - `Google Calendar API`
-4. Go to **APIs & Services → OAuth consent screen**
-   - User type: **External**
-   - Fill in App name (`Super-Power`), support email, developer email
-   - Add scopes:
-     - `https://www.googleapis.com/auth/gmail.readonly`
-     - `https://www.googleapis.com/auth/gmail.send`
-     - `https://www.googleapis.com/auth/gmail.modify`
-     - `https://www.googleapis.com/auth/calendar`
-     - `https://www.googleapis.com/auth/calendar.events`
-     - `openid`, `email`, `profile`
-   - Add your email as a **test user**
-5. Go to **APIs & Services → Credentials → Create Credentials → OAuth Client ID**
-   - Application type: **Web application**
-   - Authorised redirect URIs:
-     - `http://localhost:3000/api/auth/callback/google` (dev)
-     - `https://yourdomain.com/api/auth/callback/google` (prod)
-6. Copy **Client ID** and **Client Secret**
-
----
-
-### Step 4 — Create a Corsair Account & App
-
-Corsair is the integration hub that handles OAuth tokens for Gmail and Calendar on your behalf.
-
-1. Sign up at **Corsair's website**
-2. Go to **Dashboard → Apps → New App**
-3. Name it `Super-Power`
-4. Copy your **Corsair API Key** and **App ID** — you'll add them to `.env`
-5. In your Corsair App settings, set the **redirect URL** to your app's callback, e.g. `http://localhost:3000/api/corsair/callback`
-
----
-
-### Step 5 — Wire up Gmail Integration in Corsair
-
-1. Inside your Corsair App, go to **Integrations → Add Integration → Gmail**
-2. Enter the **Google Client ID** and **Client Secret** from Step 3
-3. Add the required OAuth scopes:
-   - `https://www.googleapis.com/auth/gmail.readonly`
-   - `https://www.googleapis.com/auth/gmail.send`
-   - `https://www.googleapis.com/auth/gmail.modify`
-4. Save. Corsair will now proxy Gmail API calls for your users.
-5. Note the **Integration ID** for Gmail — save it as `CORSAIR_GMAIL_INTEGRATION_ID`
-
----
-
-### Step 6 — Wire up Google Calendar Integration in Corsair
-
-1. In your Corsair App → **Integrations → Add Integration → Google Calendar**
-2. Enter the same Google Client ID and Secret
-3. Add scopes:
-   - `https://www.googleapis.com/auth/calendar`
-   - `https://www.googleapis.com/auth/calendar.events`
-4. Save. Note the **Integration ID** — save it as `CORSAIR_CALENDAR_INTEGRATION_ID`
-
----
-
-### Step 7 — Configure Environment Variables
-
-Create a `.env` file at the project root:
-
-```env
-# Database
-DATABASE_URL="postgresql://user:pass@host/db?sslmode=require"
-
-# Better Auth
-BETTER_AUTH_SECRET="generate-a-random-32-char-string"
-BETTER_AUTH_URL="http://localhost:3000"
-
-# Google OAuth (for Better Auth login)
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# Corsair
-CORSAIR_API_KEY="your-corsair-api-key"
-CORSAIR_APP_ID="your-corsair-app-id"
-CORSAIR_GMAIL_INTEGRATION_ID="gmail-integration-id"
-CORSAIR_CALENDAR_INTEGRATION_ID="calendar-integration-id"
-
-# AI Agent (optional)
-ANTHROPIC_API_KEY="sk-ant-..."
-
-# App URL (change to your domain in production)
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
-
-Generate a secure secret:
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
----
-
-### Step 8 — Run Database Migrations
-
-```bash
-npx prisma migrate dev --name init
-npx prisma generate
-```
-
-This creates the `User`, `Session`, `Account`, and `Verification` tables in your Neon database.
-
-To inspect the database visually:
-```bash
-npx prisma studio
-```
-
----
-
-### Step 9 — Implement Authentication (Better Auth + Google)
-
-The project already has [lib/auth.ts](lib/auth.ts) and the schema. Here is what it should look like:
-
-**lib/auth.ts**
-```ts
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { db } from "./db";
-
-export const auth = betterAuth({
-  database: prismaAdapter(db, { provider: "postgresql" }),
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },
-  secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.BETTER_AUTH_URL!,
-});
-```
-
-**app/api/auth/[...all]/route.ts** — catch-all route for Better Auth:
-```ts
-import { auth } from "@/lib/auth";
-import { toNextJsHandler } from "better-auth/next-js";
-
-export const { GET, POST } = toNextJsHandler(auth);
-```
-
-**Sign in button** (add to Navbar or a dedicated login page):
-```tsx
-import { signIn } from "better-auth/client";
-
-<button onClick={() => signIn.social({ provider: "google" })}>
-  Sign in with Google
-</button>
-```
-
-After sign-in, Better Auth stores the session in Postgres and sets a cookie. The Google access token is stored in the `Account` table — you'll use it to call Corsair.
-
----
-
-### Step 10 — Build the Settings / Connect Integrations Page
-
-The [app/settings/page.tsx](app/settings/page.tsx) page already has the UI. Now wire up the **Connect** buttons:
-
-**Flow for connecting Gmail/Calendar:**
-
-1. User clicks **Connect Gmail**
-2. Your backend calls Corsair's "start OAuth" endpoint with the user's ID and the Gmail integration ID
-3. Corsair returns an authorization URL
-4. Redirect the user to that URL
-5. After consent, Corsair calls your callback route (`/api/corsair/callback`)
-6. Save the Corsair `connection_id` to the `Account` table linked to the user
-
-**app/api/corsair/connect/route.ts**
-```ts
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-
-export async function GET(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const integration = req.nextUrl.searchParams.get("integration"); // "gmail" or "calendar"
-  const integrationId = integration === "gmail"
-    ? process.env.CORSAIR_GMAIL_INTEGRATION_ID
-    : process.env.CORSAIR_CALENDAR_INTEGRATION_ID;
-
-  const res = await fetch(`https://api.corsair.dev/v1/connections/start`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.CORSAIR_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      integration_id: integrationId,
-      user_id: session.user.id,
-      redirect_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/corsair/callback`,
-    }),
-  });
-
-  const { authorization_url } = await res.json();
-  return NextResponse.redirect(authorization_url);
-}
-```
-
-**app/api/corsair/callback/route.ts**
-```ts
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-
-export async function GET(req: NextRequest) {
-  const code = req.nextUrl.searchParams.get("code");
-  const state = req.nextUrl.searchParams.get("state"); // contains user_id from Corsair
-
-  // Exchange code for connection
-  const res = await fetch(`https://api.corsair.dev/v1/connections/complete`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.CORSAIR_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ code, state }),
-  });
-
-  const connection = await res.json();
-
-  // Save connection_id to DB
-  await db.account.upsert({
-    where: { /* unique on providerId + userId */ providerId_userId: {
-      providerId: connection.integration_type, // "gmail" or "google_calendar"
-      userId: connection.user_id,
-    }},
-    update: { accountId: connection.connection_id },
-    create: {
-      id: crypto.randomUUID(),
-      accountId: connection.connection_id,
-      providerId: connection.integration_type,
-      userId: connection.user_id,
-    },
-  });
-
-  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/settings?connected=true`);
-}
-```
-
----
-
-### Step 11 — Build the Inbox (Gmail)
-
-Now that users have a Corsair Gmail connection, you can call Gmail via Corsair.
-
-**app/api/gmail/messages/route.ts** — list inbox:
-```ts
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-
-export async function GET(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  // Get Corsair connection_id for this user's Gmail
-  const account = await db.account.findFirst({
-    where: { userId: session.user.id, providerId: "gmail" },
-  });
-  if (!account) return NextResponse.json({ error: "Gmail not connected" }, { status: 400 });
-
-  // Call Gmail via Corsair
-  const res = await fetch(
-    `https://api.corsair.dev/v1/connections/${account.accountId}/gmail/users/me/messages?maxResults=50`,
-    { headers: { "Authorization": `Bearer ${process.env.CORSAIR_API_KEY}` } }
-  );
-
-  const data = await res.json();
-  return NextResponse.json(data);
-}
-```
-
-**Key Gmail actions to implement:**
-
-| Action | Corsair Endpoint |
-|---|---|
-| List messages | `GET /connections/{id}/gmail/users/me/messages` |
-| Get message | `GET /connections/{id}/gmail/users/me/messages/{msgId}` |
-| Search messages | `GET /connections/{id}/gmail/users/me/messages?q=from:boss@co.com` |
-| Send email | `POST /connections/{id}/gmail/users/me/messages/send` |
-| Draft email | `POST /connections/{id}/gmail/users/me/drafts` |
-| Mark as read | `POST /connections/{id}/gmail/users/me/messages/{id}/modify` |
-| Archive | `POST /connections/{id}/gmail/users/me/messages/{id}/modify` |
-
-The [app/chat/page.tsx](app/chat/page.tsx) Inbox tab already has the UI — connect it to the `/api/gmail/messages` route using React Query:
-
-```tsx
-const { data: messages } = useQuery({
-  queryKey: ["inbox"],
-  queryFn: () => fetch("/api/gmail/messages").then(r => r.json()),
-});
-```
-
----
-
-### Step 12 — Build the Calendar
-
-**app/api/calendar/events/route.ts** — list events:
-```ts
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-
-export async function GET(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const account = await db.account.findFirst({
-    where: { userId: session.user.id, providerId: "google_calendar" },
-  });
-  if (!account) return NextResponse.json({ error: "Calendar not connected" }, { status: 400 });
-
-  const timeMin = new Date().toISOString();
-  const res = await fetch(
-    `https://api.corsair.dev/v1/connections/${account.accountId}/calendar/calendars/primary/events?timeMin=${timeMin}&maxResults=50&orderBy=startTime&singleEvents=true`,
-    { headers: { "Authorization": `Bearer ${process.env.CORSAIR_API_KEY}` } }
-  );
-
-  const data = await res.json();
-  return NextResponse.json(data);
-}
-```
-
-**app/api/calendar/events/create/route.ts** — create event & send invite:
-```ts
-export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  const body = await req.json();
-
-  const account = await db.account.findFirst({
-    where: { userId: session!.user.id, providerId: "google_calendar" },
-  });
-
-  const res = await fetch(
-    `https://api.corsair.dev/v1/connections/${account!.accountId}/calendar/calendars/primary/events?sendUpdates=all`,
-    {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.CORSAIR_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        summary: body.title,
-        start: { dateTime: body.start },
-        end: { dateTime: body.end },
-        attendees: body.attendees.map((email: string) => ({ email })),
-        description: body.description,
-      }),
-    }
-  );
-
-  const event = await res.json();
-  return NextResponse.json(event);
-}
-```
-
-Connect the [app/calendar/page.tsx](app/calendar/page.tsx) week grid to `/api/calendar/events`.
-
----
-
-### Step 13 — Build the AI Agent Chat (Corsair MCP)
-
-Corsair exposes an **MCP server** that has Gmail and Calendar tools built in. Point Claude at it and users can chat naturally.
-
-**app/api/chat/route.ts**
-```ts
-import Anthropic from "@anthropic-ai/sdk";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { NextRequest } from "next/server";
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session) return new Response("Unauthorized", { status: 401 });
-
-  const { messages } = await req.json();
-
-  // Get user's Corsair connections
-  const accounts = await db.account.findMany({
-    where: { userId: session.user.id, providerId: { in: ["gmail", "google_calendar"] } },
-  });
-
-  // Build MCP server config with user's connection IDs
-  const mcpServers = accounts.map(a => ({
-    type: "url" as const,
-    url: `https://mcp.corsair.dev/connections/${a.accountId}`,
-    headers: { "Authorization": `Bearer ${process.env.CORSAIR_API_KEY}` },
-  }));
-
-  const stream = await anthropic.messages.stream({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
-    system: `You are Super-Power, an AI assistant that manages the user's email and calendar.
-You can read emails, send emails, search the inbox, create calendar events, and send invites.
-Always confirm before sending emails or creating events. Be concise and direct.`,
-    messages,
-    mcp_servers: mcpServers,
-  });
-
-  return new Response(stream.toReadableStream(), {
-    headers: { "Content-Type": "text/event-stream" },
-  });
-}
-```
-
-The [app/chat/page.tsx](app/chat/page.tsx) AI Agent tab already has the chat UI — wire up the message input to POST `/api/chat` and stream the response.
-
-**Example agent prompts that will work:**
-- *"Show me unread emails from today"*
-- *"Reply to the last email from Sarah saying I'll be there at 3pm"*
-- *"Create a meeting with friend@example.com tomorrow at 2pm and send him an email"*
-- *"What's on my calendar this week?"*
-
----
-
-### Step 14 — Add Webhooks for Real-Time Updates
-
-Instead of polling, Corsair can push new emails and calendar changes to your app.
-
-**Prerequisites:** A public HTTPS URL. Use Ngrok for local dev:
-```bash
-ngrok http 3000
-# Copy the https://xxxx.ngrok.io URL
-```
-
-**Register a webhook in Corsair:**
-```ts
-// Run this once (e.g. in a setup script or admin route)
-await fetch("https://api.corsair.dev/v1/webhooks", {
-  method: "POST",
-  headers: {
-    "Authorization": `Bearer ${process.env.CORSAIR_API_KEY}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/corsair`,
-    events: ["gmail.message.received", "calendar.event.created", "calendar.event.updated"],
-  }),
-});
-```
-
-**app/api/webhooks/corsair/route.ts**
-```ts
-import { NextRequest, NextResponse } from "next/server";
-
-export async function POST(req: NextRequest) {
-  const payload = await req.json();
-
-  // Verify the webhook signature from Corsair headers
-  const signature = req.headers.get("x-corsair-signature");
-  // TODO: verify HMAC signature using your CORSAIR_WEBHOOK_SECRET
-
-  if (payload.event === "gmail.message.received") {
-    // Cache email in DB, trigger UI update via Server-Sent Events or WebSocket
-    console.log("New email:", payload.data.subject);
-  }
-
-  if (payload.event === "calendar.event.created") {
-    console.log("New calendar event:", payload.data.summary);
-  }
-
-  return NextResponse.json({ received: true });
-}
-```
-
-Add `CORSAIR_WEBHOOK_SECRET` to your `.env` for signature verification.
-
----
-
-### Step 15 — Deploy
-
-**Option A: Vercel (recommended)**
-```bash
-npm install -g vercel
-vercel
-# Follow prompts, add all env vars in the Vercel dashboard
-```
-
-**Option B: Any Node.js host**
-```bash
-npm run build
-npm run start
-```
-
-**Checklist before deploying:**
-- [ ] Update `BETTER_AUTH_URL` to your production domain
-- [ ] Update Google OAuth redirect URI to production domain
-- [ ] Update Corsair callback URL to production domain
-- [ ] Update Corsair webhook URL to production domain
-- [ ] Run `npx prisma migrate deploy` against production DB
-
----
-
-## Full User Flow (Login → End)
-
-```
-1. LANDING PAGE  (/)
-   User visits the homepage.
-   Animated hero with features, pricing, and CTA.
-   Clicks "Get Started" → redirected to /login (or sign-in modal).
-
-2. SIGN IN  (/login or Navbar button)
-   User clicks "Sign in with Google".
-   Better Auth initiates Google OAuth flow.
-   Google shows consent screen.
-   User approves → redirected back to app.
-   Better Auth creates User + Session + Account rows in Postgres.
-   User lands on /chat (Inbox view).
-
-3. CONNECT INTEGRATIONS  (/settings → Integrations tab)
-   First time: user sees Gmail and Google Calendar as "Not connected".
-   Clicks "Connect Gmail" → app calls /api/corsair/connect?integration=gmail
-   → redirected to Corsair/Google consent page.
-   User grants Gmail permissions.
-   → Corsair calls /api/corsair/callback with connection_id.
-   App saves connection_id to Account table.
-   Same flow for "Connect Google Calendar".
-   Settings page now shows both as "Connected".
-
-4. INBOX  (/chat → Inbox tab)
-   App calls /api/gmail/messages → Corsair → Gmail API.
-   Shows real emails: sender, subject, snippet, time.
-   User can:
-     • Click an email to read the full body.
-     • Click Reply → opens compose window → POST /api/gmail/send
-     • Star / archive / mark read.
-     • Use the search bar → /api/gmail/search?q=...
-
-5. CALENDAR  (/calendar)
-   App calls /api/calendar/events.
-   Week view shows real events colour-coded by type.
-   User can:
-     • Click a slot → "Create Event" form.
-     • Enter title, time, description, attendees.
-     • Click Save → POST /api/calendar/events/create → Google Calendar creates event + emails invites to attendees.
-     • Click existing event → see details, edit, delete, view attendees.
-
-6. AI AGENT CHAT  (/chat → AI Agent tab)
-   User types a natural language request.
-   App streams request to /api/chat.
-   Claude uses Corsair MCP tools to take action:
-     → searches inbox, reads emails, sends emails, creates calendar events.
-   Claude replies with a summary of what it did.
-   Example: "Done! I've sent John an email and created a 1-hour meeting for Thursday at 9 AM."
-
-7. SETTINGS  (/settings)
-   Profile: update name, avatar, timezone.
-   Integrations: connect/disconnect Gmail and Calendar.
-   AI Agent: choose Claude model, toggle permissions, set response style.
-   Notifications: toggle email/calendar/AI notifications.
-   Shortcuts: view keyboard shortcuts.
-   Security: change password, manage 2FA, view active sessions.
-
-8. REAL-TIME UPDATES  (webhooks)
-   New email arrives in Gmail.
-   Corsair pushes event to /api/webhooks/corsair.
-   App updates inbox without page refresh.
-   User sees "1 new email" badge on the Inbox tab.
-```
-
----
-
-## Bonus Features
-
-### A. Automatic Email Priority Filtering
-Send each incoming email's subject + snippet through a cheap LLM call to classify as `urgent`, `normal`, or `low`. Show a coloured badge on each email in the inbox.
-
-### B. Vector Search for Emails
-Add `pgvector` extension to Neon:
-```sql
-CREATE EXTENSION vector;
-```
-Cache email bodies in Postgres with embeddings. Use cosine similarity search to find relevant emails in < 1 second without hitting Gmail API.
-
-### C. Keyboard Shortcuts
-Add a `useHotkeys` hook:
-```ts
-useHotkeys("c", () => openCompose());        // compose
-useHotkeys("e", () => archiveSelected());    // archive
-useHotkeys("r", () => replyToSelected());    // reply
-useHotkeys("g i", () => goToInbox());        // go to inbox
-useHotkeys("g c", () => goToCalendar());     // go to calendar
-useHotkeys("/", () => focusSearch());        // search
-```
-
-### D. Better Gmail Search UI
-Use Corsair's search API to expose Gmail advanced search operators in a structured UI (from, to, subject, date range, has:attachment) without making the user write raw query strings.
-
-### E. Ngrok Webhooks for Local Dev
-```bash
-ngrok http 3000
-# Set NEXT_PUBLIC_APP_URL to the ngrok URL in .env
-# Re-register Corsair webhooks with the new URL
-```
-
----
-
-## Folder Structure
+### Key API Routes
+
+| Route | Method | Description |
+|---|---|---|
+| `/api/auth/[...all]` | GET/POST | Better Auth handler (sign in, sign out, session) |
+| `/api/corsair/connect` | GET | Start Corsair OAuth for a given integration |
+| `/api/corsair/callback` | GET | Corsair OAuth callback — saves `connection_id` to DB |
+| `/api/integrations/status` | GET | Check which integrations are connected for the current user |
+| `/api/gmail/threads` | GET | List email threads; supports `?q=` Gmail search query |
+| `/api/gmail/messages/[id]` | GET | Fetch full message body |
+| `/api/gmail/send` | POST | Send an email via Corsair + Gmail API |
+| `/api/calendar/events` | GET | List Google Calendar events for the current week |
+| `/api/calendar/events/create` | POST | Create an event and send invites |
+| `/api/calendar/events/[id]` | DELETE | Delete a calendar event |
+| `/api/chat` | POST | Streaming AI agent (Claude + Corsair MCP) |
+| `/api/webhooks/corsair` | POST | Receive real-time email and calendar push events |
+
+### Folder Structure
 
 ```
 super-power/
 ├── app/
+│   ├── (public)/
+│   │   ├── layout.tsx              ← Public layout (ScrollReveal, no sidebar)
+│   │   ├── page.tsx                ← Landing page
+│   │   └── login/
+│   │       ├── page.tsx            ← Login page
+│   │       └── loading.tsx         ← Login loading state
+│   ├── (app)/
+│   │   ├── layout.tsx              ← Authenticated layout (Sidebar)
+│   │   ├── loading.tsx             ← Shared skeleton loader
+│   │   ├── dashboard/page.tsx      ← Email inbox
+│   │   ├── calendar/page.tsx       ← Calendar week view
+│   │   ├── chat/
+│   │   │   ├── page.tsx            ← AI agent chat
+│   │   │   └── loading.tsx         ← Chat loading state
+│   │   ├── integrations/page.tsx   ← Connect/disconnect integrations
+│   │   └── settings/page.tsx       ← User settings
 │   ├── api/
-│   │   ├── auth/[...all]/route.ts      ← Better Auth handler
-│   │   ├── corsair/
-│   │   │   ├── connect/route.ts        ← Start Corsair OAuth
-│   │   │   └── callback/route.ts       ← Corsair OAuth callback
-│   │   ├── gmail/
-│   │   │   ├── messages/route.ts       ← List/search inbox
-│   │   │   └── send/route.ts           ← Send email
-│   │   ├── calendar/
-│   │   │   └── events/
-│   │   │       ├── route.ts            ← List events
-│   │   │       └── create/route.ts     ← Create event + invite
-│   │   ├── chat/route.ts               ← AI agent (Claude + Corsair MCP)
-│   │   └── webhooks/
-│   │       └── corsair/route.ts        ← Receive real-time pushes
-│   ├── calendar/page.tsx               ← Calendar UI
-│   ├── chat/page.tsx                   ← Inbox + AI Agent UI
-│   ├── settings/page.tsx               ← Settings UI
-│   ├── components/                     ← Shared UI components
-│   ├── layout.tsx
-│   ├── page.tsx                        ← Landing page
+│   │   ├── auth/[...all]/route.ts
+│   │   ├── corsair/connect/route.ts
+│   │   ├── corsair/callback/route.ts
+│   │   ├── integrations/status/route.ts
+│   │   ├── gmail/threads/route.ts
+│   │   ├── gmail/messages/[id]/route.ts
+│   │   ├── gmail/send/route.ts
+│   │   ├── calendar/events/route.ts
+│   │   ├── calendar/events/create/route.ts
+│   │   ├── chat/route.ts
+│   │   └── webhooks/corsair/route.ts
+│   ├── components/
+│   │   ├── sidebar.tsx             ← Authenticated sidebar
+│   │   ├── providers/
+│   │   │   ├── query-provider.tsx
+│   │   │   └── inbox-loading-provider.tsx
+│   │   └── [landing page components]
+│   ├── layout.tsx                  ← Root layout (providers, fonts)
 │   └── globals.css
 ├── lib/
-│   ├── auth.ts                         ← Better Auth config
-│   ├── db.ts                           ← Prisma client
-│   └── generated/prisma/               ← Generated Prisma client
+│   ├── auth.ts                     ← Better Auth config
+│   └── db.ts                       ← Prisma client
 ├── prisma/
-│   ├── schema.prisma                   ← DB schema
-│   └── migrations/                     ← SQL migrations
-├── .env                                ← Environment variables (not committed)
-├── .env-example                        ← Template for env vars
-├── next.config.ts
-├── package.json
-└── tsconfig.json
+│   ├── schema.prisma
+│   └── migrations/
+├── .env
+└── next.config.ts
 ```
 
 ---
 
-## Environment Variable Reference
+## 10. Non-Functional Requirements
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | Neon Postgres connection string |
-| `BETTER_AUTH_SECRET` | Yes | Random 32-char secret for session signing |
-| `BETTER_AUTH_URL` | Yes | Your app's base URL |
-| `GOOGLE_CLIENT_ID` | Yes | Google OAuth Client ID |
-| `GOOGLE_CLIENT_SECRET` | Yes | Google OAuth Client Secret |
-| `CORSAIR_API_KEY` | Yes | Corsair API key from dashboard |
-| `CORSAIR_APP_ID` | Yes | Corsair App ID |
-| `CORSAIR_GMAIL_INTEGRATION_ID` | Yes | Corsair Gmail integration ID |
-| `CORSAIR_CALENDAR_INTEGRATION_ID` | Yes | Corsair Google Calendar integration ID |
-| `CORSAIR_WEBHOOK_SECRET` | Bonus | HMAC secret for verifying webhook payloads |
-| `ANTHROPIC_API_KEY` | Bonus | Claude API key for AI agent chat |
-| `NEXT_PUBLIC_APP_URL` | Yes | Public URL of your app (for redirects) |
+| Category | Requirement |
+|---|---|
+| **Performance** | First Contentful Paint < 1.5 s on broadband; skeleton shown within 100 ms of navigation |
+| **Reliability** | Gmail and Calendar API calls must handle token expiry gracefully (Corsair refresh) |
+| **Security** | Sessions stored as HTTP-only cookies; no Google tokens exposed to the client; Corsair webhook signature verified via HMAC |
+| **Accessibility** | All interactive elements keyboard-reachable; `aria-label` on icon-only buttons |
+| **Browser support** | Evergreen browsers (Chrome 120+, Firefox 120+, Safari 17+, Edge 120+) |
+| **Scalability** | Stateless Next.js app; all state in Neon Postgres — horizontally scalable on Vercel |
+| **Code quality** | TypeScript strict mode; no `any` types on API boundaries; no code comments (self-documenting naming) |
 
 ---
 
-When you use Gmail or Google Calendar, it is likely that a regular workflow takes a few more clicks than it should. Or maybe sending a calendar invite is too many steps on the UI.
+## 11. Out of Scope (v1)
 
+- Mobile-responsive layout (desktop-first only)
+- Outlook / Microsoft 365 or other email providers
+- Multi-account Gmail (one Gmail per Super-Power account)
+- Email thread pagination beyond 50 results
+- Attachment previews / downloads
+- Billing, subscriptions, or usage metering
+- Desktop OS push notifications
+- Dark mode in the authenticated app
+- Shared calendars / team workspaces
 
+---
 
-Many startups have tried to make managing email and calendar seamless, but this is hard to do because everyone uses it slightly differently.
+## 12. Future Roadmap
 
+### Phase 2 — Power Features
 
+- **AI email prioritisation**: Run each incoming email's subject + snippet through a lightweight LLM call; classify as `urgent`, `normal`, or `low`; show a colour badge.
+- **Vector search**: Add `pgvector` to Neon; embed and cache email bodies locally; deliver < 1 s full-text search without hitting Gmail API.
+- **Keyboard shortcuts**: `c` compose, `e` archive, `r` reply, `gi` go to inbox, `gc` go to calendar, `/` focus search.
+- **Advanced search UI**: Expose Gmail search operators (from, to, subject, date range, `has:attachment`) via a structured form rather than a raw query string.
 
-Corsair provides the building blocks to hundreds of integrations. You can use those building blocks to wire your app into almost any other app. You can also use Corsair's MCP to let any agent get full access to integrations so it can do things on your behalf.
+### Phase 3 — Collaboration & Scale
 
+- Team workspaces with shared inboxes
+- Multi-account Gmail support
+- Outlook / Microsoft 365 integration via Corsair
+- Mobile-responsive layout
+- Real-time collaborative calendar editing
 
+---
 
-This means you can make new UIs that are set up exactly how you need, and power them using Corsair.
+## 13. Developer Setup
 
+### Prerequisites
 
+- Node.js 20+ / npm 10+
+- [Neon](https://neon.tech) account (free tier)
+- [Google Cloud](https://console.cloud.google.com) account
+- [Corsair](https://corsair.dev) account
+- Anthropic API key (for AI agent, optional)
 
-Use Corsair to create Gmail and Google Calendar integrations. Use the Gmail API to make it more intuitive to search, draft, send and receive emails. Use the Google Calendar API to make it easier to manage your schedule and send calendar invites and updates.
+### Environment Variables
 
+```env
+DATABASE_URL="postgresql://user:pass@host/db?sslmode=require"
 
+BETTER_AUTH_SECRET="generate-a-random-32-char-string"
+BETTER_AUTH_URL="http://localhost:3000"
 
-Once this is done, your email and calendar management will not be limited to how Google, Superhuman, or anyone else sees the way your workflows should be. Instead, you can decide exactly what needs to be more prominent.
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
+CORSAIR_API_KEY="your-corsair-api-key"
+CORSAIR_APP_ID="your-corsair-app-id"
+CORSAIR_GMAIL_INTEGRATION_ID="gmail-integration-id"
+CORSAIR_CALENDAR_INTEGRATION_ID="calendar-integration-id"
+CORSAIR_WEBHOOK_SECRET="hmac-secret-for-webhook-verification"
 
+ANTHROPIC_API_KEY="sk-ant-..."
 
-Tech stack
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
 
-Next.js, Postgres and Corsair (Ngrok is optional and can be used for webhooks)
+Generate a secure secret:
 
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
+### Quick Start
 
-Bonus tasks
+```bash
+git clone <repo-url>
+cd super-power
+npm install
+cp .env-example .env   # fill in the values above
+npx prisma migrate dev --name init
+npx prisma generate
+npm run dev
+```
 
-Probably the most high-value bonus task is to add agent chat using the Corsair MCP. This will let users chat to send emails and calendar invites.
+Open [http://localhost:3000](http://localhost:3000).
 
-Example:
+### Google Cloud Setup
 
+1. Create a project → enable **Gmail API** and **Google Calendar API**.
+2. OAuth consent screen → add scopes: `gmail.readonly`, `gmail.send`, `gmail.modify`, `calendar`, `calendar.events`, `openid`, `email`, `profile`.
+3. Create **OAuth 2.0 Client ID** (Web) → add redirect URI `http://localhost:3000/api/auth/callback/google`.
+4. Copy Client ID and Secret → `.env`.
 
+### Corsair Setup
 
-"Send a calendar invite to friend@corsair.dev at 9 AM next Thursday. Send him an email too saying I look forward to our meeting."
+1. Create an app in the Corsair dashboard.
+2. Add a **Gmail integration** with the Google credentials and required scopes → copy the Integration ID.
+3. Add a **Google Calendar integration** → copy the Integration ID.
+4. Set the redirect URL to `http://localhost:3000/api/corsair/callback`.
+5. (Optional) Register a webhook for `gmail.message.received` and `calendar.event.*` pointing to your public URL.
 
+### Deploy to Vercel
 
+```bash
+npm i -g vercel
+vercel
+```
 
-Use Corsair's built-in webhooks so you can get all new emails and calendar invites in realtime without having to poll the Google APIs
+Add all env vars in the Vercel dashboard. Before going live:
 
-Add automatic email filtering by sending the email subject and body through a cheap LLM to determine priority level
+- Update `BETTER_AUTH_URL` to your production domain
+- Update Google OAuth redirect URI
+- Update Corsair callback and webhook URLs
+- Run `npx prisma migrate deploy` against the production DB
 
-Wire in keystrokes so users can do common actions via the keyboard instead of clicking around
+---
 
-Use the Corsair search API to add a better UI around Gmail advanced search
-
-Add a vector database to the existing Postgres database. Since Corsair caches all emails that come through it, you can search locally instead of using the Gmail API. This allows lightning-fast search across the entire email and calendar in under 1 second
-
-
+*Super-Power is built by Ritu Sood as part of Cohort 2026.*

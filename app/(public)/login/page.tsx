@@ -72,7 +72,6 @@ export default function LoginPage() {
   }, [charIdx, phase, target]);
 
   const handleGoogleLogin = async () => {
-    console.log("handleGoogleLogin");
     if (loading) return;
     setLoading(true);
     try {

@@ -99,7 +99,6 @@ export default function CalendarPage() {
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
   const [view, setView] = useState<"Day" | "Week" | "Month" | "Agenda">("Week");
 
-  // Quick-add form
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState(() => new Date().toISOString().split("T")[0]);
   const [newTime, setNewTime] = useState("09:00");
@@ -110,7 +109,6 @@ export default function CalendarPage() {
   const [createDone, setCreateDone] = useState(false);
   const [createError, setCreateError] = useState("");
 
-  // Delete state
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
@@ -222,7 +220,6 @@ export default function CalendarPage() {
       <div className="absolute -bottom-40 -left-24 w-[400px] h-[400px] rounded-full pointer-events-none z-0" style={{ background: "rgba(251,113,133,0.06)", filter: "blur(110px)", animation: "float-b 12s ease-in-out infinite" }} />
 
       <div className="relative z-10 flex w-full h-full">
-        {/* Mini calendar + upcoming */}
         <aside className="w-56 flex-shrink-0 flex flex-col overflow-y-auto" style={{ background: T.surface, borderRight: `1px solid ${T.border}` }}>
           <div className="p-4">
             <button
@@ -233,7 +230,6 @@ export default function CalendarPage() {
               <Plus size={14} /> New Event
             </button>
 
-            {/* Mini calendar */}
             <div className="mb-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold" style={{ color: T.pri }}>
@@ -265,7 +261,6 @@ export default function CalendarPage() {
               ))}
             </div>
 
-            {/* Upcoming */}
             <div>
               <div className="text-[9px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: T.dim }}>Upcoming</div>
               {loadingEvts && (
@@ -291,7 +286,6 @@ export default function CalendarPage() {
           </div>
         </aside>
 
-        {/* Main calendar grid */}
         <main className="flex-1 flex flex-col overflow-hidden" style={{ background: "rgba(252,231,243,0.6)", backdropFilter: "blur(4px)", borderRight: `1px solid ${T.border}` }}>
           <div className="px-5 py-3.5 flex items-center justify-between flex-shrink-0" style={{ borderBottom: `1px solid ${T.border}`, background: T.surface }}>
             <div className="flex items-center gap-3">
@@ -323,7 +317,6 @@ export default function CalendarPage() {
           </div>
 
           <div className="flex-1 overflow-auto">
-            {/* Day headers */}
             <div className="grid sticky top-0 backdrop-blur-md z-10"
               style={{ gridTemplateColumns: `52px repeat(7, 1fr)`, background: T.surface, borderBottom: `1px solid ${T.border}` }}>
               <div style={{ borderRight: `1px solid ${T.border}` }} />
@@ -340,7 +333,6 @@ export default function CalendarPage() {
               ))}
             </div>
 
-            {/* Time grid */}
             {loadingEvts ? (
               <div className="flex items-center justify-center h-64 gap-2 text-sm" style={{ color: T.muted }}>
                 <Loader2 size={16} className="animate-spin" /> Loading events…
@@ -393,11 +385,9 @@ export default function CalendarPage() {
           </div>
         </main>
 
-        {/* Right panel: event detail or quick-add */}
         <aside className="w-68 flex-shrink-0 flex flex-col overflow-y-auto" style={{ width: 272, background: T.surface }}>
           {selectedEvent ? (
             <div className="m-3 space-y-3">
-              {/* Event card */}
               <div className={`rounded-2xl p-4 ${selectedEvent.cls} backdrop-blur-sm`} style={{ border: `1px solid ${T.border}` }}>
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="font-bold text-sm leading-tight pr-2">{selectedEvent.title}</h3>
@@ -419,7 +409,6 @@ export default function CalendarPage() {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="rounded-2xl p-4" style={{ background: T.bg, border: `1px solid ${T.border}` }}>
                 <div className="text-[9px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: T.dim }}>Actions</div>
                 {deleteError && (

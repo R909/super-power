@@ -13,7 +13,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useInboxLoading } from "@/app/components/providers/inbox-loading-provider";
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
   bg:       "#fce7f3",
   surface:  "#fff5f8",
@@ -29,7 +28,6 @@ const T = {
   blue:     "#2563eb",
 };
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface Thread {
   id: string;
   snippet: string;
@@ -58,11 +56,10 @@ interface ThreadMessage {
 interface CalEvent {
   id: string;
   summary: string;
-  start: string;      // resolved ISO string (dateTime or date)
+  start: string;
   isAllDay: boolean;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 function getInitials(name: string): string {
   return name
     .split(" ")
@@ -132,7 +129,6 @@ function gradientFor(str: string): string {
   return GRADIENTS[Math.abs(hash) % GRADIENTS.length];
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -141,13 +137,11 @@ function DashboardPage() {
   const { setInboxLoading } = useInboxLoading();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Data state
   const [threads, setThreads] = useState<Thread[]>([]);
   const [unreadCount, setUnreadCount] = useState<number | null>(null);
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [threadDetail, setThreadDetail] = useState<Record<string, ThreadMessage[]>>({});
 
-  // UI state
   const [loadingThreads, setLoadingThreads] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
   const [activeThread, setActiveThread] = useState<string | null>(null);
@@ -155,7 +149,6 @@ function DashboardPage() {
   const [search, setSearch] = useState("");
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
-  // Compose modal
   const [composeOpen, setComposeOpen] = useState(false);
   const [composeTo, setComposeTo] = useState("");
   const [composeSubj, setComposeSubj] = useState("");
@@ -223,12 +216,10 @@ function DashboardPage() {
     } catch {}
   }, []);
 
-  // Sync search bar text with the active folder query from URL
   useEffect(() => {
     setSearch(folderQ !== "in:inbox" ? folderQ : "");
   }, [folderQ]);
 
-  // Reload inbox whenever the session is ready or the URL folder changes
   useEffect(() => {
     if (session) loadInbox(folderQ);
   }, [session, folderQ, loadInbox]);
@@ -251,7 +242,6 @@ function DashboardPage() {
         if (!res.ok) return;
         const data = await res.json();
         setThreadDetail((prev) => ({ ...prev, [id]: data.messages ?? [] }));
-        // Mark as read locally
         setThreads((prev) =>
           prev.map((t) => (t.id === id ? { ...t, unread: false } : t))
         );
@@ -355,7 +345,6 @@ function DashboardPage() {
       <div className="h-screen flex-1 flex overflow-hidden" style={{ background: T.bg }}>
         <div className="flex-1 flex flex-col overflow-hidden">
 
-          {/* Header */}
           <header className="flex items-center gap-3 px-6 py-3 bg-white" style={{ borderBottom: `1px solid ${T.border}` }}>
             <div className="flex items-center gap-2 flex-1 max-w-xs px-3 py-2 rounded-xl text-xs" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
               <Search size={13} style={{ color: T.muted, flexShrink: 0 }} />
@@ -407,7 +396,6 @@ function DashboardPage() {
             </div>
           </header>
 
-          {/* Stats strip */}
           <div className="grid grid-cols-4" style={{ borderBottom: `1px solid ${T.border}` }}>
             {STATS.map(({ label, value, sub, color }, i) => (
               <div key={label} className="px-6 py-4 bg-white" style={{ borderRight: i < 3 ? `1px solid ${T.border}` : "none" }}>
@@ -418,10 +406,8 @@ function DashboardPage() {
             ))}
           </div>
 
-          {/* Main columns */}
           <div className="flex flex-1 min-h-0 overflow-hidden">
 
-            {/* Inbox / Folder view */}
             <div className="flex-1 flex flex-col min-h-0 min-w-0 bg-white overflow-x-hidden" style={{ borderRight: `1px solid ${T.border}` }}>
               <div className="flex items-center justify-between px-6 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
                 <div className="flex items-center gap-2">
@@ -596,10 +582,8 @@ function DashboardPage() {
               </div>
             </div>
 
-            {/* Right panel */}
             <div className="w-64 flex-shrink-0 flex flex-col overflow-y-auto bg-white" style={{ background: T.surface }}>
 
-              {/* Today's schedule */}
               <div className="p-5" style={{ borderBottom: `1px solid ${T.border}` }}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
@@ -633,7 +617,6 @@ function DashboardPage() {
                 )}
               </div>
 
-              {/* AI actions */}
               <div className="p-5" style={{ borderBottom: `1px solid ${T.border}` }}>
                 <div className="flex items-center gap-2 mb-3">
                   <Zap size={12} style={{ color: T.accent }} />
@@ -657,7 +640,6 @@ function DashboardPage() {
                 </div>
               </div>
 
-              {/* Quick compose */}
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles size={12} style={{ color: T.accent }} />
@@ -686,7 +668,6 @@ function DashboardPage() {
         </div>
       </div>
 
-      {/* Compose modal */}
       {composeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) setComposeOpen(false); }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden flex flex-col" style={{ border: `1px solid ${T.border}` }}>

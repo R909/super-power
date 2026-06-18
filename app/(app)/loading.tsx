@@ -4,7 +4,6 @@ export default function AppLoading() {
       className="flex-1 h-screen flex flex-col overflow-hidden"
       style={{ background: "#fce7f3" }}
     >
-      {/* Top bar skeleton */}
       <div
         className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0"
         style={{ background: "#fff5f8", borderColor: "rgba(225,29,72,0.10)" }}
@@ -19,11 +18,8 @@ export default function AppLoading() {
         </div>
       </div>
 
-      {/* Content skeleton */}
       <div className="flex-1 overflow-hidden flex gap-5 p-5">
-        {/* Main column */}
         <div className="flex-1 flex flex-col gap-4">
-          {/* Stats row */}
           <div className="grid grid-cols-4 gap-3">
             {[...Array(4)].map((_, i) => (
               <div
@@ -41,7 +37,6 @@ export default function AppLoading() {
             ))}
           </div>
 
-          {/* Rows */}
           <div
             className="flex-1 rounded-2xl overflow-hidden"
             style={{ background: "#fff5f8", border: "1px solid rgba(225,29,72,0.10)" }}
@@ -64,7 +59,6 @@ export default function AppLoading() {
           </div>
         </div>
 
-        {/* Right column */}
         <div className="w-72 flex-shrink-0 flex flex-col gap-4">
           <div
             className="rounded-2xl p-4 animate-pulse"

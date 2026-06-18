@@ -89,7 +89,6 @@ export default function Sidebar() {
 
   const isMailRoute = !NO_SIDEBAR_ROUTES.includes(pathname);
 
-  // Derive the active folder from live URL params (reactive)
   const currentFolder = pathname === "/dashboard" ? (searchParams.get("q") ?? "in:inbox") : null;
 
   useEffect(() => {
@@ -128,7 +127,6 @@ export default function Sidebar() {
     loadSidebarData();
   }, [isMailRoute]);
 
-  // Clear the pending loader once the inbox fetch finishes
   useEffect(() => {
     if (!inboxLoading) setPendingFolder(null);
   }, [inboxLoading]);
@@ -169,7 +167,6 @@ export default function Sidebar() {
         className="w-52 flex-shrink-0 flex flex-col h-screen sticky top-0"
         style={{ background: T.surface, borderRight: `1px solid ${T.border}` }}
       >
-        {/* Logo */}
         <div className="px-5 py-4 flex items-center justify-between flex-shrink-0" style={{ borderBottom: `1px solid ${T.border}` }}>
           <span className="flex items-center gap-2 font-extrabold text-sm tracking-tight" style={{ color: T.pri }}>
             <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs text-white" style={{ background: T.gradient, boxShadow: "0 2px 10px rgba(225,29,72,0.30)" }}>
@@ -180,7 +177,6 @@ export default function Sidebar() {
         
         </div>
 
-        {/* Compose */}
         <div className="px-4 pt-4 pb-2 flex-shrink-0">
           <button
             onClick={openCompose}
@@ -191,9 +187,7 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* Scrollable nav area */}
         <nav className="px-3 flex flex-col gap-0.5 flex-1 overflow-y-auto pb-4">
-          {/* Main nav */}
           {NAV.map(({ icon: Icon, label, href }) => {
             const on = pathname === href;
             return (
@@ -212,7 +206,6 @@ export default function Sidebar() {
             );
           })}
 
-          {/* Mail folders — dynamic */}
           <div className="flex items-center justify-between mt-4 mb-1 px-3">
             <p className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: T.dim }}>Mail</p>
             {loadingCounts && <Loader2 size={9} className="animate-spin" style={{ color: T.dim }} />}
@@ -249,7 +242,6 @@ export default function Sidebar() {
             );
           })}
 
-          {/* Connected services — real status */}
           <p className="mt-4 mb-1 px-3 text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: T.dim }}>Connected</p>
           {[
             { key: "gmail",          label: "Gmail"            },
@@ -279,7 +271,6 @@ export default function Sidebar() {
         </nav>
       </aside>
 
-      {/* Compose modal */}
       {composeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) closeCompose(); }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden flex flex-col" style={{ border: `1px solid ${T.border}` }}>

@@ -62,6 +62,7 @@ const TIERS = [
 export default function Pricing() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [annual, setAnnual] = useState(false);
+  const [popupOpen, setPopupOpen] = useState(false);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -272,6 +273,7 @@ export default function Pricing() {
 
                 {/* CTA */}
                 <button
+                  onClick={() => setPopupOpen(true)}
                   className="w-full py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 active:scale-95"
                   style={
                     tier.gradient
@@ -332,6 +334,60 @@ export default function Pricing() {
           All plans include 256-bit encryption · No credit card required on free tier · Cancel any time
         </p>
       </div>
+
+      {popupOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setPopupOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-sm mx-4 rounded-2xl overflow-hidden"
+            style={{
+              background: "linear-gradient(to bottom, rgba(225,29,72,0.45), rgba(251,113,133,0.12), transparent)",
+              padding: "1px",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="rounded-2xl p-8 flex flex-col items-center text-center gap-4"
+              style={{ background: "#fff5f8" }}
+            >
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg"
+                style={{
+                  background: "linear-gradient(135deg, #fb7185, #e11d48, #be123c)",
+                  boxShadow: "0 4px 20px rgba(225,29,72,0.30)",
+                }}
+              >
+                🚀
+              </div>
+
+              <div>
+                <p className="text-[10px] font-bold tracking-[0.25em] uppercase mb-2" style={{ color: "#e11d48" }}>
+                  Coming Soon
+                </p>
+                <h3 className="text-xl font-black tracking-tight mb-2" style={{ color: "#1a0008" }}>
+                  Payment is on the way
+                </h3>
+                <p className="text-sm leading-relaxed" style={{ color: "#7f1d1d" }}>
+                  Payment functionality will be available in the next version of Super-Power. Stay tuned!
+                </p>
+              </div>
+
+              <button
+                onClick={() => setPopupOpen(false)}
+                className="mt-2 w-full py-3 rounded-xl text-sm font-bold tracking-wide text-white transition-all duration-200 active:scale-95"
+                style={{
+                  background: "linear-gradient(135deg, #fb7185, #e11d48, #be123c)",
+                  boxShadow: "0 4px 20px rgba(225,29,72,0.30)",
+                }}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

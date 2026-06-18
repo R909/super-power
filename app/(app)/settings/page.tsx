@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
   bg:        "#fce7f3",
   surface:   "#fff5f8",
@@ -54,7 +53,6 @@ const SHORTCUTS = [
 
 type Section = "profile" | "integrations" | "ai" | "notifications" | "shortcuts" | "security";
 
-// ── Primitives ────────────────────────────────────────────────────────────────
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={`bg-white border rounded-2xl p-5 ${className}`} style={{ borderColor: T.border }}>
@@ -112,7 +110,6 @@ function Toast({ message, type, onDismiss }: { message: string; type: "success" 
   );
 }
 
-// ── Profile Section ───────────────────────────────────────────────────────────
 function ProfileSection({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
   const { data: session, isPending, refetch } = authClient.useSession() as any;
 
@@ -244,7 +241,6 @@ function ProfileSection({ onToast }: { onToast: (msg: string, type: "success" | 
   );
 }
 
-// ── Integrations Section ──────────────────────────────────────────────────────
 type IntStatus = "connected" | "disconnected" | "connecting";
 
 const INT_CONFIG = [
@@ -300,7 +296,6 @@ function IntegrationsSection({ onToast }: { onToast: (msg: string, type: "succes
       const { authorizeUrl } = await res.json();
       window.open(authorizeUrl, "_blank", "noopener,noreferrer");
 
-      // Poll until connected or 5 min timeout
       const poll = setInterval(async () => {
         try {
           const sr = await fetch("/api/integrations/status");
@@ -439,7 +434,6 @@ function IntegrationsSection({ onToast }: { onToast: (msg: string, type: "succes
   );
 }
 
-// ── AI Section ────────────────────────────────────────────────────────────────
 const MODELS = [
   { name: "Claude Opus 4.8",  badge: "Most capable" },
   { name: "Claude Sonnet 4.6", badge: "Balanced"    },
@@ -525,7 +519,6 @@ function AISection({ onToast }: { onToast: (msg: string, type: "success" | "erro
   );
 }
 
-// ── Notifications Section ─────────────────────────────────────────────────────
 type NotifKey =
   | "newEmail" | "importantEmails" | "aiSuggestions"
   | "eventReminders" | "inviteReceived" | "eventChanges"
@@ -587,7 +580,6 @@ function NotificationsSection() {
   );
 }
 
-// ── Shortcuts Section ─────────────────────────────────────────────────────────
 function ShortcutsSection() {
   return (
     <div className="space-y-5">
@@ -618,7 +610,6 @@ function ShortcutsSection() {
   );
 }
 
-// ── Security Section ──────────────────────────────────────────────────────────
 function SecuritySection({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
   const [revoking, setRevoking] = useState<string | null>(null);
   const [sessions] = useState([
@@ -629,7 +620,7 @@ function SecuritySection({ onToast }: { onToast: (msg: string, type: "success" |
 
   const handleRevoke = async (id: string, device: string) => {
     setRevoking(id);
-    await new Promise((r) => setTimeout(r, 800)); // placeholder for real revoke API
+    await new Promise((r) => setTimeout(r, 800));
     setActiveSessions((prev) => prev.filter((s) => s.id !== id));
     onToast(`Session revoked: ${device}`, "success");
     setRevoking(null);
@@ -723,7 +714,6 @@ function SecuritySection({ onToast }: { onToast: (msg: string, type: "success" |
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const [active, setActive] = useState<Section>("profile");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -743,7 +733,6 @@ export default function SettingsPage() {
 
   return (
     <div className="h-screen flex-1 overflow-hidden flex" style={{ background: T.bg }}>
-      {/* Settings nav */}
       <aside className="w-52 flex-shrink-0 flex flex-col py-6 px-3" style={{ background: T.surface, borderRight: `1px solid ${T.border}` }}>
         <div className="text-[9px] font-bold uppercase tracking-[0.2em] px-3 mb-3" style={{ color: T.dim }}>Settings</div>
         <nav className="space-y-0.5">
@@ -771,7 +760,6 @@ export default function SettingsPage() {
         </div>
       </aside>
 
-      {/* Content */}
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-8 py-8">
           {sectionMap[active]}

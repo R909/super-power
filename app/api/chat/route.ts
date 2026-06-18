@@ -4,22 +4,10 @@ import { GoogleGenAI } from "@google/genai";
 import { auth } from "@/lib/auth";
 import { corsair, ensureReady } from "@/app/server/corsair";
 
-
-// npm install @google/genai
-// Get a free API key (no credit card) at https://aistudio.google.com/apikey
-// Set GEMINI_API_KEY in your environment.
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-
-// "gemini-2.5-flash" is the stable, well-documented choice for free-tier
-// tool-calling. Swap to "gemini-3.5-flash" if it's available on your account
-// and you want the newer model.
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
-
-// Gemini's function-declaration schema uses uppercase JSON-schema type
-// strings (OBJECT, STRING, NUMBER, ARRAY, BOOLEAN) instead of Anthropic's
-// lowercase ones, but the shape is otherwise the same idea as Claude's tools.
 const TOOLS = [
  {
    functionDeclarations: [
@@ -156,10 +144,6 @@ function toBase64Url(str: string): string {
    .replace(/=+$/, "");
 }
 
-
-// This function is provider-agnostic: it executes against your tenant's
-// Gmail/Calendar APIs regardless of which model requested the call, so it's
-// unchanged from the Claude version.
 async function executeTool(
  toolName: string,
  input: Record<string, any>,
@@ -325,8 +309,6 @@ Today is ${today}. The user's email is ${userEmail}.
 When scheduling events, convert natural language times to ISO 8601 datetimes correctly.`;
 
 
-   // Gemini uses "model" instead of "assistant" for the AI's turns, and each
-   // turn is { role, parts: [...] } rather than Claude's { role, content }.
    let contents: any[] = clientMessages.map((m) => ({
      role: m.role === "assistant" ? "model" : "user",
      parts: [{ text: m.content }],
@@ -337,10 +319,6 @@ When scheduling events, convert natural language times to ISO 8601 datetimes cor
    const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
    const writer = writable.getWriter();
 
-
-   // Same agentic tool loop as before: stream text to the client, and when
-   // the model asks for a tool call, run it and feed the result back in,
-   // up to 5 tool round-trips.
    (async () => {
      try {
        let iterations = 0;
