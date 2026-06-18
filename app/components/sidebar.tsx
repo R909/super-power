@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useInboxLoading } from "@/app/components/providers/inbox-loading-provider";
 import {
-  AlertCircle, Archive, Bell, Calendar, CheckCircle, Clock,
+  AlertCircle, Archive, Calendar, CheckCircle, Clock,
   FileText, Inbox, LayoutDashboard, MessageSquare, Plug, Plus,
   Send, Settings, Star, Trash2, X, Loader2, WifiOff,
 } from "lucide-react";
@@ -177,12 +177,7 @@ export default function Sidebar() {
             </div>
             Super-Power
           </span>
-          <button className="relative">
-            <Bell size={13} style={{ color: T.muted }} />
-            {(counts.inbox ?? 0) > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full" style={{ background: T.accent }} />
-            )}
-          </button>
+        
         </div>
 
         {/* Compose */}

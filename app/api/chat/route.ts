@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { auth } from "@/lib/auth";
 import { corsair, ensureReady } from "@/app/server/corsair";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_SDK });
+const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API });
 
 const TOOLS: Anthropic.Tool[] = [
   {
@@ -292,58 +292,84 @@ When scheduling events, convert natural language times to ISO 8601 datetimes cor
       content: m.content,
     }));
 
-    let response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2048,
-      system: systemPrompt,
-      tools: TOOLS,
-      messages,
-    });
+    const encoder = new TextEncoder();
+    const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
+    const writer = writable.getWriter();
 
-    let iterations = 0;
-    while (response.stop_reason === "tool_use" && iterations < 6) {
-      iterations++;
-      const toolUseBlocks = response.content.filter(
-        (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
-      );
+    // Run the agentic tool loop in the background and pipe text tokens to the
+    // response stream. Tool-use turns produce no visible text, so only the final
+    // assistant response streams to the client.
+    (async () => {
+      try {
+        let iterations = 0;
 
-      const toolResults = await Promise.all(
-        toolUseBlocks.map(async (block) => {
-          const result = await executeTool(
-            block.name,
-            block.input as Record<string, any>,
-            tenant,
-            userEmail
+        while (iterations <= 5) {
+          const streamObj = anthropic.messages.stream({
+            model: "claude-opus-4-8",
+            max_tokens: 8192,
+            system: systemPrompt,
+            tools: TOOLS,
+            messages,
+            thinking: { type: "adaptive" },
+          });
+
+          for await (const event of streamObj) {
+            if (
+              event.type === "content_block_delta" &&
+              event.delta.type === "text_delta"
+            ) {
+              await writer.write(encoder.encode(event.delta.text));
+            }
+          }
+
+          const response = await streamObj.finalMessage();
+
+          if (response.stop_reason !== "tool_use") break;
+
+          const toolUseBlocks = response.content.filter(
+            (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
           );
-          return {
-            type: "tool_result" as const,
-            tool_use_id: block.id,
-            content: result,
-          };
-        })
-      );
+          const toolResults = await Promise.all(
+            toolUseBlocks.map(async (block) => ({
+              type: "tool_result" as const,
+              tool_use_id: block.id,
+              content: await executeTool(
+                block.name,
+                block.input as Record<string, any>,
+                tenant,
+                userEmail
+              ),
+            }))
+          );
 
-      messages = [
-        ...messages,
-        { role: "assistant" as const, content: response.content },
-        { role: "user" as const, content: toolResults },
-      ];
+          messages = [
+            ...messages,
+            { role: "assistant" as const, content: response.content },
+            { role: "user" as const, content: toolResults },
+          ];
 
-      response = await anthropic.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 2048,
-        system: systemPrompt,
-        tools: TOOLS,
-        messages,
-      });
-    }
+          iterations++;
+        }
+      } catch (err: any) {
+        console.error("[chat stream]", err);
+        try {
+          await writer.write(
+            encoder.encode("Sorry, something went wrong. Please try again.")
+          );
+        } catch {
+          // writer may already be closed
+        }
+      } finally {
+        await writer.close().catch(() => {});
+      }
+    })();
 
-    const textBlock = response.content.find(
-      (b): b is Anthropic.TextBlock => b.type === "text"
-    );
-    const text = textBlock?.text ?? "Done.";
-
-    return NextResponse.json({ role: "assistant", content: text });
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
   } catch (err: any) {
     console.error("[chat]", err);
     return NextResponse.json(

@@ -68,12 +68,36 @@ function ChatInner() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: history }),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Request failed");
-        setMessages((prev) => [
-          ...prev,
-          { id: Date.now() + 1, role: "ai", text: data.content },
-        ]);
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error((data as any).error ?? "Request failed");
+        }
+
+        // Response headers are here — stop showing the spinner and add a placeholder bubble
+        setLoading(false);
+        const aiId = Date.now() + 1;
+        setMessages((prev) => [...prev, { id: aiId, role: "ai" as const, text: "" }]);
+
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          fullText += decoder.decode(value, { stream: true });
+          setMessages((prev) =>
+            prev.map((m) => (m.id === aiId ? { ...m, text: fullText } : m))
+          );
+        }
+        // Flush any remaining bytes from the decoder
+        fullText += decoder.decode();
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === aiId ? { ...m, text: fullText || "Done." } : m
+          )
+        );
       } catch (err: any) {
         setMessages((prev) => [
           ...prev,
@@ -153,7 +177,7 @@ function ChatInner() {
                   <span className="text-slate-700">·</span>
                   <span className="text-xs text-slate-600">Gmail + Calendar</span>
                 </div>
-                <div className="text-[10px] text-slate-700">Claude Sonnet 4.6</div>
+                <div className="text-[10px] text-slate-700">Claude Opus 4.8</div>
               </div>
             </div>
             <div className="flex items-center gap-2 bg-teal-500/[0.08] border border-teal-500/20 text-teal-400 text-xs font-bold px-3 py-1.5 rounded-full">
