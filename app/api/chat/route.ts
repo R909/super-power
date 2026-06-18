@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type, type Tool } from "@google/genai";
 import { auth } from "@/lib/auth";
 import { corsair, ensureReady } from "@/app/server/corsair";
 
@@ -8,93 +8,93 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
-const TOOLS = [
- {
-   functionDeclarations: [
-     {
-       name: "list_emails",
-       description:
-         "List emails from Gmail. Use Gmail search syntax for the query (e.g. 'in:inbox', 'from:someone@example.com', 'subject:meeting is:unread').",
-       parameters: {
-         type: "OBJECT",
-         properties: {
-           query: {
-             type: "STRING",
-             description: "Gmail search query string",
-           },
-           max_results: {
-             type: "NUMBER",
-             description: "Max emails to return (1–20, default 10)",
-           },
-         },
-         required: ["query"],
-       },
-     },
-     {
-       name: "get_email",
-       description: "Get the full content of an email thread by thread ID.",
-       parameters: {
-         type: "OBJECT",
-         properties: {
-           thread_id: { type: "STRING", description: "Gmail thread ID" },
-         },
-         required: ["thread_id"],
-       },
-     },
-     {
-       name: "send_email",
-       description: "Send an email via Gmail.",
-       parameters: {
-         type: "OBJECT",
-         properties: {
-           to: { type: "STRING", description: "Recipient email address" },
-           subject: { type: "STRING", description: "Email subject" },
-           body: { type: "STRING", description: "Email body (plain text)" },
-         },
-         required: ["to", "subject", "body"],
-       },
-     },
-     {
-       name: "list_events",
-       description: "List upcoming Google Calendar events.",
-       parameters: {
-         type: "OBJECT",
-         properties: {
-           days_ahead: {
-             type: "NUMBER",
-             description: "How many days ahead to look (1–30, default 7)",
-           },
-         },
-       },
-     },
-     {
-       name: "create_event",
-       description: "Create a new Google Calendar event and optionally send invites.",
-       parameters: {
-         type: "OBJECT",
-         properties: {
-           summary: { type: "STRING", description: "Event title" },
-           start_datetime: {
-             type: "STRING",
-             description: "Start in ISO 8601 (e.g. 2026-06-20T14:00:00)",
-           },
-           end_datetime: {
-             type: "STRING",
-             description: "End in ISO 8601 (e.g. 2026-06-20T15:00:00)",
-           },
-           description: { type: "STRING", description: "Event description (optional)" },
-           attendees: {
-             type: "ARRAY",
-             items: { type: "STRING" },
-             description: "Attendee email addresses (optional)",
-           },
-           location: { type: "STRING", description: "Location or meeting link (optional)" },
-         },
-         required: ["summary", "start_datetime", "end_datetime"],
-       },
-     },
-   ],
- },
+const TOOLS: Tool[] = [
+  {
+    functionDeclarations: [
+      {
+        name: "list_emails",
+        description:
+          "List emails from Gmail. Use Gmail search syntax for the query (e.g. 'in:inbox', 'from:someone@example.com', 'subject:meeting is:unread').",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            query: {
+              type: Type.STRING,
+              description: "Gmail search query string",
+            },
+            max_results: {
+              type: Type.NUMBER,
+              description: "Max emails to return (1–20, default 10)",
+            },
+          },
+          required: ["query"],
+        },
+      },
+      {
+        name: "get_email",
+        description: "Get the full content of an email thread by thread ID.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            thread_id: { type: Type.STRING, description: "Gmail thread ID" },
+          },
+          required: ["thread_id"],
+        },
+      },
+      {
+        name: "send_email",
+        description: "Send an email via Gmail.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            to: { type: Type.STRING, description: "Recipient email address" },
+            subject: { type: Type.STRING, description: "Email subject" },
+            body: { type: Type.STRING, description: "Email body (plain text)" },
+          },
+          required: ["to", "subject", "body"],
+        },
+      },
+      {
+        name: "list_events",
+        description: "List upcoming Google Calendar events.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            days_ahead: {
+              type: Type.NUMBER,
+              description: "How many days ahead to look (1–30, default 7)",
+            },
+          },
+        },
+      },
+      {
+        name: "create_event",
+        description: "Create a new Google Calendar event and optionally send invites.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            summary: { type: Type.STRING, description: "Event title" },
+            start_datetime: {
+              type: Type.STRING,
+              description: "Start in ISO 8601 (e.g. 2026-06-20T14:00:00)",
+            },
+            end_datetime: {
+              type: Type.STRING,
+              description: "End in ISO 8601 (e.g. 2026-06-20T15:00:00)",
+            },
+            description: { type: Type.STRING, description: "Event description (optional)" },
+            attendees: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+              description: "Attendee email addresses (optional)",
+            },
+            location: { type: Type.STRING, description: "Location or meeting link (optional)" },
+          },
+          required: ["summary", "start_datetime", "end_datetime"],
+        },
+      },
+    ],
+  },
 ];
 
 
