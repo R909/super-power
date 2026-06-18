@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import Link from "next/link";
 import {
   Mail, Plus, Inbox, Calendar, Send,
@@ -9,8 +9,9 @@ import {
   ChevronRight, ArrowUpRight, LogOut, X, Loader2,
   Star, StarOff,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { useInboxLoading } from "@/app/components/providers/inbox-loading-provider";
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -104,6 +105,17 @@ function formatEventTime(iso: string): string {
   }
 }
 
+const FOLDER_LABELS: Record<string, string> = {
+  "in:inbox":   "Inbox",
+  "is:starred": "Starred",
+  "is:snoozed": "Snoozed",
+  "in:sent":    "Sent",
+  "in:drafts":  "Drafts",
+  "in:spam":    "Spam",
+  "in:all":     "All Mail",
+  "in:trash":   "Trash",
+};
+
 const GRADIENTS = [
   "from-violet-500 to-indigo-500",
   "from-rose-500 to-pink-500",
@@ -121,9 +133,12 @@ function gradientFor(str: string): string {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function DashboardPage() {
+function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const folderQ = searchParams.get("q") ?? "in:inbox";
   const { data: session, isPending } = authClient.useSession();
+  const { setInboxLoading } = useInboxLoading();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Data state
@@ -165,6 +180,7 @@ export default function DashboardPage() {
 
   const loadInbox = useCallback(async (q = "in:inbox") => {
     setLoadingThreads(true);
+    setInboxLoading(true);
     try {
       const res = await fetch(`/api/gmail/inbox?q=${encodeURIComponent(q)}&maxResults=15`);
       if (!res.ok) return;
@@ -172,8 +188,9 @@ export default function DashboardPage() {
       setThreads(data.threads ?? []);
     } finally {
       setLoadingThreads(false);
+      setInboxLoading(false);
     }
-  }, []);
+  }, [setInboxLoading]);
 
   const loadStats = useCallback(async () => {
     try {
@@ -193,13 +210,19 @@ export default function DashboardPage() {
     } catch {}
   }, []);
 
+  // Sync search bar text with the active folder query from URL
   useEffect(() => {
-    if (session) {
-      loadInbox();
-      loadStats();
-      loadEvents();
-    }
-  }, [session, loadInbox, loadStats, loadEvents]);
+    setSearch(folderQ !== "in:inbox" ? folderQ : "");
+  }, [folderQ]);
+
+  // Reload inbox whenever the session is ready or the URL folder changes
+  useEffect(() => {
+    if (session) loadInbox(folderQ);
+  }, [session, folderQ, loadInbox]);
+
+  useEffect(() => {
+    if (session) { loadStats(); loadEvents(); }
+  }, [session, loadStats, loadEvents]);
 
   const handleThreadClick = useCallback(
     async (id: string) => {
@@ -385,13 +408,15 @@ export default function DashboardPage() {
           {/* Main columns */}
           <div className="flex flex-1 min-h-0 overflow-hidden">
 
-            {/* Inbox */}
+            {/* Inbox / Folder view */}
             <div className="flex-1 flex flex-col min-h-0 bg-white" style={{ borderRight: `1px solid ${T.border}` }}>
               <div className="flex items-center justify-between px-6 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
                 <div className="flex items-center gap-2">
                   <Inbox size={13} style={{ color: T.muted }} />
-                  <span className="text-sm font-bold" style={{ color: T.pri }}>Inbox</span>
-                  {unreadThreads > 0 && (
+                  <span className="text-sm font-bold" style={{ color: T.pri }}>
+                    {FOLDER_LABELS[folderQ] ?? "Search Results"}
+                  </span>
+                  {!loadingThreads && unreadThreads > 0 && (
                     <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: T.accentLt, color: T.accent }}>
                       {unreadThreads}
                     </span>
@@ -412,9 +437,22 @@ export default function DashboardPage() {
               </div>
 
               <div className="flex-1 overflow-y-auto">
-                {loadingThreads && threads.length === 0 ? (
-                  <div className="flex items-center justify-center h-40 gap-2" style={{ color: T.muted }}>
-                    <Loader2 size={16} className="animate-spin" /> Loading inbox…
+                {loadingThreads ? (
+                  <div className="divide-y" style={{ borderColor: T.border }}>
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="px-6 py-4 flex items-start gap-3 animate-pulse">
+                        <div className="mt-2 w-1.5 h-1.5 rounded-full flex-shrink-0" />
+                        <div className="w-7 h-7 rounded-full flex-shrink-0" style={{ background: "rgba(225,29,72,0.10)" }} />
+                        <div className="flex-1 min-w-0 space-y-2 pt-0.5">
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="h-2.5 rounded-full w-28" style={{ background: "rgba(225,29,72,0.10)" }} />
+                            <div className="h-2 rounded-full w-10 flex-shrink-0" style={{ background: "rgba(225,29,72,0.07)" }} />
+                          </div>
+                          <div className="h-2.5 rounded-full" style={{ background: "rgba(225,29,72,0.08)", width: `${60 + (i * 17) % 30}%` }} />
+                          <div className="h-2 rounded-full" style={{ background: "rgba(225,29,72,0.06)", width: `${40 + (i * 13) % 25}%` }} />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : threads.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-40 gap-2" style={{ color: T.muted }}>
@@ -495,7 +533,7 @@ export default function DashboardPage() {
 
                                 <div className="flex items-center gap-2">
                                   <button
-                                    onClick={(e) => openCompose(`Re: ${t.subject}`) || e.stopPropagation()}
+                                    onClick={(e) => { e.stopPropagation(); openCompose(`Re: ${t.subject}`); }}
                                     className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl transition-all text-white"
                                     style={{ background: T.gradient, boxShadow: "0 2px 8px rgba(225,29,72,0.25)" }}
                                   >
@@ -658,5 +696,13 @@ export default function DashboardPage() {
         </div>
       )}
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardPage />
+    </Suspense>
   );
 }

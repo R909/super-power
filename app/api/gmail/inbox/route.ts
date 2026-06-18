@@ -21,7 +21,10 @@ export async function GET(req: NextRequest) {
     const tenant = corsair.withTenant(session.user.id);
 
     const listResult = await tenant.gmail.api.threads.list({ q, maxResults });
-    const threads: { id: string; snippet: string }[] = listResult.threads ?? [];
+    const rawThreads: any[] = listResult.threads ?? [];
+    const threads: { id: string; snippet: string }[] = rawThreads.filter(
+      (t: any) => typeof t.id === "string"
+    ) as { id: string; snippet: string }[];
 
     if (threads.length === 0) {
       return NextResponse.json({ threads: [], resultSizeEstimate: 0 });

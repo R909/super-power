@@ -115,7 +115,7 @@ export default function Features() {
         <div
           ref={gridWrapperRef}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 group will-change-transform [transform-style:preserve-3d]"
-          style={{ transformPerspective: "1500px" }}
+          style={{ perspective: "1500px" } as React.CSSProperties}
         >
           {FEATURES.map(({ icon, color, title, desc }) => {
             // Rose-tinted glow per card variant

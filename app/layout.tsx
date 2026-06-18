@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Nunito, Plus_Jakarta_Sans } from "next/font/google";
+import { Suspense } from "react";
 import ScrollReveal from "@/app/components/ScrollReveal";
 import "./globals.css";
 import { QueryProvider } from "./components/providers/query-provider";
+import { InboxLoadingProvider } from "./components/providers/inbox-loading-provider";
 import Sidebar from "./components/sidebar";
 
 const nunito = Nunito({
@@ -30,15 +32,19 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <QueryProvider>
+    <InboxLoadingProvider>
     <html lang="en" className={`${nunito.variable} ${jakarta.variable}`}>
       <body>
         <div className="flex">
-          <Sidebar />
+          <Suspense fallback={null}>
+            <Sidebar />
+          </Suspense>
           {children}
         </div>
         <ScrollReveal />
       </body>
     </html>
+    </InboxLoadingProvider>
     </QueryProvider>
   );
 }
