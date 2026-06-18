@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import { Nunito, Plus_Jakarta_Sans } from "next/font/google";
-import { Suspense } from "react";
-import ScrollReveal from "@/app/components/ScrollReveal";
 import "./globals.css";
 import { QueryProvider } from "./components/providers/query-provider";
 import { InboxLoadingProvider } from "./components/providers/inbox-loading-provider";
-import Sidebar from "./components/sidebar";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -18,7 +15,7 @@ const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  display: "swap"
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -32,19 +29,11 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <QueryProvider>
-    <InboxLoadingProvider>
-    <html lang="en" className={`${nunito.variable} ${jakarta.variable}`}>
-      <body>
-        <div className="flex">
-          <Suspense fallback={null}>
-            <Sidebar />
-          </Suspense>
-          {children}
-        </div>
-        <ScrollReveal />
-      </body>
-    </html>
-    </InboxLoadingProvider>
+      <InboxLoadingProvider>
+        <html lang="en" className={`${nunito.variable} ${jakarta.variable}`}>
+          <body>{children}</body>
+        </html>
+      </InboxLoadingProvider>
     </QueryProvider>
   );
 }

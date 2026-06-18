@@ -58,8 +58,8 @@ interface ThreadMessage {
 interface CalEvent {
   id: string;
   summary: string;
-  start: string;
-  end: string;
+  start: string;      // resolved ISO string (dateTime or date)
+  isAllDay: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -94,14 +94,14 @@ function formatDate(dateStr: string): string {
   }
 }
 
-function formatEventTime(iso: string): string {
+function formatEventTime(iso: string, isAllDay: boolean): string {
+  if (isAllDay) return "All day";
   try {
-    return new Date(iso).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-    });
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   } catch {
-    return iso;
+    return "";
   }
 }
 
@@ -206,7 +206,20 @@ function DashboardPage() {
       const res = await fetch("/api/calendar/events?days=1");
       if (!res.ok) return;
       const data = await res.json();
-      setEvents(data.items ?? []);
+      const mapped: CalEvent[] = (data.items ?? [])
+        .map((item: any) => {
+          const dateTime: string | undefined = item.start?.dateTime;
+          const date: string | undefined = item.start?.date;
+          if (!dateTime && !date) return null;
+          return {
+            id: item.id,
+            summary: item.summary ?? "Untitled",
+            start: dateTime ?? date!,
+            isAllDay: !dateTime,
+          };
+        })
+        .filter(Boolean) as CalEvent[];
+      setEvents(mapped);
     } catch {}
   }, []);
 
@@ -409,7 +422,7 @@ function DashboardPage() {
           <div className="flex flex-1 min-h-0 overflow-hidden">
 
             {/* Inbox / Folder view */}
-            <div className="flex-1 flex flex-col min-h-0 bg-white" style={{ borderRight: `1px solid ${T.border}` }}>
+            <div className="flex-1 flex flex-col min-h-0 min-w-0 bg-white overflow-x-hidden" style={{ borderRight: `1px solid ${T.border}` }}>
               <div className="flex items-center justify-between px-6 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
                 <div className="flex items-center gap-2">
                   <Inbox size={13} style={{ color: T.muted }} />
@@ -436,7 +449,7 @@ function DashboardPage() {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
                 {loadingThreads ? (
                   <div className="divide-y" style={{ borderColor: T.border }}>
                     {Array.from({ length: 8 }).map((_, i) => (
@@ -518,12 +531,19 @@ function DashboardPage() {
                                 ) : detail ? (
                                   <div className="space-y-2">
                                     {detail.map((msg, idx) => (
-                                      <div key={msg.id} className="rounded-xl p-3" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
-                                        <div className="flex items-center justify-between mb-1">
-                                          <span className="text-[10px] font-semibold truncate" style={{ color: T.sec }}>{msg.from}</span>
-                                          <span className="text-[9px] flex-shrink-0 ml-2" style={{ color: T.dim }}>{formatDate(msg.date)}</span>
+                                      <div key={msg.id} className="rounded-xl p-3 min-w-0" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+                                        <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
+                                          <span className="text-[10px] font-semibold truncate min-w-0" style={{ color: T.sec }}>{msg.from}</span>
+                                          <span className="text-[9px] flex-shrink-0" style={{ color: T.dim }}>{formatDate(msg.date)}</span>
                                         </div>
-                                        <p className="text-xs leading-relaxed whitespace-pre-wrap break-words" style={{ color: T.pri, maxHeight: idx === detail.length - 1 ? "none" : "4rem", overflow: "hidden" }}>
+                                        <p
+                                          className="text-xs leading-relaxed whitespace-pre-wrap break-words overflow-hidden"
+                                          style={{
+                                            color: T.pri,
+                                            maxHeight: idx === detail.length - 1 ? "18rem" : "4rem",
+                                            overflowY: idx === detail.length - 1 ? "auto" : "hidden",
+                                          }}
+                                        >
                                           {msg.body || msg.snippet}
                                         </p>
                                       </div>
@@ -602,7 +622,7 @@ function DashboardPage() {
                       return (
                         <div key={ev.id} className="flex items-center gap-3">
                           <span className="text-[10px] font-mono w-12 flex-shrink-0" style={{ color: T.muted }}>
-                            {formatEventTime(ev.start)}
+                            {formatEventTime(ev.start, ev.isAllDay)}
                           </span>
                           <div className="w-0.5 h-8 rounded-full flex-shrink-0 opacity-60" style={{ background: colors[i % colors.length] }} />
                           <p className="text-xs truncate" style={{ color: T.pri }}>{ev.summary}</p>
