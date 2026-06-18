@@ -23,14 +23,27 @@ interface CalEvent {
   endIso: string;
 }
 
+const T = {
+  bg:       "#fce7f3",
+  surface:  "#fff5f8",
+  border:   "rgba(225,29,72,0.10)",
+  accent:   "#e11d48",
+  accentLt: "rgba(225,29,72,0.08)",
+  pri:      "#1a0008",
+  sec:      "#7f1d1d",
+  muted:    "#c084a0",
+  dim:      "#e9b8c8",
+  gradient: "linear-gradient(135deg,#fb7185,#e11d48,#be123c)",
+};
+
 const EVENT_COLORS = [
-  "bg-amber-500/20  border-l-[3px] border-amber-400  text-amber-200",
-  "bg-violet-500/20 border-l-[3px] border-violet-400 text-violet-200",
-  "bg-teal-500/20   border-l-[3px] border-teal-400   text-teal-200",
-  "bg-blue-500/20   border-l-[3px] border-blue-400   text-blue-200",
-  "bg-emerald-500/20 border-l-[3px] border-emerald-400 text-emerald-200",
-  "bg-sky-500/20    border-l-[3px] border-sky-400    text-sky-200",
-  "bg-orange-500/20 border-l-[3px] border-orange-400 text-orange-200",
+  "bg-rose-500/20   border-l-[3px] border-rose-400   text-rose-700",
+  "bg-pink-500/20   border-l-[3px] border-pink-400   text-pink-700",
+  "bg-fuchsia-500/20 border-l-[3px] border-fuchsia-400 text-fuchsia-700",
+  "bg-red-500/20    border-l-[3px] border-red-400    text-red-700",
+  "bg-rose-400/20   border-l-[3px] border-rose-500   text-rose-800",
+  "bg-pink-400/20   border-l-[3px] border-pink-500   text-pink-800",
+  "bg-fuchsia-400/20 border-l-[3px] border-fuchsia-500 text-fuchsia-800",
 ];
 
 function getWeekMonday(): Date {
@@ -199,25 +212,23 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="h-screen flex-1 overflow-hidden flex bg-[#030712] relative">
+    <div className="h-screen flex-1 overflow-hidden flex relative" style={{ background: T.bg }}>
       <style>{`
         @keyframes float-a { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(18px,-28px) scale(1.04)} }
         @keyframes float-b { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-14px,22px) scale(0.97)} }
-        @keyframes scan-line { 0%{top:0;opacity:0} 8%{opacity:1} 92%{opacity:1} 100%{top:100%;opacity:0} }
       `}</style>
 
-      <div className="absolute inset-0 pointer-events-none z-0 bg-[linear-gradient(rgba(255,255,255,0.003)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.003)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,black_40%,transparent_100%)]" />
-      <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-amber-500/[0.05] blur-[140px] pointer-events-none z-0" style={{ animation: "float-a 16s ease-in-out infinite" }} />
-      <div className="absolute -bottom-40 -left-24 w-[500px] h-[500px] rounded-full bg-teal-500/[0.04] blur-[130px] pointer-events-none z-0" style={{ animation: "float-b 12s ease-in-out infinite" }} />
-      <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/[0.06] to-transparent pointer-events-none z-0" style={{ animation: "scan-line 14s linear infinite 2s" }} />
+      <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full pointer-events-none z-0" style={{ background: "rgba(225,29,72,0.07)", filter: "blur(120px)", animation: "float-a 16s ease-in-out infinite" }} />
+      <div className="absolute -bottom-40 -left-24 w-[400px] h-[400px] rounded-full pointer-events-none z-0" style={{ background: "rgba(251,113,133,0.06)", filter: "blur(110px)", animation: "float-b 12s ease-in-out infinite" }} />
 
       <div className="relative z-10 flex w-full h-full">
         {/* Mini calendar + upcoming */}
-        <aside className="w-56 flex-shrink-0 flex flex-col bg-[#07090f] border-r border-white/[0.05] overflow-y-auto">
+        <aside className="w-56 flex-shrink-0 flex flex-col overflow-y-auto" style={{ background: T.surface, borderRight: `1px solid ${T.border}` }}>
           <div className="p-4">
             <button
               onClick={() => setSelectedEvent(null)}
-              className="w-full flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black text-xs font-bold px-4 py-2.5 rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.3)] transition-all mb-4"
+              className="w-full flex items-center gap-2 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all mb-4 hover:opacity-90"
+              style={{ background: T.gradient, boxShadow: "0 4px 14px rgba(225,29,72,0.25)" }}
             >
               <Plus size={14} /> New Event
             </button>
@@ -225,24 +236,28 @@ export default function CalendarPage() {
             {/* Mini calendar */}
             <div className="mb-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-white">
+                <span className="text-xs font-bold" style={{ color: T.pri }}>
                   {new Date().toLocaleString("default", { month: "long", year: "numeric" })}
                 </span>
                 <div className="flex gap-0.5">
-                  <button className="p-1 rounded-lg hover:bg-white/[0.06] text-slate-600 transition-colors"><ChevronLeft size={12} /></button>
-                  <button className="p-1 rounded-lg hover:bg-white/[0.06] text-slate-600 transition-colors"><ChevronRight size={12} /></button>
+                  <button className="p-1 rounded-lg transition-colors" style={{ color: T.muted }} onMouseEnter={e => (e.currentTarget.style.background = T.accentLt)} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}><ChevronLeft size={12} /></button>
+                  <button className="p-1 rounded-lg transition-colors" style={{ color: T.muted }} onMouseEnter={e => (e.currentTarget.style.background = T.accentLt)} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}><ChevronRight size={12} /></button>
                 </div>
               </div>
               <div className="grid grid-cols-7 text-center mb-1">
-                {CAL_DAYS_HDR.map((d, i) => <div key={i} className="text-[9px] font-bold text-slate-700 py-1">{d}</div>)}
+                {CAL_DAYS_HDR.map((d, i) => <div key={i} className="text-[9px] font-bold py-1" style={{ color: T.dim }}>{d}</div>)}
               </div>
               {CAL_MINI.map((week, wi) => (
                 <div key={wi} className="grid grid-cols-7 text-center">
                   {week.map((d, di) => (
-                    <div key={di} className={`text-[10px] mx-auto w-6 h-6 flex items-center justify-center rounded-full cursor-pointer transition-all
-                      ${d === new Date().getDate() ? "bg-amber-500 text-black font-bold shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
-                        : d && d >= WEEK_DATES[0] && d <= WEEK_DATES[6] ? "bg-white/[0.07] text-slate-300 font-semibold hover:bg-amber-500/20 hover:text-amber-300"
-                        : d ? "hover:bg-white/[0.05] text-slate-600" : ""}`}>
+                    <div key={di} className="text-[10px] mx-auto w-6 h-6 flex items-center justify-center rounded-full cursor-pointer transition-all"
+                      style={
+                        d === new Date().getDate()
+                          ? { background: T.gradient, color: "#fff", fontWeight: 700, boxShadow: "0 2px 8px rgba(225,29,72,0.35)" }
+                          : d && d >= WEEK_DATES[0] && d <= WEEK_DATES[6]
+                          ? { background: T.accentLt, color: T.accent, fontWeight: 600 }
+                          : { color: d ? T.muted : "transparent" }
+                      }>
                       {d}
                     </div>
                   ))}
@@ -252,56 +267,55 @@ export default function CalendarPage() {
 
             {/* Upcoming */}
             <div>
-              <div className="text-[9px] font-bold text-slate-700 uppercase tracking-[0.2em] mb-2">Upcoming</div>
+              <div className="text-[9px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: T.dim }}>Upcoming</div>
               {loadingEvts && (
-                <div className="flex items-center gap-2 text-slate-700 text-xs">
+                <div className="flex items-center gap-2 text-xs" style={{ color: T.muted }}>
                   <Loader2 size={11} className="animate-spin" /> Loading…
                 </div>
               )}
               {!loadingEvts && events.length === 0 && (
-                <p className="text-[10px] text-slate-700">No events this week.</p>
+                <p className="text-[10px]" style={{ color: T.muted }}>No events this week.</p>
               )}
               <div className="space-y-2.5">
-                {events.slice(0, 6).map((ev, i) => {
-                  const dotColors = ["bg-amber-400", "bg-violet-400", "bg-teal-400", "bg-blue-400", "bg-emerald-400", "bg-sky-400"];
-                  return (
-                    <div key={ev.googleId} className="flex items-start gap-2 group cursor-pointer" onClick={() => setSelectedEvent(ev)}>
-                      <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5 ${dotColors[i % dotColors.length]}`} />
-                      <div>
-                        <div className="text-xs font-semibold text-slate-400 group-hover:text-amber-400 transition-colors">{ev.title}</div>
-                        <div className="text-[10px] text-slate-700">{WEEK_DAYS[ev.day]} · {formatTime(ev.start)}</div>
-                      </div>
+                {events.slice(0, 6).map((ev) => (
+                  <div key={ev.googleId} className="flex items-start gap-2 group cursor-pointer" onClick={() => setSelectedEvent(ev)}>
+                    <div className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5" style={{ background: T.accent }} />
+                    <div>
+                      <div className="text-xs font-semibold transition-colors" style={{ color: T.sec }}>{ev.title}</div>
+                      <div className="text-[10px]" style={{ color: T.muted }}>{WEEK_DAYS[ev.day]} · {formatTime(ev.start)}</div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </aside>
 
         {/* Main calendar grid */}
-        <main className="flex-1 flex flex-col bg-[#030712]/60 backdrop-blur-sm border-r border-white/[0.05] overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-white/[0.05] flex items-center justify-between flex-shrink-0 bg-[#030712]/80">
+        <main className="flex-1 flex flex-col overflow-hidden" style={{ background: "rgba(252,231,243,0.6)", backdropFilter: "blur(4px)", borderRight: `1px solid ${T.border}` }}>
+          <div className="px-5 py-3.5 flex items-center justify-between flex-shrink-0" style={{ borderBottom: `1px solid ${T.border}`, background: T.surface }}>
             <div className="flex items-center gap-3">
               <div className="flex gap-0.5">
-                <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-slate-600 transition-colors"><ChevronLeft size={15} /></button>
-                <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-slate-600 transition-colors"><ChevronRight size={15} /></button>
+                <button className="p-1.5 rounded-lg transition-colors" style={{ color: T.muted }} onMouseEnter={e => (e.currentTarget.style.background = T.accentLt)} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}><ChevronLeft size={15} /></button>
+                <button className="p-1.5 rounded-lg transition-colors" style={{ color: T.muted }} onMouseEnter={e => (e.currentTarget.style.background = T.accentLt)} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}><ChevronRight size={15} /></button>
               </div>
-              <h2 className="text-sm font-bold text-white">{formatMonth()}</h2>
-              <button className="text-[11px] bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1 rounded-lg font-bold hover:bg-amber-500/20 transition-colors">Today</button>
+              <h2 className="text-sm font-bold" style={{ color: T.pri }}>{formatMonth()}</h2>
+              <button className="text-[11px] font-bold px-3 py-1 rounded-lg transition-colors" style={{ background: T.accentLt, color: T.accent, border: `1px solid ${T.border}` }}>Today</button>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex bg-white/[0.04] rounded-xl p-1 border border-white/[0.06]">
+              <div className="flex rounded-xl p-1" style={{ background: T.accentLt, border: `1px solid ${T.border}` }}>
                 {(["Day", "Week", "Month", "Agenda"] as const).map((v) => (
                   <button key={v} onClick={() => setView(v)}
-                    className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${view === v ? "bg-amber-500 text-black shadow-sm" : "text-slate-600 hover:text-slate-300"}`}>
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
+                    style={view === v ? { background: T.gradient, color: "#fff", boxShadow: "0 2px 6px rgba(225,29,72,0.25)" } : { color: T.muted }}>
                     {v}
                   </button>
                 ))}
               </div>
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-black text-xs font-bold px-4 py-2 rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all shadow-[0_4px_14px_rgba(245,158,11,0.25)]"
+                className="flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all hover:opacity-90"
+                style={{ background: T.gradient, boxShadow: "0 4px 14px rgba(225,29,72,0.25)" }}
               >
                 <Plus size={13} /> Add Event
               </button>
@@ -310,13 +324,16 @@ export default function CalendarPage() {
 
           <div className="flex-1 overflow-auto">
             {/* Day headers */}
-            <div className="grid sticky top-0 bg-[#030712]/90 backdrop-blur-md border-b border-white/[0.05] z-10"
-              style={{ gridTemplateColumns: `52px repeat(7, 1fr)` }}>
-              <div className="border-r border-white/[0.05]" />
+            <div className="grid sticky top-0 backdrop-blur-md z-10"
+              style={{ gridTemplateColumns: `52px repeat(7, 1fr)`, background: T.surface, borderBottom: `1px solid ${T.border}` }}>
+              <div style={{ borderRight: `1px solid ${T.border}` }} />
               {WEEK_DAYS.map((day, i) => (
-                <div key={i} className={`py-3 text-center border-r border-white/[0.04] last:border-r-0 ${i === TODAY_IDX ? "bg-amber-500/[0.04]" : ""}`}>
-                  <div className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{day}</div>
-                  <div className={`text-base font-black mx-auto w-8 h-8 flex items-center justify-center rounded-full mt-0.5 transition-all ${i === TODAY_IDX ? "bg-amber-500 text-black shadow-[0_2px_10px_rgba(245,158,11,0.4)]" : "text-slate-400"}`}>
+                <div key={i} className="py-3 text-center" style={{ borderRight: i < 6 ? `1px solid ${T.border}` : undefined, background: i === TODAY_IDX ? T.accentLt : undefined }}>
+                  <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: T.dim }}>{day}</div>
+                  <div className="text-base font-black mx-auto w-8 h-8 flex items-center justify-center rounded-full mt-0.5 transition-all"
+                    style={i === TODAY_IDX
+                      ? { background: T.gradient, color: "#fff", boxShadow: "0 2px 10px rgba(225,29,72,0.35)" }
+                      : { color: T.sec }}>
                     {WEEK_DATES[i]}
                   </div>
                 </div>
@@ -325,32 +342,36 @@ export default function CalendarPage() {
 
             {/* Time grid */}
             {loadingEvts ? (
-              <div className="flex items-center justify-center h-64 text-slate-600 gap-2 text-sm">
+              <div className="flex items-center justify-center h-64 gap-2 text-sm" style={{ color: T.muted }}>
                 <Loader2 size={16} className="animate-spin" /> Loading events…
               </div>
             ) : (
               <div className="grid relative" style={{ gridTemplateColumns: `52px repeat(7, 1fr)` }}>
-                <div className="border-r border-white/[0.04]">
+                <div style={{ borderRight: `1px solid ${T.border}` }}>
                   {HOURS.map((h) => (
-                    <div key={h} className="text-[9px] text-slate-700 text-right pr-2 font-mono border-b border-white/[0.04]" style={{ height: HOUR_H, paddingTop: 4 }}>
+                    <div key={h} className="text-[9px] text-right pr-2 font-mono" style={{ height: HOUR_H, paddingTop: 4, color: T.dim, borderBottom: `1px solid ${T.border}` }}>
                       {h === 12 ? "12 PM" : h < 12 ? `${h} AM` : `${h - 12} PM`}
                     </div>
                   ))}
                 </div>
 
                 {WEEK_DAYS.map((_, di) => (
-                  <div key={di} className={`relative border-r border-white/[0.04] last:border-r-0 ${di === TODAY_IDX ? "bg-amber-500/[0.02]" : ""}`} style={{ height: HOURS.length * HOUR_H }}>
+                  <div key={di} className="relative" style={{ height: HOURS.length * HOUR_H, borderRight: di < 6 ? `1px solid ${T.border}` : undefined, background: di === TODAY_IDX ? T.accentLt : undefined }}>
                     {HOURS.map((_, hi) => (
-                      <div key={hi} className="absolute w-full border-b border-white/[0.04]" style={{ top: hi * HOUR_H }} />
+                      <div key={hi} className="absolute w-full" style={{ top: hi * HOUR_H, borderBottom: `1px solid ${T.border}` }} />
                     ))}
                     {HOURS.map((_, hi) => (
-                      <div key={`h${hi}`} className="absolute w-full border-b border-white/[0.02] border-dashed" style={{ top: hi * HOUR_H + HOUR_H / 2 }} />
+                      <div key={`h${hi}`} className="absolute w-full border-dashed" style={{ top: hi * HOUR_H + HOUR_H / 2, borderBottom: `1px solid rgba(225,29,72,0.06)` }} />
                     ))}
 
                     {events.filter((e) => e.day === di).map((ev) => (
                       <button key={ev.googleId} onClick={() => setSelectedEvent(ev)}
-                        className={`absolute left-1 right-1 rounded-xl px-2 py-1.5 text-left overflow-hidden backdrop-blur-sm ${ev.cls} ${selectedEvent?.googleId === ev.googleId ? "ring-1 ring-amber-400/60 ring-offset-1 ring-offset-[#030712]" : "hover:brightness-125"} transition-all shadow-sm`}
-                        style={{ top: Math.max((ev.start - DAY_START) * HOUR_H + 2, 2), height: Math.max(ev.dur * HOUR_H - 4, 20) }}>
+                        className={`absolute left-1 right-1 rounded-xl px-2 py-1.5 text-left overflow-hidden ${ev.cls} transition-all shadow-sm`}
+                        style={{
+                          top: Math.max((ev.start - DAY_START) * HOUR_H + 2, 2),
+                          height: Math.max(ev.dur * HOUR_H - 4, 20),
+                          outline: selectedEvent?.googleId === ev.googleId ? `1.5px solid ${T.accent}` : undefined,
+                        }}>
                         <div className="text-[11px] font-bold truncate leading-tight">{ev.title}</div>
                         {ev.dur >= 0.6 && ev.attendees && (
                           <div className="text-[10px] opacity-60 truncate">{ev.attendees}</div>
@@ -361,8 +382,8 @@ export default function CalendarPage() {
                     {di === TODAY_IDX && (
                       <div className="absolute w-full flex items-center pointer-events-none z-10"
                         style={{ top: (new Date().getHours() + new Date().getMinutes() / 60 - DAY_START) * HOUR_H }}>
-                        <div className="w-2 h-2 bg-amber-400 rounded-full -ml-1 flex-shrink-0 shadow-[0_0_6px_rgba(245,158,11,0.8)]" />
-                        <div className="h-px flex-1 bg-amber-400/60" />
+                        <div className="w-2 h-2 rounded-full -ml-1 flex-shrink-0" style={{ background: T.accent, boxShadow: `0 0 6px ${T.accent}` }} />
+                        <div className="h-px flex-1" style={{ background: `${T.accent}99` }} />
                       </div>
                     )}
                   </div>
@@ -373,14 +394,14 @@ export default function CalendarPage() {
         </main>
 
         {/* Right panel: event detail or quick-add */}
-        <aside className="w-68 flex-shrink-0 flex flex-col bg-[#07090f] overflow-y-auto" style={{ width: 272 }}>
+        <aside className="w-68 flex-shrink-0 flex flex-col overflow-y-auto" style={{ width: 272, background: T.surface }}>
           {selectedEvent ? (
             <div className="m-3 space-y-3">
               {/* Event card */}
-              <div className={`rounded-2xl p-4 ${selectedEvent.cls} bg-opacity-80 backdrop-blur-sm border border-white/[0.08]`}>
+              <div className={`rounded-2xl p-4 ${selectedEvent.cls} backdrop-blur-sm`} style={{ border: `1px solid ${T.border}` }}>
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="font-bold text-sm leading-tight pr-2">{selectedEvent.title}</h3>
-                  <button onClick={() => setSelectedEvent(null)} className="p-1 rounded-lg hover:bg-black/20 flex-shrink-0 transition-colors">
+                  <button onClick={() => setSelectedEvent(null)} className="p-1 rounded-lg transition-colors hover:bg-black/10 flex-shrink-0">
                     <X size={13} />
                   </button>
                 </div>
@@ -399,10 +420,10 @@ export default function CalendarPage() {
               </div>
 
               {/* Actions */}
-              <div className="bg-[#090d16] border border-white/[0.06] rounded-2xl p-4">
-                <div className="text-[9px] font-bold text-slate-700 uppercase tracking-[0.2em] mb-3">Actions</div>
+              <div className="rounded-2xl p-4" style={{ background: T.bg, border: `1px solid ${T.border}` }}>
+                <div className="text-[9px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: T.dim }}>Actions</div>
                 {deleteError && (
-                  <div className="flex items-center gap-2 text-red-400 text-xs mb-3">
+                  <div className="flex items-center gap-2 text-red-500 text-xs mb-3">
                     <AlertTriangle size={11} /> {deleteError}
                   </div>
                 )}
@@ -410,7 +431,7 @@ export default function CalendarPage() {
                   <button
                     onClick={() => handleDeleteEvent(selectedEvent)}
                     disabled={deleting}
-                    className="w-full flex items-center justify-center gap-2 text-left text-xs px-3 py-2.5 rounded-xl font-medium transition-all border text-red-400 border-red-500/20 bg-red-500/10 hover:bg-red-500/20 disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 text-left text-xs px-3 py-2.5 rounded-xl font-medium transition-all disabled:opacity-50 text-red-600 border border-red-200 bg-red-50 hover:bg-red-100"
                   >
                     {deleting ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
                     {deleting ? "Deleting…" : "Delete event"}
@@ -420,56 +441,62 @@ export default function CalendarPage() {
             </div>
           ) : (
             <div className="m-3">
-              <div className="bg-[#090d16] border border-white/[0.06] rounded-2xl p-4">
-                <div className="text-xs font-bold text-white mb-4 flex items-center gap-2">
-                  <Plus size={14} className="text-amber-400" /> New Event
+              <div className="rounded-2xl p-4" style={{ background: T.bg, border: `1px solid ${T.border}` }}>
+                <div className="text-xs font-bold mb-4 flex items-center gap-2" style={{ color: T.pri }}>
+                  <Plus size={14} style={{ color: T.accent }} /> New Event
                 </div>
                 <div className="space-y-3">
                   <input
-                    className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2.5 text-xs text-slate-300 outline-none placeholder:text-slate-700 focus:border-amber-500/30 transition-colors"
+                    className="w-full rounded-xl px-3 py-2.5 text-xs outline-none transition-colors"
+                    style={{ background: T.surface, border: `1px solid ${T.border}`, color: T.pri }}
                     placeholder="Event title"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
+                    onFocus={e => (e.currentTarget.style.borderColor = T.accent)}
+                    onBlur={e => (e.currentTarget.style.borderColor = T.border)}
                   />
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl px-3 py-2">
-                      <div className="text-[10px] text-slate-700 mb-0.5">Date</div>
-                      <input type="date" className="bg-transparent outline-none text-slate-400 w-full text-[11px]" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
+                    <div className="rounded-xl px-3 py-2" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+                      <div className="text-[10px] mb-0.5" style={{ color: T.muted }}>Date</div>
+                      <input type="date" className="bg-transparent outline-none w-full text-[11px]" style={{ color: T.sec }} value={newDate} onChange={(e) => setNewDate(e.target.value)} />
                     </div>
-                    <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl px-3 py-2">
-                      <div className="text-[10px] text-slate-700 mb-0.5">Start</div>
-                      <input type="time" className="bg-transparent outline-none text-slate-400 w-full text-[11px]" value={newTime} onChange={(e) => setNewTime(e.target.value)} />
+                    <div className="rounded-xl px-3 py-2" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+                      <div className="text-[10px] mb-0.5" style={{ color: T.muted }}>Start</div>
+                      <input type="time" className="bg-transparent outline-none w-full text-[11px]" style={{ color: T.sec }} value={newTime} onChange={(e) => setNewTime(e.target.value)} />
                     </div>
                   </div>
-                  <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl px-3 py-2">
-                    <div className="text-[10px] text-slate-700 mb-0.5">End time</div>
-                    <input type="time" className="bg-transparent outline-none text-slate-400 w-full text-[11px]" value={newEndTime} onChange={(e) => setNewEndTime(e.target.value)} />
+                  <div className="rounded-xl px-3 py-2" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+                    <div className="text-[10px] mb-0.5" style={{ color: T.muted }}>End time</div>
+                    <input type="time" className="bg-transparent outline-none w-full text-[11px]" style={{ color: T.sec }} value={newEndTime} onChange={(e) => setNewEndTime(e.target.value)} />
                   </div>
-                  <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2.5 flex items-center gap-2">
-                    <Users size={11} className="text-slate-700 flex-shrink-0" />
+                  <div className="rounded-xl px-3 py-2.5 flex items-center gap-2" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+                    <Users size={11} className="flex-shrink-0" style={{ color: T.dim }} />
                     <input
-                      className="bg-transparent outline-none text-slate-400 text-xs w-full placeholder:text-slate-700"
+                      className="bg-transparent outline-none text-xs w-full"
+                      style={{ color: T.sec }}
                       placeholder="Attendees: a@b.com, c@d.com"
                       value={newAttendees}
                       onChange={(e) => setNewAttendees(e.target.value)}
                     />
                   </div>
-                  <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2.5 flex items-center gap-2">
-                    <MapPin size={11} className="text-slate-700 flex-shrink-0" />
+                  <div className="rounded-xl px-3 py-2.5 flex items-center gap-2" style={{ background: T.surface, border: `1px solid ${T.border}` }}>
+                    <MapPin size={11} className="flex-shrink-0" style={{ color: T.dim }} />
                     <input
-                      className="bg-transparent outline-none text-slate-400 text-xs w-full placeholder:text-slate-700"
+                      className="bg-transparent outline-none text-xs w-full"
+                      style={{ color: T.sec }}
                       placeholder="Location or meeting link"
                       value={newLocation}
                       onChange={(e) => setNewLocation(e.target.value)}
                     />
                   </div>
 
-                  {createError && <p className="text-[11px] text-red-400">{createError}</p>}
+                  {createError && <p className="text-[11px] text-red-500">{createError}</p>}
 
                   <button
                     onClick={handleCreateEvent}
                     disabled={creating || !newTitle.trim()}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black text-xs font-bold py-2.5 rounded-xl transition-all shadow-[0_4px_14px_rgba(245,158,11,0.25)] disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full text-white text-xs font-bold py-2.5 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:opacity-90"
+                    style={{ background: T.gradient, boxShadow: "0 4px 14px rgba(225,29,72,0.25)" }}
                   >
                     {createDone
                       ? <><CheckCircle size={12} /> Created!</>
